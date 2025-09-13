@@ -536,6 +536,73 @@
           </div>
         </div>
 
+        <div class="form-group">
+          <label for="dob">Date of Birth</label>
+          <input type="date" id="dob" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <select id="gender" class="form-control" required>
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="address">Address</label>
+          <input type="text" id="address" class="form-control" placeholder="Enter your address" required />
+        </div>
+
+        <div class="form-group">
+          <label for="parent-name">Parent/Guardian Name</label>
+          <input type="text" id="parent-name" class="form-control" placeholder="Enter parent/guardian name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="parent-phone">Parent/Guardian Phone</label>
+          <div class="phone-container">
+            <select id="parent-country-code" class="form-control">
+              <option value="+263" data-flag="🇿🇼">🇿🇼 +263</option>
+              <option value="+267" data-flag="🇧🇼">🇧🇼 +267</option>
+              <option value="+260" data-flag="🇿🇲">🇿🇲 +260</option>
+              <option value="+27" data-flag="🇿🇦">🇿🇦 +27</option>
+              <option value="+254" data-flag="🇰🇪">🇰🇪 +254</option>
+            </select>
+            <input type="tel" id="parent-phone" class="form-control" placeholder="Parent/guardian phone" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form">Form (Grade Level)</label>
+          <select id="form" class="form-control" required>
+            <option value="">Select Form</option>
+            <option value="Form 1">Form 1</option>
+            <option value="Form 2">Form 2</option>
+            <option value="Form 3">Form 3</option>
+            <option value="Form 4">Form 4</option>
+            <option value="Form 5">Form 5</option>
+            <option value="Form 6">Form 6</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="stream">Class/Stream</label>
+          <select id="stream" class="form-control" required>
+            <option value="">Select Class</option>
+            <option value="G">G</option>
+            <option value="W">W</option>
+            <option value="E">E</option>
+            <option value="Z">Z</option>
+            <option value="U">U</option>
+            <option value="Arts">Arts</option>
+            <option value="Commercials">Commercials</option>
+            <option value="Sciences">Sciences</option>
+          </select>
+        </div>
+
         <div class="terms-container">
           <input type="checkbox" id="agree-terms" required />
           <label for="agree-terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
@@ -638,10 +705,19 @@
       const countryCode = document.getElementById("country-code").value;
       const phone = document.getElementById("phone").value.trim();
       const fullPhone = `${countryCode}${phone}`;
+      const dob = document.getElementById("dob").value;
+      const gender = document.getElementById("gender").value;
+      const address = document.getElementById("address").value.trim();
+      const parentName = document.getElementById("parent-name").value.trim();
+      const parentCountryCode = document.getElementById("parent-country-code").value;
+      const parentPhone = document.getElementById("parent-phone").value.trim();
+      const fullParentPhone = `${parentCountryCode}${parentPhone}`;
+      const form = document.getElementById("form").value;
+      const stream = document.getElementById("stream").value;
       const agreeTerms = document.getElementById("agree-terms").checked;
 
       // Validate form
-      if (!firstname || !surname || !email || !password || !phone) {
+      if (!firstname || !surname || !email || !password || !phone || !dob || !gender || !address || !parentName || !parentPhone || !form || !stream) {
         showError("Please fill in all required fields");
         return;
       }
@@ -672,16 +748,44 @@
         // Send email verification
         await sendEmailVerification(user);
 
-        // Save additional user data to Firestore
+        // Save additional user data to Firestore with all profile information
         await setDoc(doc(db, "students", user.uid), {
           firstName: firstname,
           lastName: surname,
           email: email,
           phone: fullPhone,
+          dob: dob,
+          gender: gender,
+          address: address,
+          parentName: parentName,
+          parentPhone: fullParentPhone,
+          form: form,
+          stream: stream,
           createdAt: new Date(),
           status: "active",
           emailVerified: false,
-          role: "student"
+          role: "student",
+          profileCompleted: true
+        });
+
+        // Also save using email as document ID for compatibility with existing dashboard code
+        await setDoc(doc(db, "students", email), {
+          firstname: firstname,
+          surname: surname,
+          email: email,
+          phone: fullPhone,
+          dob: dob,
+          gender: gender,
+          address: address,
+          "parent-name": parentName,
+          "parent-phone": fullParentPhone,
+          form: form,
+          stream: stream,
+          createdAt: new Date(),
+          status: "active",
+          emailVerified: false,
+          role: "student",
+          profileCompleted: true
         });
 
         // Show success message
