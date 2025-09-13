@@ -358,23 +358,16 @@
 
   <!-- Firebase SDK -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAR9J2Wz7Eu8dXRzDG8JNHcymLCUQUPJRo",
-      authDomain: "deee-9ab53.firebaseapp.com",
-      projectId: "deee-9ab53",
-      storageBucket: "deee-9ab53.firebasestorage.app",
-      messagingSenderId: "399732664479",
-      appId: "1:399732664479:web:b84ac30e8266cc51761aaa",
-      measurementId: "G-524ZPBX42B"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+    // Import Firebase services and functions from centralized config
+    import {
+      db,
+      storage,
+      collection,
+      addDoc,
+      ref,
+      uploadBytes,
+      getDownloadURL
+    } from "/db/firebase.js";
 
     // Toggle visibility of name and class fields
     const anonymousCheckbox = document.getElementById("anonymous");

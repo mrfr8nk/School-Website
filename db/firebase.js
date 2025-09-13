@@ -14,7 +14,11 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
   GoogleAuthProvider,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  signInWithPopup,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+  sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
   getFirestore, 
@@ -30,7 +34,9 @@ import {
   updateDoc, 
   deleteDoc, 
   onSnapshot,
-  serverTimestamp 
+  serverTimestamp,
+  limit,
+  arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { 
   getStorage, 
@@ -84,6 +90,10 @@ export {
   EmailAuthProvider,
   GoogleAuthProvider,
   sendPasswordResetEmail,
+  signInWithPopup,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+  sendEmailVerification,
   
   // Firestore functions
   doc,
@@ -99,6 +109,8 @@ export {
   deleteDoc,
   onSnapshot,
   serverTimestamp,
+  limit,
+  arrayUnion,
   
   // Storage functions
   ref,

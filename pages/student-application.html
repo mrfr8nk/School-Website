@@ -916,21 +916,12 @@
   <!-- SweetAlert2 JS -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAR9J2Wz7Eu8dXRzDG8JNHcymLCUQUPJRo",
-      authDomain: "deee-9ab53.firebaseapp.com",
-      projectId: "deee-9ab53",
-      storageBucket: "deee-9ab53.firebasestorage.app",
-      messagingSenderId: "399732664479",
-      appId: "1:399732664479:web:b84ac30e8266cc51761aaa",
-      measurementId: "G-524ZPBX42B"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    // Import Firebase services and functions from centralized config
+    import {
+      db,
+      collection,
+      addDoc
+    } from "/db/firebase.js";
 
     // Helper function to convert file to Base64
     function toBase64(file) {

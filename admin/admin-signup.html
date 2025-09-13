@@ -551,28 +551,16 @@
 
     <!-- Firebase and JavaScript -->
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-      import { 
-        getAuth, 
-        createUserWithEmailAndPassword, 
-        GoogleAuthProvider, 
-        signInWithPopup 
-      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-      import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyAR9J2Wz7Eu8dXRzDG8JNHcymLCUQUPJRo",
-        authDomain: "deee-9ab53.firebaseapp.com",
-        projectId: "deee-9ab53",
-        storageBucket: "deee-9ab53.firebasestorage.app",
-        messagingSenderId: "399732664479",
-        appId: "1:399732664479:web:b84ac30e8266cc51761aaa",
-        measurementId: "G-524ZPBX42B"
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
+      // Import centralized Firebase configuration
+      import {
+        auth,
+        db,
+        createUserWithEmailAndPassword,
+        GoogleAuthProvider,
+        signInWithPopup,
+        doc,
+        setDoc
+      } from "/db/firebase.js";
 
       // Menu Toggle Functionality
       const menuBtn = document.getElementById("menuBtn");

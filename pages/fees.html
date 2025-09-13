@@ -1282,9 +1282,9 @@
 
 <!-- Firebase and App Script -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  // Import Firebase services and functions from centralized config
   import {
-    getFirestore,
+    db,
     collection,
     getDocs,
     getDoc,
@@ -1298,22 +1298,7 @@
     orderBy,
     serverTimestamp,
     onSnapshot
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyAR9J2Wz7Eu8dXRzDG8JNHcymLCUQUPJRo",
-    authDomain: "deee-9ab53.firebaseapp.com",
-    projectId: "deee-9ab53",
-    storageBucket: "deee-9ab53.appspot.com",
-    messagingSenderId: "399732664479",
-    appId: "1:399732664479:web:b84ac30e8266cc51761aaa",
-    measurementId: "G-524ZPBX42B"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  } from "/db/firebase.js";
 
   // Global variables
   let allStudents = [];
@@ -1853,7 +1838,7 @@
       if (balance > 0) {
         showPaymentPlan(studentId, totalFees, paidAmount, balance);
       } else {
-      	      document.getElementById('paymentPlanContainer').style.display = 'none';
+              document.getElementById('paymentPlanContainer').style.display = 'none';
     }
   }
 }
