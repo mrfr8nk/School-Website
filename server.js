@@ -3,8 +3,27 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Serve static files from the root directory
-app.use(express.static(__dirname));
+// Only serve safe static directories (no root or sensitive directories)
+app.use('/pages', express.static(path.join(__dirname, 'pages')));
+app.use('/admin', express.static(path.join(__dirname, 'admin')));
+
+// Security middleware to block access to sensitive files
+app.use((req, res, next) => {
+  const blockedPaths = [
+    '/server.js', '/package.json', '/package-lock.json', 
+    '/netlify.toml', '/vercel.json', '/replit.md', '/.env'
+  ];
+  
+  // Block /db/ access except for specific allowed files
+  if (req.path.startsWith('/db/') && req.path !== '/db/firebase.js') {
+    return res.status(404).send('Not found');
+  }
+  
+  if (blockedPaths.some(blocked => req.path.startsWith(blocked))) {
+    return res.status(404).send('Not found');
+  }
+  next();
+});
 
 // Handle all the custom routes from your vercel.json/netlify.toml
 const routes = [
@@ -24,7 +43,6 @@ const routes = [
   { path: '/gallery', file: '/pages/gallery.html' },
   { path: '/apply', file: '/pages/student-application.html' },
   { path: '/adminapplication', file: '/pages/admin-application.html' },
-  { path: '/reportcard', file: '/reportcard.html' },
   { path: '/setreportcard', file: '/pages/teacher-set-report.html' },
   { path: '/login', file: '/pages/student-login.html' },
   { path: '/signup', file: '/pages/student-signup.html' },
@@ -38,10 +56,27 @@ const routes = [
   { path: '/studentusers', file: '/pages/student-users.html' }
 ];
 
-// Set up all the routes
+// Health check endpoint for Render
+app.get('/healthz', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Explicitly serve Firebase config (needed by frontend)
+app.get('/db/firebase.js', (req, res, next) => {
+  res.sendFile(path.join(__dirname, 'db', 'firebase.js'), (err) => {
+    if (err) next(err);
+  });
+});
+
+// Set up all the routes with error handling
 routes.forEach(route => {
-  app.get(route.path, (req, res) => {
-    res.sendFile(path.join(__dirname, route.file));
+  app.get(route.path, (req, res, next) => {
+    const filePath = path.join(__dirname, route.file);
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        next(err);
+      }
+    });
   });
 });
 
@@ -51,13 +86,35 @@ app.get('/download-application', (req, res) => {
 });
 
 // Serve index.html for the root path
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+app.get('/', (req, res, next) => {
+  res.sendFile(path.join(__dirname, 'index.html'), (err) => {
+    if (err) next(err);
+  });
+});
+
+// Error handler for file not found and other errors
+app.use((err, req, res, next) => {
+  if (err.code === 'ENOENT') {
+    // File not found - serve 404 page
+    res.status(404).sendFile(path.join(__dirname, '404.html'), (err2) => {
+      if (err2) {
+        res.status(404).send('Page not found');
+      }
+    });
+  } else {
+    // Other errors - don't expose stack trace in production
+    console.error('Server error:', err);
+    res.status(500).send('Internal server error');
+  }
 });
 
 // Handle 404 - serve 404.html for any unmatched routes
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, '404.html'));
+  res.status(404).sendFile(path.join(__dirname, '404.html'), (err) => {
+    if (err) {
+      res.status(404).send('Page not found');
+    }
+  });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
