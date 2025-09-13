@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
 });
 
 // Handle 404 - serve 404.html for any unmatched routes
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, '404.html'));
 });
 
