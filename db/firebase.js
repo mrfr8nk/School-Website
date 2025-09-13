@@ -8,7 +8,13 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  updatePassword,
+  updateProfile,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  GoogleAuthProvider,
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
   getFirestore, 
@@ -35,12 +41,13 @@ import {
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAQbR2d4iSf0uNWkOJ8tVFPb1EhBkH-_GE",
+  apiKey: "AIzaSyAR9J2Wz7Eu8dXRzDG8JNHcymLCUQUPJRo",
   authDomain: "deee-9ab53.firebaseapp.com",
   projectId: "deee-9ab53",
-  storageBucket: "deee-9ab53.firebasestorage.app",
-  messagingSenderId: "848593925932",
-  appId: "1:848593925932:web:e6b0b6b4f7a7d1a1d1a1a1"
+  storageBucket: "deee-9ab53.appspot.com",
+  messagingSenderId: "399732664479",
+  appId: "1:399732664479:web:b84ac30e8266cc51761aaa",
+  measurementId: "G-524ZPBX42B"
 };
 
 // Initialize Firebase (idempotent - safe for incremental migration)
@@ -71,6 +78,12 @@ export {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  updatePassword,
+  updateProfile,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  GoogleAuthProvider,
+  sendPasswordResetEmail,
   
   // Firestore functions
   doc,

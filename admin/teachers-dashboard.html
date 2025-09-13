@@ -1157,15 +1157,13 @@
 
     <!-- Firebase & Application Scripts -->
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      // Import centralized Firebase configuration
       import {
-        getAuth,
+        auth,
+        db,
         signOut,
         onAuthStateChanged,
-        updatePassword
-      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-      import {
-        getFirestore,
+        updatePassword,
         collection,
         getDocs,
         doc,
@@ -1176,21 +1174,7 @@
         getDoc,
         query,
         orderBy
-      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyAR9J2Wz7Eu8dXRzDG8JNHcymLCUQUPJRo",
-        authDomain: "deee-9ab53.firebaseapp.com",
-        projectId: "deee-9ab53",
-        storageBucket: "deee-9ab53.firebasestorage.app",
-        messagingSenderId: "399732664479",
-        appId: "1:399732664479:web:b84ac30e8266cc51761aaa",
-        measurementId: "G-524ZPBX42B"
-      };
-
-      const appFirebase = initializeApp(firebaseConfig);
-      const auth = getAuth(appFirebase);
-      const db = getFirestore(appFirebase);
+      } from "/db/firebase.js";
 
       /* --------------------- Enhanced Teacher Dashboard Functions --------------------- */
       async function loadTeacherStats() {
