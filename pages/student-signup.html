@@ -614,7 +614,7 @@
         </button>
 
         <div class="auth-footer">
-          <p>Already have an account? <a href="/login">Sign in here</a></p>
+          <p>Already have an account? <a href="/pages/student-login.html">Sign in here</a></p>
         </div>
       </form>
     </div>
@@ -737,6 +737,30 @@
         return;
       }
 
+      // Validate date of birth (must be between 10 and 25 years old)
+      const dobDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - dobDate.getFullYear();
+      const monthDiff = today.getMonth() - dobDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+        age--;
+      }
+      if (age < 10 || age > 25) {
+        showError("Please enter a valid date of birth (student must be between 10-25 years old)");
+        return;
+      }
+
+      // Validate phone number format (basic check)
+      if (!/^\d{7,15}$/.test(phone.replace(/[^\d]/g, ''))) {
+        showError("Please enter a valid phone number");
+        return;
+      }
+
+      if (!/^\d{7,15}$/.test(parentPhone.replace(/[^\d]/g, ''))) {
+        showError("Please enter a valid parent/guardian phone number");
+        return;
+      }
+
       // Show loading state
       setLoadingState(true);
 
@@ -748,27 +772,7 @@
         // Send email verification
         await sendEmailVerification(user);
 
-        // Save additional user data to Firestore with all profile information
-        await setDoc(doc(db, "students", user.uid), {
-          firstName: firstname,
-          lastName: surname,
-          email: email,
-          phone: fullPhone,
-          dob: dob,
-          gender: gender,
-          address: address,
-          parentName: parentName,
-          parentPhone: fullParentPhone,
-          form: form,
-          stream: stream,
-          createdAt: new Date(),
-          status: "active",
-          emailVerified: false,
-          role: "student",
-          profileCompleted: true
-        });
-
-        // Also save using email as document ID for compatibility with existing dashboard code
+        // Save user data to Firestore using email as document ID (matches dashboard expectations)
         await setDoc(doc(db, "students", email), {
           firstname: firstname,
           surname: surname,
@@ -785,7 +789,8 @@
           status: "active",
           emailVerified: false,
           role: "student",
-          profileCompleted: true
+          profileCompleted: true,
+          uid: user.uid
         });
 
         // Show success message
@@ -800,7 +805,7 @@
         });
 
         // Redirect to login page
-        window.location.href = "/login";
+        window.location.href = "/pages/student-login.html";
       } catch (error) {
         // Handle errors
         handleSignupError(error);

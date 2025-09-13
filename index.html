@@ -903,21 +903,55 @@
 
     /* Footer */
     .footer {
-      background-color: var(--dark);
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
       color: var(--light);
       padding: var(--space-xxl) 0 var(--space-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.08)"/><circle cx="90" cy="40" r="0.8" fill="rgba(255,255,255,0.06)"/><circle cx="10" cy="60" r="0.6" fill="rgba(255,255,255,0.07)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+      z-index: 1;
     }
 
     .footer-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: var(--space-xl);
+      position: relative;
+      z-index: 2;
+    }
+
+    .footer-col {
+      position: relative;
+      padding: var(--space-lg);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all var(--transition-normal);
+    }
+
+    .footer-col:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
     .footer-col h3 {
       font-size: var(--text-xl);
       margin-bottom: var(--space-lg);
       position: relative;
+      font-weight: 700;
+      color: var(--secondary);
     }
 
     .footer-col h3::after {
@@ -925,9 +959,10 @@
       position: absolute;
       left: 0;
       bottom: -8px;
-      width: 40px;
-      height: 2px;
-      background-color: var(--accent);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%);
+      border-radius: var(--radius-full);
     }
 
     .footer-col p {
@@ -944,17 +979,24 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
       color: var(--light);
+      border-radius: var(--radius-lg);
       transition: all var(--transition-normal);
+      font-size: var(--text-lg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
     }
 
     .social-links a:hover {
-      background-color: var(--accent);
-      transform: translateY(-3px);
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+      transform: translateY(-5px) scale(1.1);
+      box-shadow: 0 8px 25px rgba(135, 206, 235, 0.4);
+      color: var(--dark);
     }
 
     .footer-links {
