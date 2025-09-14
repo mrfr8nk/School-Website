@@ -839,89 +839,56 @@
 
     // Send password reset email
     async function sendPasswordReset(email) {
+      const genericSuccessMessage = `If an account exists with this email address, password reset instructions have been sent to <strong>${email}</strong>. Please check your inbox and spam folder.<br><br><small>Note: If you signed up with Google, try "Sign in with Google" instead.</small>`;
+      
       try {
-        // FIRST: Check if account exists in our school database - CRITICAL CHECK
-        const studentDoc = await getDoc(doc(db, 'students', email));
-        
-        if (!studentDoc.exists()) {
-          // Account doesn't exist in our school database - generic error for security
-          Swal.fire({
-            title: "Password Reset Failed", 
-            text: "Unable to send password reset email. Please verify your email address or contact the school administration.",
-            icon: "error",
-            confirmButtonColor: "#003366"
-          });
-          return;
-        }
-
-        // SECOND: Now check Firebase Auth methods for this email
+        // Check if account has password authentication and send reset if applicable
         const methods = await fetchSignInMethodsForEmail(auth, email);
         
-        if (methods.length === 0) {
-          // Account exists in DB but not in Firebase auth - generic failure for security
-          Swal.fire({
-            title: "Password Reset Failed",
-            text: "Unable to send password reset email. Please contact the school administration for assistance.",
-            icon: "error",
-            confirmButtonColor: "#003366"
-          });
-          return;
+        // Only attempt to send reset email if account exists and has password method
+        if (methods.length > 0 && methods.includes('password')) {
+          await sendPasswordResetEmail(auth, email);
         }
-
-        if (methods.includes('google.com') && !methods.includes('password')) {
-          // Google-only account
-          Swal.fire({
-            title: "Google Account",
-            html: "This email is linked to a Google account only.<br>Please use 'Sign in with Google' or contact support to set up a password.",
-            icon: "info",
-            confirmButtonColor: "#003366"
-          });
-          return;
-        }
-
-        if (!methods.includes('password')) {
-          // Other auth method, no password
-          Swal.fire({
-            title: "Password Reset Not Available",
-            text: "This account doesn't use password authentication. Please use your original sign-in method.",
-            icon: "warning",
-            confirmButtonColor: "#003366"
-          });
-          return;
-        }
-
-        // Account exists and has password method - send reset email
-        await sendPasswordResetEmail(auth, email);
         
+        // Always show the same generic success message regardless of outcome
         await Swal.fire({
           title: "Password Reset Sent",
-          html: `We've sent a password reset link to <strong>${email}</strong>. Please check your email.`,
+          html: genericSuccessMessage,
           icon: "success",
           confirmButtonColor: "#003366"
         });
+        
       } catch (error) {
         console.error("Password reset error:", error);
         
-        let errorMessage = "Failed to send password reset. Please try again.";
-        
+        // Handle specific errors but still show generic success for enumeration-sensitive cases
         switch (error.code) {
           case "auth/user-not-found":
-            errorMessage = "No account found with this email address in Firebase.";
-            break;
           case "auth/invalid-email":
-            errorMessage = "Invalid email address format.";
-            break;
+            // Show generic success message for security (avoid email enumeration)
+            await Swal.fire({
+              title: "Password Reset Sent",
+              html: genericSuccessMessage,
+              icon: "success",
+              confirmButtonColor: "#003366"
+            });
+            return;
           case "auth/too-many-requests":
-            errorMessage = "Too many password reset requests. Please wait before trying again.";
-            break;
+            await Swal.fire({
+              title: "Error",
+              text: "Too many password reset requests. Please wait before trying again.",
+              icon: "error",
+              confirmButtonColor: "#003366"
+            });
+            return;
+          default:
+            await Swal.fire({
+              title: "Error",
+              text: "Failed to send password reset. Please try again.",
+              icon: "error",
+              confirmButtonColor: "#003366"
+            });
         }
-        
-        Swal.fire({
-          title: "Error",
-          text: errorMessage,
-          icon: "error",
-          confirmButtonColor: "#003366"
-        });
       }
     }
 
