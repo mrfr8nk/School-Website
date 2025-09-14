@@ -793,19 +793,22 @@
           uid: user.uid
         });
 
+        // Store user email in localStorage for dashboard
+        localStorage.setItem("studentEmail", email);
+
         // Show success message
         await Swal.fire({
           title: "Account Created!",
           html: `Welcome to St. Mary's High, ${firstname}!<br><br>
                 A verification email has been sent to <strong>${email}</strong>.
-                Please verify your email to complete registration.`,
+                You can verify it later from your dashboard.`,
           icon: "success",
           confirmButtonColor: "#003366",
-          confirmButtonText: "Continue to Login"
+          confirmButtonText: "Continue to Dashboard"
         });
 
-        // Redirect to login page
-        window.location.href = "/pages/student-login.html";
+        // Redirect to dashboard instead of login page
+        window.location.href = "/dashboard";
       } catch (error) {
         // Handle errors
         handleSignupError(error);

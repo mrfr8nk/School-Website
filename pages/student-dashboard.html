@@ -2376,17 +2376,66 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
     saveBtn.innerHTML = '<i class="fas fa-save btn-icon"></i> Save Changes';
   }
 });
-      // Reset password
+      // Reset password or setup password for Google-only accounts
       document.getElementById('changePasswordBtn').addEventListener('click', async () => {
         const user = auth.currentUser;
         if (!user) return;
         
         try {
-          await sendPasswordResetEmail(auth, user.email);
-          showMessage('Password reset email sent. Please check your inbox.');
+          // Check if user has password auth method
+          const { fetchSignInMethodsForEmail } = await import('/db/firebase.js');
+          const methods = await fetchSignInMethodsForEmail(auth, user.email);
+          
+          if (methods.includes('password')) {
+            // User has password - send reset email
+            await sendPasswordResetEmail(auth, user.email);
+            showMessage('Password reset email sent. Please check your inbox.');
+          } else if (methods.includes('google.com')) {
+            // Google-only user - offer to set up password
+            const { value: newPassword } = await Swal.fire({
+              title: 'Set Up Password',
+              html: 'You currently sign in with Google only. Would you like to set up a password for email/password login?',
+              input: 'password',
+              inputPlaceholder: 'Enter a new password',
+              showCancelButton: true,
+              confirmButtonColor: '#003366',
+              cancelButtonColor: '#dc3545',
+              confirmButtonText: 'Set Password',
+              cancelButtonText: 'Cancel',
+              inputValidator: (value) => {
+                if (!value) {
+                  return 'Please enter a password';
+                }
+                if (value.length < 8) {
+                  return 'Password must be at least 8 characters';
+                }
+              }
+            });
+
+            if (newPassword) {
+              try {
+                const { linkWithCredential, EmailAuthProvider } = await import('/db/firebase.js');
+                const credential = EmailAuthProvider.credential(user.email, newPassword);
+                await linkWithCredential(user, credential);
+                
+                await Swal.fire({
+                  title: "Password Set Successfully!",
+                  text: "You can now login with either Google or email/password.",
+                  icon: "success",
+                  confirmButtonColor: "#003366"
+                });
+              } catch (linkError) {
+                console.error('Error setting password:', linkError);
+                showMessage('Failed to set up password. Please try again.', 'error');
+              }
+            }
+          } else {
+            // Other auth methods
+            showMessage('Unable to reset password for this account type.', 'error');
+          }
         } catch (error) {
-          console.error('Error sending reset email:', error);
-          showMessage('Error sending reset email', 'error');
+          console.error('Error with password reset/setup:', error);
+          showMessage('Error with password operation', 'error');
         }
       });
 

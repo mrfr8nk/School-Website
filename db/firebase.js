@@ -18,7 +18,10 @@ import {
   signInWithPopup,
   signInWithPhoneNumber,
   RecaptchaVerifier,
-  sendEmailVerification
+  sendEmailVerification,
+  fetchSignInMethodsForEmail,
+  linkWithCredential,
+  linkWithPopup
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
   getFirestore, 
@@ -94,6 +97,9 @@ export {
   signInWithPhoneNumber,
   RecaptchaVerifier,
   sendEmailVerification,
+  fetchSignInMethodsForEmail,
+  linkWithCredential,
+  linkWithPopup,
   
   // Firestore functions
   doc,

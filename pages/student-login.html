@@ -409,7 +409,7 @@
             <i class="fas fa-eye input-icon" id="toggle-password"></i>
           </div>
           <div class="forgot-password">
-            <a href="/forgot-password">Forgot password?</a>
+            <a href="#" id="forgot-password-link">Forgot password?</a>
           </div>
         </div>
 
@@ -435,10 +435,17 @@
     // Import centralized Firebase configuration
     import {
       auth,
+      db,
       signInWithEmailAndPassword,
       signInWithPopup,
       GoogleAuthProvider,
-      sendPasswordResetEmail
+      sendPasswordResetEmail,
+      getDoc,
+      doc,
+      setDoc,
+      fetchSignInMethodsForEmail,
+      linkWithCredential,
+      EmailAuthProvider
     } from "/db/firebase.js";
 
     const provider = new GoogleAuthProvider();
@@ -544,7 +551,7 @@
     });
 
     // Handle login errors
-    function handleLoginError(error) {
+    async function handleLoginError(error) {
       let errorMessage = "An error occurred during login. Please try again.";
       
       switch (error.code) {
@@ -558,8 +565,10 @@
           errorMessage = "No account found with this email. Please sign up first.";
           break;
         case "auth/wrong-password":
-          errorMessage = "Incorrect password. Please try again or reset your password.";
-          break;
+          // Check if this is a Google-only account
+          const email = document.getElementById("email").value.trim();
+          await handleWrongPasswordForGoogleAccount(email);
+          return;
         case "auth/too-many-requests":
           errorMessage = "Too many failed attempts. Please try again later or reset your password.";
           break;
@@ -574,11 +583,134 @@
       showError(errorMessage);
     }
 
+    // Handle wrong password for accounts that might be Google-only
+    async function handleWrongPasswordForGoogleAccount(email) {
+      try {
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        
+        if (methods.includes('google.com') && !methods.includes('password')) {
+          // This is a Google-only account
+          const result = await Swal.fire({
+            title: 'Google Account Found',
+            html: `This email is associated with a Google account.<br>Would you like to sign in with Google and set up a password?`,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#003366',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Sign in with Google',
+            cancelButtonText: 'Cancel'
+          });
+
+          if (result.isConfirmed) {
+            // Trigger Google sign-in and then offer password setup
+            await signInWithGoogleAndSetupPassword();
+          }
+        } else {
+          // Regular wrong password error
+          showError("Incorrect password. Please try again or reset your password.");
+        }
+      } catch (fetchError) {
+        console.error('Error checking sign-in methods:', fetchError);
+        showError("Incorrect password. Please try again or reset your password.");
+      }
+    }
+
+    // Sign in with Google and then offer password setup
+    async function signInWithGoogleAndSetupPassword() {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        // Store user email
+        localStorage.setItem("studentEmail", user.email);
+
+        // Offer to set up password
+        const { value: newPassword } = await Swal.fire({
+          title: 'Set Up Password',
+          html: `Would you like to set up a password so you can also login with email/password?`,
+          input: 'password',
+          inputPlaceholder: 'Enter a new password',
+          showCancelButton: true,
+          confirmButtonColor: '#003366',
+          cancelButtonColor: '#dc3545',
+          confirmButtonText: 'Set Password',
+          cancelButtonText: 'Skip for now',
+          inputValidator: (value) => {
+            if (!value) {
+              return 'Please enter a password';
+            }
+            if (value.length < 8) {
+              return 'Password must be at least 8 characters';
+            }
+          }
+        });
+
+        if (newPassword) {
+          try {
+            // Link email/password credential
+            const credential = EmailAuthProvider.credential(user.email, newPassword);
+            await linkWithCredential(user, credential);
+            
+            await Swal.fire({
+              title: "Password Set Successfully!",
+              text: "You can now login with either Google or email/password.",
+              icon: "success",
+              confirmButtonColor: "#003366"
+            });
+          } catch (linkError) {
+            console.error('Error setting password:', linkError);
+            // Still continue to dashboard even if password setup failed
+            await Swal.fire({
+              title: "Password Setup Failed",
+              text: "Couldn't set up password, but you're signed in with Google. You can try again from your dashboard.",
+              icon: "warning",
+              confirmButtonColor: "#003366"
+            });
+          }
+        }
+
+        // Redirect to dashboard
+        window.location.href = "/dashboard";
+      } catch (error) {
+        console.error("Google sign-in error:", error);
+        showError("Failed to sign in with Google. Please try again.");
+      }
+    }
+
     // Login with Google
     googleLoginBtn.addEventListener("click", async () => {
       try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
+        
+        // Check if user exists in our database
+        const userDocRef = doc(db, "students", user.email);
+        const userDoc = await getDoc(userDocRef);
+        
+        // If user doesn't exist in database, create their profile
+        if (!userDoc.exists()) {
+          // Create basic profile with Google info
+          await setDoc(doc(db, "students", user.email), {
+            firstname: user.displayName?.split(' ')[0] || 'Google',
+            surname: user.displayName?.split(' ')[1] || 'User', 
+            email: user.email,
+            phone: '',
+            dob: '',
+            gender: '',
+            address: '',
+            "parent-name": '',
+            "parent-phone": '',
+            form: '',
+            stream: '',
+            createdAt: new Date(),
+            status: "active",
+            emailVerified: user.emailVerified || false,
+            role: "student",
+            profileCompleted: false, // They'll need to complete their profile
+            uid: user.uid,
+            provider: "google"
+          });
+        }
         
         // Store user email in localStorage
         localStorage.setItem("studentEmail", user.email);
@@ -596,12 +728,88 @@
         window.location.href = "/dashboard";
       } catch (error) {
         console.error("Google login error:", error);
-        showError("Google login failed. Please try again.");
+        
+        // Handle account linking
+        if (error.code === 'auth/account-exists-with-different-credential') {
+          await handleAccountLinking(error);
+          return;
+        }
+        
+        // Handle other specific errors
+        let errorMessage = "Google login failed. Please try again.";
+        if (error.code === 'auth/popup-blocked') {
+          errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
+        } else if (error.code === 'auth/popup-closed-by-user') {
+          errorMessage = "Sign-in was cancelled. Please try again.";
+        }
+        
+        showError(errorMessage);
       }
     });
 
+    // Handle account linking when user exists with different credential
+    async function handleAccountLinking(error) {
+      const email = error.customData.email;
+      const pendingCred = GoogleAuthProvider.credentialFromError(error);
+      
+      try {
+        // Get existing sign-in methods for this email
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        
+        if (methods.includes('password')) {
+          // Ask user to sign in with password first, then link Google
+          const { value: password } = await Swal.fire({
+            title: 'Account Already Exists',
+            html: `An account with <strong>${email}</strong> already exists.<br>Please enter your password to link with Google.`,
+            input: 'password',
+            inputPlaceholder: 'Enter your password',
+            showCancelButton: true,
+            confirmButtonColor: '#003366',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Sign In & Link',
+            cancelButtonText: 'Cancel'
+          });
+
+          if (password) {
+            try {
+              // Sign in with password
+              const userCredential = await signInWithEmailAndPassword(auth, email, password);
+              
+              // Link with Google credential
+              await linkWithCredential(userCredential.user, pendingCred);
+              
+              // Store email and redirect
+              localStorage.setItem("studentEmail", email);
+              
+              await Swal.fire({
+                title: "Accounts Linked!",
+                text: "Your Google account has been linked successfully. You can now use both methods to sign in.",
+                icon: "success",
+                confirmButtonColor: "#003366"
+              });
+
+              window.location.href = "/dashboard";
+            } catch (linkError) {
+              if (linkError.code === 'auth/wrong-password') {
+                showError("Incorrect password. Please try again.");
+              } else {
+                console.error('Linking error:', linkError);
+                showError("Failed to link accounts. Please try again.");
+              }
+            }
+          }
+        } else {
+          // Other sign-in methods - for now just show error
+          showError(`This email is already associated with another sign-in method (${methods.join(', ')}). Please use that method to sign in.`);
+        }
+      } catch (fetchError) {
+        console.error('Error checking sign-in methods:', fetchError);
+        showError("Unable to check existing accounts. Please try again.");
+      }
+    }
+
     // Forgot password functionality
-    document.querySelector(".forgot-password a").addEventListener("click", async (e) => {
+    document.getElementById("forgot-password-link").addEventListener("click", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value.trim();
       
