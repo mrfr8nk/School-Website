@@ -2806,6 +2806,421 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           showMessage('Error signing out', 'error');
         }
       });
+
+      // ========== FEES SECTION FUNCTIONALITY ==========
+      
+      // Load fees section data
+      window.loadFees = async function() {
+        const user = auth.currentUser;
+        if (!user) return;
+        
+        try {
+          // Load student data to get current form
+          const studentDoc = await getDoc(doc(db, 'students', user.email));
+          let userData = {};
+          
+          if (studentDoc.exists()) {
+            userData = studentDoc.data();
+          }
+          
+          // Initialize fees data if it doesn't exist
+          await initializeFeesData(user.email, userData.form);
+          
+          // Load financial status
+          await loadFinancialStatus(user.email);
+          
+          // Load current balance and academic progress
+          await loadBalanceAndProgress(user.email, userData.form);
+          
+          // Setup term navigation
+          setupTermNavigation(userData.form);
+          
+          // Load payment history for current term
+          await loadPaymentHistory(user.email);
+          
+          // Load activity log
+          await loadActivityLog(user.email);
+          
+        } catch (error) {
+          console.error('Error loading fees:', error);
+          showMessage('Error loading fees data', 'error');
+        }
+      };
+      
+      // Initialize fees data structure
+      async function initializeFeesData(email, form) {
+        try {
+          const feesRef = doc(db, 'fees', email);
+          const feesDoc = await getDoc(feesRef);
+          
+          if (!feesDoc.exists()) {
+            const currentYear = new Date().getFullYear();
+            const academicYears = getAcademicYears(form, currentYear);
+            
+            const initialFeesData = {
+              paymentMethod: 'Self-Paid',
+              organization: 'N/A',
+              scholarshipStatus: 'No Scholarship',
+              academicYears: academicYears,
+              paymentHistory: [],
+              activityLog: [{
+                type: 'account_created',
+                date: new Date().toISOString(),
+                description: 'Student account created'
+              }],
+              createdAt: new Date().toISOString()
+            };
+            
+            await setDoc(feesRef, initialFeesData);
+          }
+        } catch (error) {
+          console.error('Error initializing fees data:', error);
+        }
+      }
+      
+      // Get academic years based on form
+      function getAcademicYears(form, currentYear) {
+        const years = {};
+        
+        if (form) {
+          const formNumber = parseInt(form.replace('Form ', ''));
+          
+          if (formNumber >= 1 && formNumber <= 4) {
+            // O-level: Forms 1-4 = Years 1-4
+            for (let i = 1; i <= 4; i++) {
+              const yearLabel = formNumber + i - 1 <= 4 ? `Year ${formNumber + i - 1}` : null;
+              if (yearLabel && formNumber + i - 1 <= 4) {
+                years[currentYear + i - 1] = {
+                  type: 'O-Level',
+                  year: formNumber + i - 1,
+                  form: `Form ${formNumber + i - 1}`,
+                  terms: {
+                    1: { balance: 1500, paid: 0, status: 'unpaid' },
+                    2: { balance: 1500, paid: 0, status: 'unpaid' },
+                    3: { balance: 1500, paid: 0, status: 'unpaid' }
+                  }
+                };
+              }
+            }
+          } else if (formNumber >= 5 && formNumber <= 6) {
+            // A-level: Forms 5-6 = Years 1-2
+            for (let i = 1; i <= 2; i++) {
+              const yearNumber = formNumber === 5 ? 1 : 2;
+              years[currentYear + i - 1] = {
+                type: 'A-Level',
+                year: yearNumber + i - 1,
+                form: `Form ${formNumber + i - 1}`,
+                terms: {
+                  1: { balance: 2000, paid: 0, status: 'unpaid' },
+                  2: { balance: 2000, paid: 0, status: 'unpaid' },
+                  3: { balance: 2000, paid: 0, status: 'unpaid' }
+                }
+              };
+            }
+          }
+        }
+        
+        return years;
+      }
+      
+      // Load financial status
+      async function loadFinancialStatus(email) {
+        try {
+          const feesDoc = await getDoc(doc(db, 'fees', email));
+          
+          if (feesDoc.exists()) {
+            const data = feesDoc.data();
+            
+            document.getElementById('paymentMethod').textContent = data.paymentMethod || 'Self-Paid';
+            document.getElementById('organization').textContent = data.organization || 'N/A';
+            
+            const scholarshipElement = document.getElementById('scholarshipStatus');
+            scholarshipElement.textContent = data.scholarshipStatus || 'No Scholarship';
+            
+            // Update scholarship status badge
+            scholarshipElement.className = 'status-badge';
+            if (data.scholarshipStatus && data.scholarshipStatus !== 'No Scholarship') {
+              scholarshipElement.classList.add('status-scholarship');
+            } else if (data.organization && data.organization !== 'N/A') {
+              scholarshipElement.classList.add('status-organization');
+            } else {
+              scholarshipElement.classList.add('status-notset');
+            }
+          }
+        } catch (error) {
+          console.error('Error loading financial status:', error);
+        }
+      }
+      
+      // Load balance and academic progress
+      async function loadBalanceAndProgress(email, form) {
+        try {
+          const feesDoc = await getDoc(doc(db, 'fees', email));
+          
+          if (feesDoc.exists()) {
+            const data = feesDoc.data();
+            const currentYear = new Date().getFullYear();
+            
+            // Calculate current balance
+            let totalBalance = 0;
+            if (data.academicYears && data.academicYears[currentYear]) {
+              const yearData = data.academicYears[currentYear];
+              Object.values(yearData.terms).forEach(term => {
+                totalBalance += term.balance;
+              });
+            }
+            
+            document.getElementById('currentBalance').textContent = `$${totalBalance.toFixed(2)}`;
+            document.getElementById('currentTerm').textContent = `Term 1, ${currentYear} (${form || 'N/A'})`;
+            
+            // Payment status
+            const statusElement = document.getElementById('paymentStatus');
+            if (totalBalance === 0) {
+              statusElement.textContent = 'Fully Paid';
+              statusElement.className = 'status-badge status-paid';
+            } else if (totalBalance > 0) {
+              statusElement.textContent = 'Balance Due';
+              statusElement.className = 'status-badge status-unpaid';
+            }
+            
+            // Academic progress
+            if (form) {
+              const formNumber = parseInt(form.replace('Form ', ''));
+              const isALevel = formNumber >= 5;
+              
+              document.getElementById('currentYear').textContent = isALevel ? 
+                `A-Level Year ${formNumber - 4}` : `Year ${formNumber}`;
+              
+              const totalYears = isALevel ? 2 : 4;
+              const currentAcademicYear = isALevel ? formNumber - 4 : formNumber;
+              
+              document.getElementById('yearsRemaining').textContent = totalYears - currentAcademicYear;
+              document.getElementById('termsCompleted').textContent = `${(currentAcademicYear - 1) * 3}/${totalYears * 3}`;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading balance and progress:', error);
+        }
+      }
+      
+      // Setup term navigation
+      function setupTermNavigation(form) {
+        const yearTabs = document.querySelectorAll('.year-tab');
+        const termTabs = document.querySelectorAll('.term-tab');
+        
+        // Year tab navigation
+        yearTabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            yearTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            loadPaymentHistoryForYear(tab.dataset.year);
+          });
+        });
+        
+        // Term tab navigation
+        termTabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            termTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            loadPaymentHistoryForTerm(tab.dataset.term);
+          });
+        });
+      }
+      
+      // Load payment history for specific year
+      async function loadPaymentHistoryForYear(year) {
+        const user = auth.currentUser;
+        if (!user) return;
+        
+        try {
+          const feesDoc = await getDoc(doc(db, 'fees', user.email));
+          if (feesDoc.exists()) {
+            const data = feesDoc.data();
+            const filteredHistory = data.paymentHistory?.filter(payment => 
+              payment.academicYear === year
+            ) || [];
+            displayPaymentHistory(filteredHistory);
+          }
+        } catch (error) {
+          console.error('Error loading year payment history:', error);
+        }
+      }
+      
+      // Load payment history for specific term
+      async function loadPaymentHistoryForTerm(term) {
+        const user = auth.currentUser;
+        if (!user) return;
+        
+        try {
+          const feesDoc = await getDoc(doc(db, 'fees', user.email));
+          if (feesDoc.exists()) {
+            const data = feesDoc.data();
+            const filteredHistory = data.paymentHistory?.filter(payment => 
+              payment.term === term
+            ) || [];
+            displayPaymentHistory(filteredHistory);
+          }
+        } catch (error) {
+          console.error('Error loading term payment history:', error);
+        }
+      }
+      
+      // Display payment history helper
+      function displayPaymentHistory(payments) {
+        const tbody = document.getElementById('paymentHistoryBody');
+        
+        if (payments.length > 0) {
+          tbody.innerHTML = '';
+          
+          payments.sort((a, b) => new Date(b.date) - new Date(a.date));
+          
+          payments.forEach(payment => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${formatDateTime(payment.date)}</td>
+              <td>${payment.academicYear || 'N/A'} / Term ${payment.term || 'N/A'}</td>
+              <td>$${payment.amount.toFixed(2)}</td>
+              <td>$${payment.remainingBalance.toFixed(2)}</td>
+              <td>${payment.method || 'Cash'}</td>
+              <td><span class="status-badge status-paid">Paid</span></td>
+              <td><button class="receipt-btn" onclick="downloadReceipt('${payment.id}')">
+                <i class="fas fa-download"></i> Receipt
+              </button></td>
+            `;
+            tbody.appendChild(row);
+          });
+        } else {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="text-center">
+                <i class="fas fa-info-circle"></i> No payment history for this selection
+              </td>
+            </tr>
+          `;
+        }
+      }
+      
+      // Load payment history
+      async function loadPaymentHistory(email) {
+        try {
+          const feesDoc = await getDoc(doc(db, 'fees', email));
+          const tbody = document.getElementById('paymentHistoryBody');
+          
+          if (feesDoc.exists()) {
+            const data = feesDoc.data();
+            
+            if (data.paymentHistory && data.paymentHistory.length > 0) {
+              tbody.innerHTML = '';
+              
+              data.paymentHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+              
+              data.paymentHistory.forEach(payment => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                  <td>${formatDateTime(payment.date)}</td>
+                  <td>${payment.academicYear || 'N/A'} / Term ${payment.term || 'N/A'}</td>
+                  <td>$${payment.amount.toFixed(2)}</td>
+                  <td>$${payment.remainingBalance.toFixed(2)}</td>
+                  <td>${payment.method || 'Cash'}</td>
+                  <td><span class="status-badge status-paid">Paid</span></td>
+                  <td><button class="receipt-btn" onclick="downloadReceipt('${payment.id}')">
+                    <i class="fas fa-download"></i> Receipt
+                  </button></td>
+                `;
+                tbody.appendChild(row);
+              });
+            } else {
+              tbody.innerHTML = `
+                <tr>
+                  <td colspan="7" class="text-center">
+                    <i class="fas fa-info-circle"></i> No payment history available
+                  </td>
+                </tr>
+              `;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading payment history:', error);
+        }
+      }
+      
+      // Load activity log
+      async function loadActivityLog(email) {
+        try {
+          const feesDoc = await getDoc(doc(db, 'fees', email));
+          const logContainer = document.getElementById('activityLog');
+          
+          if (feesDoc.exists()) {
+            const data = feesDoc.data();
+            
+            if (data.activityLog && data.activityLog.length > 0) {
+              logContainer.innerHTML = '';
+              
+              data.activityLog.sort((a, b) => new Date(b.date) - new Date(a.date));
+              
+              data.activityLog.forEach(activity => {
+                const item = document.createElement('div');
+                item.className = 'activity-item';
+                
+                const iconClass = getActivityIcon(activity.type);
+                
+                item.innerHTML = `
+                  <div class="activity-icon">
+                    <i class="${iconClass}"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p><strong>${formatActivityTitle(activity.type)}</strong></p>
+                    <p class="activity-meta">${activity.description} - ${formatDateTime(activity.date)}</p>
+                  </div>
+                `;
+                
+                logContainer.appendChild(item);
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error loading activity log:', error);
+        }
+      }
+      
+      // Helper functions
+      function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      }
+      
+      function getActivityIcon(type) {
+        const icons = {
+          'account_created': 'fas fa-user-plus',
+          'payment_made': 'fas fa-credit-card',
+          'scholarship_awarded': 'fas fa-graduation-cap',
+          'balance_updated': 'fas fa-coins',
+          'form_updated': 'fas fa-edit'
+        };
+        return icons[type] || 'fas fa-info-circle';
+      }
+      
+      function formatActivityTitle(type) {
+        const titles = {
+          'account_created': 'Account Created',
+          'payment_made': 'Payment Made',
+          'scholarship_awarded': 'Scholarship Awarded',
+          'balance_updated': 'Balance Updated',
+          'form_updated': 'Profile Updated'
+        };
+        return titles[type] || 'Activity';
+      }
+      
+      // Export payment history function
+      window.exportPaymentHistory = function() {
+        showMessage('Payment history export feature coming soon!', 'info');
+      };
+      
+      // Download receipt function
+      window.downloadReceipt = function(paymentId) {
+        showMessage('Receipt download feature coming soon!', 'info');
+      };
+
     </script>
   </body>
 </html>
