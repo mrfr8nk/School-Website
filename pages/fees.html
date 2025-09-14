@@ -1276,6 +1276,170 @@
   </div>
 </div>
 
+<!-- Scholarship Management Modal -->
+<div id="scholarshipModal" class="modal">
+  <div class="modal-content" style="max-width: 900px;">
+    <button class="close-modal" onclick="closeModal('scholarshipModal')">&times;</button>
+    <h2><i class="fas fa-graduation-cap"></i> Scholarship Management</h2>
+    
+    <!-- Scholarship Form -->
+    <div id="scholarshipForm" style="display: block;">
+      <h3>Add/Edit Scholarship</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div class="form-group">
+          <label for="scholarshipStudentSearch">Search Student</label>
+          <input type="text" id="scholarshipStudentSearch" placeholder="Type student name..." />
+          <input type="hidden" id="scholarshipStudent" />
+          <div id="scholarshipStudentResults" class="search-results"></div>
+        </div>
+        <div class="form-group">
+          <label for="scholarshipOrganization">Sponsoring Organization</label>
+          <select id="scholarshipOrganization">
+            <option value="">Select Organization</option>
+            <option value="BEAM">BEAM (Basic Education Assistance for Mindanao)</option>
+            <option value="CAPNUM">CAPNUM (Community Assistance Program)</option>
+            <option value="Government">Government Scholarship</option>
+            <option value="Private Donor">Private Donor</option>
+            <option value="School Foundation">School Foundation</option>
+            <option value="Other">Other Organization</option>
+          </select>
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div class="form-group">
+          <label for="scholarshipCustomOrg">Custom Organization Name</label>
+          <input type="text" id="scholarshipCustomOrg" placeholder="Enter organization name..." style="display: none;" />
+        </div>
+        <div class="form-group">
+          <label for="scholarshipType">Scholarship Type</label>
+          <select id="scholarshipType">
+            <option value="Full">Full Scholarship (100%)</option>
+            <option value="Partial">Partial Scholarship</option>
+            <option value="Need-Based">Need-Based Assistance</option>
+            <option value="Academic Merit">Academic Merit</option>
+          </select>
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div class="form-group">
+          <label for="scholarshipAmount">Scholarship Amount (USD)</label>
+          <input type="number" id="scholarshipAmount" placeholder="0.00" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label for="scholarshipPercentage">Coverage Percentage</label>
+          <input type="number" id="scholarshipPercentage" placeholder="0" min="0" max="100" />
+        </div>
+        <div class="form-group">
+          <label for="scholarshipCurrency">Currency</label>
+          <select id="scholarshipCurrency">
+            <option value="USD">USD ($)</option>
+            <option value="ZWL">ZWL (ZWL$)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div class="form-group">
+          <label for="scholarshipStartDate">Start Date</label>
+          <input type="date" id="scholarshipStartDate" />
+        </div>
+        <div class="form-group">
+          <label for="scholarshipEndDate">End Date</label>
+          <input type="date" id="scholarshipEndDate" />
+        </div>
+        <div class="form-group">
+          <label for="scholarshipDuration">Duration (Months)</label>
+          <input type="number" id="scholarshipDuration" placeholder="12" min="1" />
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div class="form-group">
+          <label for="scholarshipStatus">Status</label>
+          <select id="scholarshipStatus">
+            <option value="Active">Active</option>
+            <option value="Pending">Pending Approval</option>
+            <option value="Suspended">Suspended</option>
+            <option value="Expired">Expired</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="scholarshipRenewal">Auto-Renewal</label>
+          <select id="scholarshipRenewal">
+            <option value="false">No</option>
+            <option value="true">Yes - Auto Renew</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="scholarshipRequirements">Requirements & Conditions</label>
+        <textarea id="scholarshipRequirements" rows="3" placeholder="Enter scholarship requirements and conditions..."></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="scholarshipNotes">Notes</label>
+        <textarea id="scholarshipNotes" rows="2" placeholder="Additional notes..."></textarea>
+      </div>
+      
+      <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+        <button type="button" class="btn btn-primary" onclick="saveScholarship()">
+          <i class="fas fa-save"></i> Save Scholarship
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="showScholarshipList()">
+          <i class="fas fa-list"></i> View All Scholarships
+        </button>
+        <button type="button" class="btn btn-danger" onclick="clearScholarshipForm()">
+          <i class="fas fa-times"></i> Clear Form
+        </button>
+      </div>
+    </div>
+    
+    <!-- Scholarship List View -->
+    <div id="scholarshipList" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Scholarships & Financial Aid</h3>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-primary" onclick="showScholarshipForm()">
+            <i class="fas fa-plus"></i> Add New
+          </button>
+          <button class="btn btn-secondary" onclick="exportScholarshipReport()">
+            <i class="fas fa-download"></i> Export Report
+          </button>
+        </div>
+      </div>
+      
+      <!-- Organization Summary -->
+      <div id="organizationSummary" style="margin-bottom: 20px;">
+        <!-- Summary cards will be populated here -->
+      </div>
+      
+      <!-- Scholarship Table -->
+      <div class="table-container">
+        <table id="scholarshipTable" class="display" style="width:100%">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Organization</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Duration</th>
+              <th>Status</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Theme Toggle Button -->
 <button id="themeToggleButton" title="Toggle Dark/Light Mode">
   <i class="fas fa-moon"></i>
@@ -2408,6 +2572,466 @@ window.showFeeStructureModal = function(feeId = null) {
     document.getElementById('feeAmountZWL').value = '';
     document.getElementById('feeStructureModal').dataset.editId = '';
   }
+};
+
+/* --------------------- SCHOLARSHIP MANAGEMENT SYSTEM --------------------- */
+
+// Global scholarship data
+let allScholarships = [];
+let scholarshipTable = null;
+
+// Show scholarship modal
+window.showScholarshipModal = function() {
+  showModal('scholarshipModal');
+  showScholarshipForm();
+  clearScholarshipForm();
+  setupScholarshipListeners();
+};
+
+// Setup scholarship event listeners
+function setupScholarshipListeners() {
+  // Organization change handler
+  const orgSelect = document.getElementById('scholarshipOrganization');
+  const customOrgInput = document.getElementById('scholarshipCustomOrg');
+  
+  orgSelect.addEventListener('change', function() {
+    if (this.value === 'Other') {
+      customOrgInput.style.display = 'block';
+      customOrgInput.required = true;
+    } else {
+      customOrgInput.style.display = 'none';
+      customOrgInput.required = false;
+      customOrgInput.value = '';
+    }
+  });
+  
+  // Duration calculation
+  const startDate = document.getElementById('scholarshipStartDate');
+  const endDate = document.getElementById('scholarshipEndDate');
+  const duration = document.getElementById('scholarshipDuration');
+  
+  function calculateDuration() {
+    if (startDate.value && endDate.value) {
+      const start = new Date(startDate.value);
+      const end = new Date(endDate.value);
+      const months = Math.ceil((end - start) / (1000 * 60 * 60 * 24 * 30));
+      duration.value = months > 0 ? months : 1;
+    }
+  }
+  
+  startDate.addEventListener('change', calculateDuration);
+  endDate.addEventListener('change', calculateDuration);
+  
+  // Student search for scholarships
+  const searchInput = document.getElementById('scholarshipStudentSearch');
+  const searchResults = document.getElementById('scholarshipStudentResults');
+  
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase().trim();
+    
+    if (searchTerm.length < 2) {
+      searchResults.innerHTML = '';
+      return;
+    }
+    
+    const filteredStudents = allStudents.filter(student => 
+      `${student.firstname} ${student.surname}`.toLowerCase().includes(searchTerm) ||
+      student.admissionNumber?.toLowerCase().includes(searchTerm)
+    );
+    
+    searchResults.innerHTML = '';
+    filteredStudents.slice(0, 8).forEach(student => {
+      const div = document.createElement('div');
+      div.className = 'search-result-item';
+      div.innerHTML = `
+        <div class="student-info">
+          <strong>${student.firstname} ${student.surname}</strong>
+          <span>${student.form} ${student.stream || ''}</span>
+          <small>Adm: ${student.admissionNumber || 'N/A'}</small>
+        </div>
+      `;
+      div.addEventListener('click', function() {
+        document.getElementById('scholarshipStudentSearch').value = `${student.firstname} ${student.surname}`;
+        document.getElementById('scholarshipStudent').value = student.id;
+        searchResults.innerHTML = '';
+      });
+      searchResults.appendChild(div);
+    });
+  });
+}
+
+// Save scholarship
+window.saveScholarship = async function() {
+  const studentId = document.getElementById('scholarshipStudent').value;
+  const organization = document.getElementById('scholarshipOrganization').value;
+  const customOrg = document.getElementById('scholarshipCustomOrg').value;
+  const type = document.getElementById('scholarshipType').value;
+  const amount = parseFloat(document.getElementById('scholarshipAmount').value);
+  const percentage = parseInt(document.getElementById('scholarshipPercentage').value);
+  const currency = document.getElementById('scholarshipCurrency').value;
+  const startDate = document.getElementById('scholarshipStartDate').value;
+  const endDate = document.getElementById('scholarshipEndDate').value;
+  const duration = parseInt(document.getElementById('scholarshipDuration').value);
+  const status = document.getElementById('scholarshipStatus').value;
+  const renewal = document.getElementById('scholarshipRenewal').value === 'true';
+  const requirements = document.getElementById('scholarshipRequirements').value;
+  const notes = document.getElementById('scholarshipNotes').value;
+  
+  // Validation
+  if (!studentId) {
+    showNotification("Please select a student", "error");
+    return;
+  }
+  
+  if (!organization) {
+    showNotification("Please select a sponsoring organization", "error");
+    return;
+  }
+  
+  if (organization === 'Other' && !customOrg.trim()) {
+    showNotification("Please enter the custom organization name", "error");
+    return;
+  }
+  
+  if (!amount || amount <= 0) {
+    showNotification("Please enter a valid scholarship amount", "error");
+    return;
+  }
+  
+  if (!startDate || !endDate) {
+    showNotification("Please enter start and end dates", "error");
+    return;
+  }
+  
+  if (new Date(startDate) >= new Date(endDate)) {
+    showNotification("End date must be after start date", "error");
+    return;
+  }
+  
+  showLoading(true, "Saving scholarship...");
+  
+  try {
+    const scholarshipData = {
+      studentId,
+      organization: organization === 'Other' ? customOrg : organization,
+      organizationType: organization,
+      type,
+      amount,
+      percentage: percentage || 0,
+      currency,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      duration,
+      status,
+      autoRenewal: renewal,
+      requirements,
+      notes,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      createdBy: currentUser.name
+    };
+    
+    await addDoc(collection(db, "scholarships"), scholarshipData);
+    
+    showNotification("Scholarship saved successfully!", "success");
+    clearScholarshipForm();
+    loadScholarshipData();
+    
+  } catch (err) {
+    console.error("Error saving scholarship:", err);
+    showNotification("Error saving scholarship. Please try again.", "error");
+  } finally {
+    showLoading(false);
+  }
+};
+
+// Load scholarship data
+async function loadScholarshipData() {
+  try {
+    const scholarshipsRef = collection(db, "scholarships");
+    const querySnapshot = await getDocs(scholarshipsRef);
+    
+    allScholarships = [];
+    querySnapshot.forEach(doc => {
+      allScholarships.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    updateScholarshipSummary();
+    refreshScholarshipTable();
+    
+  } catch (err) {
+    console.error("Error loading scholarships:", err);
+    showNotification("Error loading scholarship data", "error");
+  }
+}
+
+// Update scholarship summary
+function updateScholarshipSummary() {
+  const summaryContainer = document.getElementById('organizationSummary');
+  
+  // Calculate organization statistics
+  const orgStats = {};
+  let totalScholarships = 0;
+  let totalAmount = 0;
+  let activeScholarships = 0;
+  
+  allScholarships.forEach(scholarship => {
+    const org = scholarship.organization;
+    if (!orgStats[org]) {
+      orgStats[org] = { count: 0, amount: 0, active: 0 };
+    }
+    
+    orgStats[org].count++;
+    orgStats[org].amount += scholarship.amount;
+    
+    if (scholarship.status === 'Active') {
+      orgStats[org].active++;
+      activeScholarships++;
+    }
+    
+    totalScholarships++;
+    totalAmount += scholarship.amount;
+  });
+  
+  // Create summary cards
+  let summaryHTML = `
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+      <div class="stat-card">
+        <h4><i class="fas fa-graduation-cap"></i> Total Scholarships</h4>
+        <div class="value">${totalScholarships}</div>
+        <div class="trend">Active: ${activeScholarships}</div>
+      </div>
+      <div class="stat-card">
+        <h4><i class="fas fa-dollar-sign"></i> Total Value</h4>
+        <div class="value">$${totalAmount.toLocaleString()}</div>
+        <div class="trend">Annual funding</div>
+      </div>
+      <div class="stat-card">
+        <h4><i class="fas fa-building"></i> Organizations</h4>
+        <div class="value">${Object.keys(orgStats).length}</div>
+        <div class="trend">Active sponsors</div>
+      </div>
+  `;
+  
+  // Add top organizations
+  const topOrgs = Object.entries(orgStats)
+    .sort((a, b) => b[1].amount - a[1].amount)
+    .slice(0, 2);
+    
+  topOrgs.forEach(([org, stats]) => {
+    summaryHTML += `
+      <div class="stat-card">
+        <h4><i class="fas fa-star"></i> ${org}</h4>
+        <div class="value">${stats.count} scholarships</div>
+        <div class="trend">$${stats.amount.toLocaleString()}</div>
+      </div>
+    `;
+  });
+  
+  summaryHTML += '</div>';
+  summaryContainer.innerHTML = summaryHTML;
+}
+
+// Show scholarship form
+window.showScholarshipForm = function() {
+  document.getElementById('scholarshipForm').style.display = 'block';
+  document.getElementById('scholarshipList').style.display = 'none';
+};
+
+// Show scholarship list
+window.showScholarshipList = function() {
+  document.getElementById('scholarshipForm').style.display = 'none';
+  document.getElementById('scholarshipList').style.display = 'block';
+  loadScholarshipData();
+};
+
+// Clear scholarship form
+window.clearScholarshipForm = function() {
+  document.getElementById('scholarshipStudentSearch').value = '';
+  document.getElementById('scholarshipStudent').value = '';
+  document.getElementById('scholarshipOrganization').value = '';
+  document.getElementById('scholarshipCustomOrg').value = '';
+  document.getElementById('scholarshipCustomOrg').style.display = 'none';
+  document.getElementById('scholarshipType').value = 'Full';
+  document.getElementById('scholarshipAmount').value = '';
+  document.getElementById('scholarshipPercentage').value = '';
+  document.getElementById('scholarshipCurrency').value = 'USD';
+  document.getElementById('scholarshipStartDate').value = '';
+  document.getElementById('scholarshipEndDate').value = '';
+  document.getElementById('scholarshipDuration').value = '';
+  document.getElementById('scholarshipStatus').value = 'Active';
+  document.getElementById('scholarshipRenewal').value = 'false';
+  document.getElementById('scholarshipRequirements').value = '';
+  document.getElementById('scholarshipNotes').value = '';
+  document.getElementById('scholarshipStudentResults').innerHTML = '';
+};
+
+// Refresh scholarship table
+function refreshScholarshipTable() {
+  if (scholarshipTable) {
+    scholarshipTable.destroy();
+  }
+  
+  const tableBody = document.querySelector('#scholarshipTable tbody');
+  tableBody.innerHTML = '';
+  
+  allScholarships.forEach(scholarship => {
+    const student = allStudents.find(s => s.id === scholarship.studentId);
+    const studentName = student ? `${student.firstname} ${student.surname}` : 'Unknown Student';
+    
+    const startDate = scholarship.startDate?.toDate ? scholarship.startDate.toDate().toLocaleDateString() : 'N/A';
+    const endDate = scholarship.endDate?.toDate ? scholarship.endDate.toDate().toLocaleDateString() : 'N/A';
+    
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${studentName}</td>
+      <td>${scholarship.organization}</td>
+      <td>${scholarship.type}</td>
+      <td>${scholarship.currency === 'USD' ? '$' : 'ZWL$'}${scholarship.amount.toLocaleString()}</td>
+      <td>${scholarship.duration} months</td>
+      <td><span class="status-badge status-${scholarship.status.toLowerCase()}">${scholarship.status}</span></td>
+      <td>${startDate}</td>
+      <td>${endDate}</td>
+      <td>
+        <button class="btn btn-sm btn-edit" onclick="editScholarship('${scholarship.id}')">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deleteScholarship('${scholarship.id}')">
+          <i class="fas fa-trash"></i>
+        </button>
+      </td>
+    `;
+    tableBody.appendChild(tr);
+  });
+  
+  // Initialize DataTable
+  if (typeof DataTable !== 'undefined') {
+    scholarshipTable = new DataTable('#scholarshipTable', {
+      responsive: true,
+      pageLength: 10,
+      order: [[6, 'desc']] // Sort by start date
+    });
+  }
+}
+
+// Edit scholarship
+window.editScholarship = function(scholarshipId) {
+  const scholarship = allScholarships.find(s => s.id === scholarshipId);
+  if (!scholarship) return;
+  
+  // Show form and populate with data
+  showScholarshipForm();
+  
+  // Populate form fields
+  document.getElementById('scholarshipStudent').value = scholarship.studentId;
+  const student = allStudents.find(s => s.id === scholarship.studentId);
+  if (student) {
+    document.getElementById('scholarshipStudentSearch').value = `${student.firstname} ${student.surname}`;
+  }
+  
+  document.getElementById('scholarshipOrganization').value = scholarship.organizationType || scholarship.organization;
+  if (scholarship.organizationType === 'Other') {
+    document.getElementById('scholarshipCustomOrg').value = scholarship.organization;
+    document.getElementById('scholarshipCustomOrg').style.display = 'block';
+  }
+  
+  document.getElementById('scholarshipType').value = scholarship.type;
+  document.getElementById('scholarshipAmount').value = scholarship.amount;
+  document.getElementById('scholarshipPercentage').value = scholarship.percentage || '';
+  document.getElementById('scholarshipCurrency').value = scholarship.currency;
+  
+  if (scholarship.startDate?.toDate) {
+    document.getElementById('scholarshipStartDate').value = scholarship.startDate.toDate().toISOString().split('T')[0];
+  }
+  if (scholarship.endDate?.toDate) {
+    document.getElementById('scholarshipEndDate').value = scholarship.endDate.toDate().toISOString().split('T')[0];
+  }
+  
+  document.getElementById('scholarshipDuration').value = scholarship.duration;
+  document.getElementById('scholarshipStatus').value = scholarship.status;
+  document.getElementById('scholarshipRenewal').value = scholarship.autoRenewal.toString();
+  document.getElementById('scholarshipRequirements').value = scholarship.requirements || '';
+  document.getElementById('scholarshipNotes').value = scholarship.notes || '';
+  
+  // Store edit ID for saving
+  document.getElementById('scholarshipModal').dataset.editId = scholarshipId;
+};
+
+// Delete scholarship
+window.deleteScholarship = async function(scholarshipId) {
+  if (!confirm('Are you sure you want to delete this scholarship? This action cannot be undone.')) {
+    return;
+  }
+  
+  showLoading(true, "Deleting scholarship...");
+  
+  try {
+    await deleteDoc(doc(db, "scholarships", scholarshipId));
+    showNotification("Scholarship deleted successfully!", "success");
+    loadScholarshipData();
+  } catch (err) {
+    console.error("Error deleting scholarship:", err);
+    showNotification("Error deleting scholarship. Please try again.", "error");
+  } finally {
+    showLoading(false);
+  }
+};
+
+// Export scholarship report
+window.exportScholarshipReport = function() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  
+  // Add header
+  doc.setFontSize(18);
+  doc.text('Scholarship Management Report', 20, 20);
+  doc.setFontSize(12);
+  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
+  doc.text(`St. Mary's High School`, 20, 40);
+  
+  // Prepare table data
+  const tableData = allScholarships.map(scholarship => {
+    const student = allStudents.find(s => s.id === scholarship.studentId);
+    const studentName = student ? `${student.firstname} ${student.surname}` : 'Unknown';
+    const startDate = scholarship.startDate?.toDate ? scholarship.startDate.toDate().toLocaleDateString() : 'N/A';
+    const endDate = scholarship.endDate?.toDate ? scholarship.endDate.toDate().toLocaleDateString() : 'N/A';
+    
+    return [
+      studentName,
+      scholarship.organization,
+      scholarship.type,
+      `${scholarship.currency === 'USD' ? '$' : 'ZWL$'}${scholarship.amount.toLocaleString()}`,
+      `${scholarship.duration} months`,
+      scholarship.status,
+      startDate,
+      endDate
+    ];
+  });
+  
+  // Add table to PDF
+  doc.autoTable({
+    head: [['Student', 'Organization', 'Type', 'Amount', 'Duration', 'Status', 'Start Date', 'End Date']],
+    body: tableData,
+    startY: 50,
+    headStyles: {
+      fillColor: [26, 54, 93],
+      textColor: 255
+    },
+    alternateRowStyles: {
+      fillColor: [240, 240, 240]
+    },
+    styles: {
+      cellPadding: 3,
+      fontSize: 8,
+      overflow: 'linebreak'
+    }
+  });
+  
+  // Save the PDF
+  doc.save(`scholarship_report_${new Date().toISOString().split('T')[0]}.pdf`);
 };
 
 // Save fee item
