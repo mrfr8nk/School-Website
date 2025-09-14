@@ -726,6 +726,104 @@
             ? '<i class="fas fa-moon"></i>' 
             : '<i class="fas fa-sun"></i>';
       }
+
+      /* --------------------- Enhanced Auth & Security Protection --------------------- */
+      
+      // SECURITY WARNING: This client-side authentication check provides basic protection
+      // but should be supplemented with Firestore Security Rules to prevent bypassing.
+      // Recommended: Add server-side validation or Firestore Security Rules that:
+      // 1. Only allow admin users to write to users collection with role: "admin"
+      // 2. Prevent users from self-assigning admin roles
+      // 3. Validate admin creation requests server-side
+      
+      // Auth state checker function - CRITICAL SECURITY
+      function checkAuthState() {
+        onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            // No user logged in, redirect to login
+            Swal.fire({
+              icon: 'warning',
+              title: 'Authentication Required',
+              text: 'You must be logged in as an admin to access this page',
+              confirmButtonColor: '#d69e2e'
+            }).then(() => {
+              window.location.href = "/teacherslogin";
+            });
+            return;
+          }
+
+          try {
+            // Get user document from Firestore
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            
+            if (!userDoc.exists()) {
+              // User document doesn't exist, log out
+              await signOut(auth);
+              Swal.fire({
+                icon: 'error',
+                title: 'Account Not Found',
+                text: 'Your account data was not found. Please contact support.',
+                confirmButtonColor: '#d69e2e'
+              }).then(() => {
+                window.location.href = "/teacherslogin";
+              });
+              return;
+            }
+
+            const userData = userDoc.data();
+            
+            // Check if user is a student (shouldn't have access)
+            if (userData.role && userData.role.toLowerCase() === "student") {
+              // Log out student users immediately
+              await signOut(auth);
+              
+              // Show message and redirect
+              Swal.fire({
+                icon: 'error',
+                title: 'Access Denied',
+                text: 'Students cannot access the admin portal. Only authorized teachers and administrators are allowed.',
+                confirmButtonColor: '#d69e2e'
+              }).then(() => {
+                window.location.href = "/login"; // Redirect to student login
+              });
+              return;
+            }
+
+            // Check if user is not admin (ONLY admins can create admin accounts)
+            if (!userData.role || userData.role.toLowerCase() !== 'admin') {
+              // Log out unauthorized users
+              await signOut(auth);
+              
+              Swal.fire({
+                icon: 'error',
+                title: 'Access Denied',
+                text: 'Only existing administrators can create new admin accounts. Teachers cannot perform this action.',
+                confirmButtonColor: '#d69e2e'
+              }).then(() => {
+                window.location.href = "/teacherslogin";
+              });
+              return;
+            }
+
+            // User is authenticated and authorized - allow access
+            console.log('Admin signup access granted for:', userData.role, userData.email);
+          } catch (error) {
+            console.error('Error checking user role:', error);
+            await signOut(auth);
+            Swal.fire({
+              icon: 'error',
+              title: 'Authentication Error',
+              text: 'Unable to verify your permissions. Please try again.',
+              confirmButtonColor: '#d69e2e'
+            }).then(() => {
+              window.location.href = "/teacherslogin";
+            });
+          }
+        });
+      }
+
+      // Call authentication check when page loads - CRITICAL SECURITY
+      checkAuthState();
     </script>
   </body>
 </html>
