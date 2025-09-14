@@ -1152,6 +1152,137 @@
     </div>
   </section>
 
+  <!-- Fees & Payments Section -->
+  <section id="fees" class="section" style="display: none;">
+    <div class="container">
+      <div class="section-title">
+        <h2>Fees & Payments</h2>
+        <p>View your payment history, balance, and financial status</p>
+      </div>
+      
+      <!-- Student Financial Status -->
+      <div class="dashboard-grid" style="margin-bottom: 2rem;">
+        <!-- Organization/Scholarship Status -->
+        <div class="card fade-in-up">
+          <div class="card-header">
+            <h3 class="card-title">Financial Status</h3>
+            <div class="card-icon">
+              <i class="fas fa-university"></i>
+            </div>
+          </div>
+          <div id="financialStatus">
+            <p><strong>Payment Method:</strong> <span id="paymentMethod">Self-Paid</span></p>
+            <p><strong>Organization:</strong> <span id="organization">N/A</span></p>
+            <p><strong>Scholarship Status:</strong> <span id="scholarshipStatus" class="status-badge status-notset">No Scholarship</span></p>
+          </div>
+        </div>
+        
+        <!-- Current Balance -->
+        <div class="card fade-in-up">
+          <div class="card-header">
+            <h3 class="card-title">Current Balance</h3>
+            <div class="card-icon">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+          </div>
+          <div id="balanceInfo">
+            <p class="text-2xl" id="currentBalance">$0.00</p>
+            <p><strong>Term:</strong> <span id="currentTerm">Term 1, Year 1</span></p>
+            <p class="status-badge" id="paymentStatus">Up to Date</p>
+          </div>
+        </div>
+        
+        <!-- Academic Progress -->
+        <div class="card fade-in-up">
+          <div class="card-header">
+            <h3 class="card-title">Academic Progress</h3>
+            <div class="card-icon">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+          </div>
+          <div id="academicProgress">
+            <p><strong>Current Year:</strong> <span id="currentYear">Year 1</span></p>
+            <p><strong>Years Remaining:</strong> <span id="yearsRemaining">3</span></p>
+            <p><strong>Terms Completed:</strong> <span id="termsCompleted">0/12</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Term Navigation -->
+      <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+          <h3 class="card-title">Terms & Years Navigation</h3>
+        </div>
+        <div class="term-navigation">
+          <div class="year-tabs" id="yearTabs">
+            <button class="year-tab active" data-year="1">Year 1</button>
+            <button class="year-tab" data-year="2">Year 2</button>
+            <button class="year-tab" data-year="3">Year 3</button>
+            <button class="year-tab" data-year="4">Year 4</button>
+          </div>
+          <div class="term-tabs" id="termTabs">
+            <button class="term-tab active" data-term="1">Term 1</button>
+            <button class="term-tab" data-term="2">Term 2</button>
+            <button class="term-tab" data-term="3">Term 3</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment History -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Payment History</h3>
+          <button class="btn btn-secondary" onclick="exportPaymentHistory()">
+            <i class="fas fa-download btn-icon"></i> Download Report
+          </button>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="results-table" id="paymentHistoryTable">
+            <thead>
+              <tr>
+                <th>Date & Time</th>
+                <th>Year/Term</th>
+                <th>Amount Paid</th>
+                <th>Balance</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th>Receipt</th>
+              </tr>
+            </thead>
+            <tbody id="paymentHistoryBody">
+              <!-- Payment history will be populated here -->
+              <tr>
+                <td colspan="7" class="text-center">
+                  <i class="fas fa-info-circle"></i> No payment history available
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+      <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+          <h3 class="card-title">Activity Log</h3>
+        </div>
+        <div id="activityLog" class="activity-timeline">
+          <!-- Activity timeline will be populated here -->
+          <div class="activity-item">
+            <div class="activity-icon">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="activity-content">
+              <p><strong>Account Created</strong></p>
+              <p class="activity-meta">Student profile was created</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Performance History Section -->
   <section id="performance" class="section" style="display: none;">
     <div class="container">
