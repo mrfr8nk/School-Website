@@ -976,5 +976,73 @@
       fadeObserver.observe(el);
     });
   </script>
+
+  <!-- Admin Authentication Protection -->
+  <script type="module">
+    import { 
+      auth, 
+      db,
+      onAuthStateChanged,
+      signOut,
+      getDoc,
+      doc
+    } from "/db/firebase.js";
+
+    // Admin auth state checker function
+    function checkAdminAuthState() {
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          // No user logged in, redirect to admin login
+          window.location.href = "/teacherslogin";
+          return;
+        }
+
+        try {
+          // Get user document from Firestore
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          
+          if (!userDoc.exists()) {
+            // User document doesn't exist, log out
+            await signOut(auth);
+            window.location.href = "/teacherslogin";
+            return;
+          }
+
+          const userData = userDoc.data();
+          
+          // Check if user is a student (shouldn't have access)
+          if (userData.role && userData.role.toLowerCase() === "student") {
+            // Log out student users immediately
+            await signOut(auth);
+            
+            // Show message and redirect
+            alert('Access Denied: Students cannot access the admin portal');
+            window.location.href = "/login"; // Redirect to student login
+            return;
+          }
+
+          // Check if user is not admin or teacher
+          if (!userData.role || !['admin', 'teacher'].includes(userData.role.toLowerCase())) {
+            // Log out unauthorized users
+            await signOut(auth);
+            
+            alert('Access Denied: You do not have permission to access this area');
+            window.location.href = "/teacherslogin";
+            return;
+          }
+
+          // User is authorized admin/teacher - continue
+          console.log('Admin access granted for:', userData.role, user.email);
+        } catch (error) {
+          console.error('Error checking user authorization:', error);
+          await signOut(auth);
+          window.location.href = "/teacherslogin";
+        }
+      });
+    }
+
+    // Call this when the page loads
+    checkAdminAuthState();
+  </script>
 </body>
 </html>

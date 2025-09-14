@@ -840,6 +840,57 @@
     // Send password reset email
     async function sendPasswordReset(email) {
       try {
+        // First check if account exists in our database
+        const studentDoc = await getDoc(doc(db, 'students', email));
+        
+        if (!studentDoc.exists()) {
+          // Account doesn't exist in our database
+          Swal.fire({
+            title: "Account Not Found",
+            text: "No student account found with this email address. Please make sure you're using the correct email or sign up first.",
+            icon: "error",
+            confirmButtonColor: "#003366"
+          });
+          return;
+        }
+
+        // Check auth methods for this email
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        
+        if (methods.length === 0) {
+          // Account exists in database but not in Firebase auth
+          Swal.fire({
+            title: "Account Setup Required",
+            text: "Your account needs to be set up. Please contact the school administration.",
+            icon: "warning",
+            confirmButtonColor: "#003366"
+          });
+          return;
+        }
+
+        if (methods.includes('google.com') && !methods.includes('password')) {
+          // Google-only account
+          Swal.fire({
+            title: "Google Account",
+            html: "This email is linked to a Google account only.<br>Please use 'Sign in with Google' or contact support to set up a password.",
+            icon: "info",
+            confirmButtonColor: "#003366"
+          });
+          return;
+        }
+
+        if (!methods.includes('password')) {
+          // Other auth method, no password
+          Swal.fire({
+            title: "Password Reset Not Available",
+            text: "This account doesn't use password authentication. Please use your original sign-in method.",
+            icon: "warning",
+            confirmButtonColor: "#003366"
+          });
+          return;
+        }
+
+        // Account exists and has password method - send reset email
         await sendPasswordResetEmail(auth, email);
         
         await Swal.fire({
@@ -852,8 +903,17 @@
         console.error("Password reset error:", error);
         
         let errorMessage = "Failed to send password reset. Please try again.";
-        if (error.code === "auth/user-not-found") {
-          errorMessage = "No account found with this email address.";
+        
+        switch (error.code) {
+          case "auth/user-not-found":
+            errorMessage = "No account found with this email address in Firebase.";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "Invalid email address format.";
+            break;
+          case "auth/too-many-requests":
+            errorMessage = "Too many password reset requests. Please wait before trying again.";
+            break;
         }
         
         Swal.fire({
