@@ -541,80 +541,49 @@
       font-size: var(--text-xl);
     }
 
-    /* Footer - Compact Design */
+    /* Footer - Compact Design like Student Dashboard */
     .footer {
-      background-color: var(--dark);
+      background-color: var(--primary);
       color: var(--light);
-      padding: var(--space-lg) 0;
-    }
-
-    .footer-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-xl);
-    }
-
-    .footer-col h3 {
-      font-size: var(--text-xl);
-      margin-bottom: var(--space-lg);
-      position: relative;
-    }
-
-    .footer-col h3::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -8px;
-      width: 40px;
-      height: 2px;
-      background-color: var(--accent);
+      padding: 0.5rem 0;
+      text-align: center;
+      margin-top: 2rem;
     }
 
     .social-links {
       display: flex;
-      gap: var(--space-md);
-      margin-top: var(--space-lg);
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 4px;
     }
 
     .social-links a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      color: var(--light);
-      transition: all var(--transition-normal);
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      opacity: 0.8;
     }
 
     .social-links a:hover {
-      background-color: var(--accent);
-      transform: translateY(-3px);
+      color: var(--secondary);
+      opacity: 1;
     }
 
-    .footer-links {
-      list-style: none;
+    .footer p {
+      margin: 2px 0;
+      font-size: 0.8rem;
+      opacity: 0.7;
     }
 
-    .footer-links li {
-      margin-bottom: var(--space-sm);
+    .footer a {
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
     }
 
-    .footer-links a {
-      color: var(--light);
-      transition: color var(--transition-normal);
-    }
-
-    .footer-links a:hover {
-      color: var(--accent);
-    }
-
-    .copyright {
-      text-align: center;
-      margin-top: var(--space-xl);
-      padding-top: var(--space-lg);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    .footer a:hover {
+      text-decoration: underline;
     }
 
     /* Theme Toggle */
@@ -847,43 +816,16 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <div class="container footer-container">
-      <div class="footer-col">
-        <h3>St. Mary's High School</h3>
-        <p>Providing excellence in education since 1952. Our mission is to develop the whole person - mind, body, and spirit.</p>
-        <div class="social-links">
-          <a href="#"><i class="fab fa-facebook-f"></i></a>
-          <a href="#"><i class="fab fa-twitter"></i></a>
-          <a href="#"><i class="fab fa-instagram"></i></a>
-          <a href="#"><i class="fab fa-youtube"></i></a>
-        </div>
-      </div>
-      
-      <div class="footer-col">
-        <h3>Quick Links</h3>
-        <ul class="footer-links">
-          <li><a href="/about">About Us</a></li>
-          <li><a href="/academics">Academics</a></li>
-          <li><a href="/admissions">Admissions</a></li>
-          <li><a href="/teacher-signup">Teacher Portal</a></li>
-          <li><a href="/contact">Contact</a></li>
-        </ul>
-      </div>
-      
-      <div class="footer-col">
-        <h3>Contact Us</h3>
-        <div class="quick-contact">
-          <p><i class="fas fa-map-marker-alt"></i> Harare, Chitungwiza Zengeza 1</p>
-          <p><i class="fas fa-phone"></i> +263 719 647 303</p>
-          <p><i class="fas fa-envelope"></i> info@stmaryshs.edu</p>
-        </div>
-      </div>
+    <div class="social-links">
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-linkedin"></i></a>
     </div>
-    
-    <div class="copyright">
-      <p>&copy; 2025 St. Mary's High School. All rights reserved.</p>
-      <p class="mt-2">System developed by <a href="https://wa.me/263719647303" target="_blank" style="color: var(--accent);">Darrell Mucheri</a></p>
-    </div>
+    <p>
+      <a href="https://wa.me/263719647303?text=hi%20darrell%20i%20would%20want%20you%20to%20create%20me%20a%20site%20like%20that%20of%20st%20marys.%20It%20wonderful" target="_blank">Made By Darrell Mucheri</a>
+    </p>
+    <p>&copy; 2025 St. Mary's High School. All rights reserved.</p>
   </footer>
 
   <!-- Theme Toggle -->
