@@ -795,6 +795,225 @@
   justify-content: center;
   border-radius: 50%;
 }
+
+/* ========== Fees Section Styles ========== */
+/* Term and Year Navigation */
+.term-navigation {
+  padding: var(--space-md);
+}
+
+.year-tabs {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  border-bottom: 2px solid var(--medium-gray);
+  padding-bottom: var(--space-sm);
+}
+
+.year-tab {
+  padding: var(--space-sm) var(--space-lg);
+  border: 2px solid var(--medium-gray);
+  border-radius: var(--radius-md);
+  background-color: var(--white);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-weight: 500;
+}
+
+.dark-mode .year-tab {
+  background-color: var(--light-gray);
+  border-color: var(--dark-gray);
+}
+
+.year-tab:hover,
+.year-tab.active {
+  background-color: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.term-tabs {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.term-tab {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--radius-sm);
+  background-color: var(--white);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-weight: 400;
+}
+
+.dark-mode .term-tab {
+  background-color: var(--light-gray);
+  border-color: var(--dark-gray);
+}
+
+.term-tab:hover,
+.term-tab.active {
+  background-color: var(--secondary);
+  color: var(--black);
+  border-color: var(--secondary);
+}
+
+/* Activity Timeline */
+.activity-timeline {
+  padding: var(--space-md);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--medium-gray);
+  position: relative;
+}
+
+.dark-mode .activity-item {
+  border-bottom-color: var(--dark-gray);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-item:before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 40px;
+  width: 2px;
+  height: calc(100% + var(--space-md));
+  background-color: var(--medium-gray);
+}
+
+.dark-mode .activity-item:before {
+  background-color: var(--dark-gray);
+}
+
+.activity-item:last-child:before {
+  display: none;
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-light);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-base);
+  flex-shrink: 0;
+  z-index: 1;
+  position: relative;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-content p {
+  margin-bottom: var(--space-xs);
+}
+
+.activity-meta {
+  font-size: 0.9rem;
+  color: var(--dark-gray);
+  font-style: italic;
+}
+
+/* Enhanced Status Badges for Fees Section */
+.status-badge.status-scholarship {
+  background: rgba(159, 122, 234, 0.2);
+  color: #9f7aea;
+  border: 1px solid rgba(159, 122, 234, 0.3);
+}
+
+.status-badge.status-organization {
+  background: rgba(56, 178, 172, 0.2);
+  color: #38b2ac;
+  border: 1px solid rgba(56, 178, 172, 0.3);
+}
+
+.status-badge.status-overdue {
+  background: rgba(245, 101, 101, 0.2);
+  color: #f56565;
+  border: 1px solid rgba(245, 101, 101, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Payment History Table Enhancements */
+#paymentHistoryTable {
+  font-size: 0.95rem;
+}
+
+#paymentHistoryTable td {
+  vertical-align: middle;
+}
+
+#paymentHistoryTable .receipt-btn {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.8rem;
+  background-color: var(--accent);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+#paymentHistoryTable .receipt-btn:hover {
+  background-color: var(--accent-dark);
+  transform: scale(1.05);
+}
+
+/* Responsive Design for Fees Section */
+@media (max-width: 768px) {
+  .year-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .term-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .year-tab,
+  .term-tab {
+    flex: 1;
+    text-align: center;
+    min-width: 120px;
+  }
+  
+  .activity-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .activity-item:before {
+    display: none;
+  }
+  
+  .activity-icon {
+    align-self: center;
+  }
+}
     </style>
   </head>
   <body>
