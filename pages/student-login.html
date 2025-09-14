@@ -840,29 +840,29 @@
     // Send password reset email
     async function sendPasswordReset(email) {
       try {
-        // First check if account exists in our database
+        // FIRST: Check if account exists in our school database - CRITICAL CHECK
         const studentDoc = await getDoc(doc(db, 'students', email));
         
         if (!studentDoc.exists()) {
-          // Account doesn't exist in our database
+          // Account doesn't exist in our school database - generic error for security
           Swal.fire({
-            title: "Account Not Found",
-            text: "No student account found with this email address. Please make sure you're using the correct email or sign up first.",
+            title: "Password Reset Failed", 
+            text: "Unable to send password reset email. Please verify your email address or contact the school administration.",
             icon: "error",
             confirmButtonColor: "#003366"
           });
           return;
         }
 
-        // Check auth methods for this email
+        // SECOND: Now check Firebase Auth methods for this email
         const methods = await fetchSignInMethodsForEmail(auth, email);
         
         if (methods.length === 0) {
-          // Account exists in database but not in Firebase auth
+          // Account exists in DB but not in Firebase auth - generic failure for security
           Swal.fire({
-            title: "Account Setup Required",
-            text: "Your account needs to be set up. Please contact the school administration.",
-            icon: "warning",
+            title: "Password Reset Failed",
+            text: "Unable to send password reset email. Please contact the school administration for assistance.",
+            icon: "error",
             confirmButtonColor: "#003366"
           });
           return;

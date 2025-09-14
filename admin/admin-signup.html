@@ -346,11 +346,11 @@
         font-size: 0.9rem;
       }
       
-      /* Footer */
+      /* Footer - Compact Design */
       footer {
         background: rgba(26, 54, 93, 0.9);
         color: white;
-        padding: 1.5rem 5%;
+        padding: 0.8rem 3%;
         text-align: center;
         position: fixed;
         width: 100%;
@@ -362,8 +362,8 @@
       .social-icons {
         display: flex;
         justify-content: center;
-        gap: 20px;
-        margin-bottom: 15px;
+        gap: 15px;
+        margin-bottom: 8px;
       }
       
       .social-icons a {
@@ -559,7 +559,14 @@
         GoogleAuthProvider,
         signInWithPopup,
         doc,
-        setDoc
+        setDoc,
+        onAuthStateChanged,
+        signOut,
+        getDoc,
+        collection,
+        query,
+        where,
+        getDocs
       } from "/db/firebase.js";
 
       // Menu Toggle Functionality
