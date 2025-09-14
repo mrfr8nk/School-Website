@@ -787,24 +787,71 @@ button:active {
     const reportCardBody = document.getElementById("reportCardBody");
     let performanceChart;
 
-    // Fetch students
+    // Fetch students with improved debugging
     async function fetchStudents() {
+      console.log("Starting to fetch students from Firebase...");
+      
+      // Show loading indicator
+      studentList.innerHTML = `<div class="notification" style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; text-align: center;">
+        <i class="fas fa-spinner fa-spin"></i> Loading students from database...
+      </div>`;
+      
       try {
+        console.log("Attempting to get students collection...");
         const querySnapshot = await getDocs(collection(db, "students"));
+        console.log("Query executed successfully. Processing results...");
+        
         let students = [];
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data();
           data.id = docSnap.id;
           students.push(data);
+          console.log("Found student:", data.firstname, data.surname, data.email);
         });
+        
+        console.log(`Total students found: ${students.length}`);
+        
+        if (students.length === 0) {
+          console.warn("No students found in database. Database might be empty.");
+          studentList.innerHTML = `<div class="notification" style="padding: 1rem; background: rgba(255,165,0,0.2); border-radius: 8px; text-align: center; border-left: 4px solid orange;">
+            <i class="fas fa-exclamation-triangle"></i> <strong>No Students Found</strong><br>
+            The database appears to be empty. Students need to register first through the signup page.<br>
+            <a href="/pages/student-signup.html" style="color: var(--secondary); text-decoration: underline;">Go to Student Registration</a>
+          </div>`;
+          return;
+        }
+        
         // Sort by surname
         students.sort((a, b) => (a.surname || "").localeCompare(b.surname || ""));
         allStudents = students;
         displayStudents(allStudents);
         updateSideMenu();
+        console.log("Students loaded and displayed successfully!");
+        
       } catch (err) {
         console.error("Error fetching students:", err);
-        alert("Error fetching students. Please try again later.");
+        console.error("Error details:", err.code, err.message);
+        
+        let errorMessage = "Error loading students from database.";
+        if (err.code === 'permission-denied') {
+          errorMessage = "Permission denied. Please check Firebase security rules.";
+        } else if (err.code === 'unavailable') {
+          errorMessage = "Database unavailable. Please check your internet connection.";
+        }
+        
+        studentList.innerHTML = `<div class="notification" style="padding: 1rem; background: rgba(255,0,0,0.2); border-radius: 8px; text-align: center; border-left: 4px solid red;">
+          <i class="fas fa-exclamation-circle"></i> <strong>Error Loading Students</strong><br>
+          ${errorMessage}<br>
+          <button id="retryButton" style="margin-top: 10px; padding: 8px 16px; background: var(--secondary); color: #1a365d; border: none; border-radius: 4px; cursor: pointer;">
+            <i class="fas fa-sync"></i> Retry
+          </button>
+        </div>`;
+        
+        // Add event listener for retry button
+        const retryBtn = document.getElementById('retryButton');
+        if (retryBtn) {
+          retryBtn.addEventListener('click', fetchStudents);
+        }
       }
     }
 
@@ -820,11 +867,21 @@ button:active {
       students.forEach((s) => {
         const card = document.createElement("div");
         card.className = "student-card";
-        card.innerHTML = `
-          <h3>${s.firstname || ""} ${s.surname || ""}</h3>
-          <p>${s.email || ""}</p>
-          <p><small>${s.form || "No form"} ${s.stream ? "• " + s.stream : ""}</small></p>
-        `;
+        // Create elements safely to prevent XSS
+        const nameEl = document.createElement('h3');
+        nameEl.textContent = `${s.firstname || ""} ${s.surname || ""}`;
+        
+        const emailEl = document.createElement('p');
+        emailEl.textContent = s.email || "";
+        
+        const formEl = document.createElement('p');
+        const smallEl = document.createElement('small');
+        smallEl.textContent = `${s.form || "No form"}${s.stream ? " • " + s.stream : ""}`;
+        formEl.appendChild(smallEl);
+        
+        card.appendChild(nameEl);
+        card.appendChild(emailEl);
+        card.appendChild(formEl);
         card.addEventListener("click", () => openMarksForm(s));
         studentList.appendChild(card);
       });
@@ -861,7 +918,11 @@ button:active {
 
       sortedForms.forEach((f) => {
         const li = document.createElement("li");
-        li.innerHTML = `<strong>${f}:</strong> ${formsCount[f].total}`;
+        const strong = document.createElement("strong");
+        strong.textContent = f + ":";
+        li.appendChild(strong);
+        li.appendChild(document.createTextNode(` ${formsCount[f].total}`));
+        
         const streamsUl = document.createElement("ul");
         Object.keys(formsCount[f].streams).forEach((st) => {
           const stLi = document.createElement("li");
