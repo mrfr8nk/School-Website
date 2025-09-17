@@ -968,9 +968,16 @@
           
           <div class="form-row">
             <div class="form-group">
+              <label for="nationalId">National ID / Birth Number</label>
+              <input type="text" id="nationalId" placeholder="Enter national ID or birth number" />
+            </div>
+            <div class="form-group">
               <label for="dob">Date of Birth</label>
               <input type="date" id="dob" />
             </div>
+          </div>
+          
+          <div class="form-row">
             <div class="form-group">
               <label for="gender">Gender</label>
               <select id="gender">
@@ -979,6 +986,9 @@
                 <option value="Female">Female</option>
                 
               </select>
+            </div>
+            <div class="form-group">
+              <!-- Empty column to maintain layout balance -->
             </div>
           </div>
           
@@ -1298,6 +1308,7 @@
               <th>Stream</th>
               <th>Email</th>
               <th>Phone</th>
+              <th>National ID</th>
               <th>Parent</th>
               <th>DOB</th>
               <th class="action-col">Actions</th>
@@ -1319,6 +1330,7 @@
                 <td>${highlightText(student.stream, searchTerm)}</td>
                 <td>${highlightText(student.email, searchTerm)}</td>
                 <td>${highlightText(student.phone, searchTerm)}</td>
+                <td>${highlightText((student.birthNumber ?? student.nationalId ?? 'N/A').toString(), searchTerm)}</td>
                 <td>${highlightText(student.parentName, searchTerm)}</td>
                 <td>${formatDate(student.dob)}</td>
                 <td class="action-buttons">
@@ -1406,6 +1418,8 @@
             (student.surname && student.surname.toLowerCase().includes(searchTerm)) ||
             (student.email && student.email.toLowerCase().includes(searchTerm)) ||
             (student.phone && student.phone.includes(searchTerm)) ||
+            (student.birthNumber && (student.birthNumber ?? '').toString().toLowerCase().includes(searchTerm)) ||
+            (student.nationalId && (student.nationalId ?? '').toString().toLowerCase().includes(searchTerm)) ||
             (student.form && student.form.toLowerCase().includes(searchTerm)) ||
             (student.stream && student.stream.toLowerCase().includes(searchTerm))
           );
