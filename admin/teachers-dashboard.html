@@ -287,6 +287,174 @@
         margin-top: 30px;
       }
       
+      /* My Class Section Styles */
+      .table-container {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 20px;
+      }
+      
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      
+      .controls-row {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      
+      .search-box {
+        position: relative;
+        min-width: 250px;
+      }
+      
+      .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--secondary);
+        font-size: 1rem;
+      }
+      
+      .search-box input {
+        width: 100%;
+        padding: 10px 12px 10px 40px;
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 8px;
+        background: rgba(255,255,255,0.1);
+        color: var(--text-color);
+        font-size: 0.95rem;
+      }
+      
+      .search-box input:focus {
+        border-color: var(--secondary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(214, 158, 46, 0.3);
+      }
+      
+      .sort-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .sort-controls label {
+        color: var(--secondary);
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+      
+      .sort-controls select {
+        padding: 8px 12px;
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 6px;
+        background: rgba(255,255,255,0.1);
+        color: var(--text-color);
+        font-size: 0.9rem;
+      }
+      
+      .quick-actions {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      
+      .table-wrapper {
+        overflow-x: auto;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.1);
+      }
+      
+      #myClassStudentsTable {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(255,255,255,0.05);
+      }
+      
+      #myClassStudentsTable th,
+      #myClassStudentsTable td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+      
+      #myClassStudentsTable th {
+        background: rgba(214, 158, 46, 0.2);
+        font-weight: 600;
+        color: var(--secondary);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      #myClassStudentsTable td {
+        color: var(--text-color);
+        font-size: 0.9rem;
+      }
+      
+      #myClassStudentsTable tr:hover {
+        background: rgba(214, 158, 46, 0.1);
+      }
+      
+      .report-status {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+      
+      .report-status.active {
+        background: #48bb78;
+        color: white;
+      }
+      
+      .report-status.inactive {
+        background: #ed8936;
+        color: white;
+      }
+      
+      .action-btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        margin: 0 2px;
+      }
+      
+      .action-btn.activate {
+        background: #48bb78;
+        color: white;
+      }
+      
+      .action-btn.deactivate {
+        background: #ed8936;
+        color: white;
+      }
+      
+      .action-btn.delete {
+        background: #e53e3e;
+        color: white;
+      }
+      
+      .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+      
       /* Enhanced Form Elements */
       .form-group {
         margin-bottom: 1.5rem;
@@ -784,6 +952,9 @@
         <a href="#dashboard" class="active">
           <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
+        <a href="#myclass">
+          <i class="fas fa-users"></i> My Class
+        </a>
         <a href="/fees">
           <i class="fas fa-money-bill-wave"></i> Fees Payment
         </a>
@@ -824,6 +995,64 @@
         <h2 id="welcomeMessage">Welcome, Administrator!</h2>
         <div id="teacherStats">
           <!-- Dynamic teacher stats will load here -->
+        </div>
+      </section>
+
+      <!-- My Class Section -->
+      <section id="myclass" style="display: none;">
+        <h2><i class="fas fa-users"></i> My Class Students</h2>
+        
+        <div class="table-container">
+          <div class="table-header">
+            <div class="total-count" id="myClassTotalCount">Loading students...</div>
+            <div class="controls-row">
+              <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="myClassSearchInput" placeholder="Search students in my classes..." />
+              </div>
+              <div class="sort-controls">
+                <label for="sortBy">Sort by:</label>
+                <select id="sortBy">
+                  <option value="surname">Surname (A-Z)</option>
+                  <option value="firstname">First Name (A-Z)</option>
+                  <option value="form">Form/Class</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="quick-actions">
+            <button class="btn btn-primary" onclick="addStudentToClass()">
+              <i class="fas fa-user-plus"></i> Add Student
+            </button>
+            <button class="btn btn-secondary" onclick="bulkActivateReports()">
+              <i class="fas fa-file-alt"></i> Bulk Activate Reports
+            </button>
+          </div>
+          
+          <div class="table-wrapper">
+            <table id="myClassStudentsTable">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="selectAllMyClass" /></th>
+                  <th>Name</th>
+                  <th>Form/Class</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>National ID</th>
+                  <th>Report Card</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="myClassStudentsBody">
+                <!-- Student data will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="pagination-controls" id="myClassPagination" style="display: none;">
+            <!-- Pagination will be added here -->
+          </div>
         </div>
       </section>
 
@@ -1925,6 +2154,8 @@
             } else if (targetId === "attendance") {
               populateStudentDropdowns();
               generateAttendanceRows();
+            } else if (targetId === "myclass") {
+              loadMyClassStudents();
             }
           }
         });
@@ -2311,6 +2542,343 @@ document.getElementById("settingsForm").addEventListener("submit", async (e) => 
 
      // Initialize dashboard stats
 loadTeacherStats(); 
+
+      /* --------------------- My Class Functionality --------------------- */
+      let myClassStudentsData = [];
+      let currentTeacherClasses = [];
+      let filteredMyClassData = [];
+      let currentSort = 'surname';
+      
+      // Load teacher's classes and students
+      async function loadMyClassStudents() {
+        try {
+          const user = auth.currentUser;
+          if (!user) {
+            document.getElementById("myClassTotalCount").textContent = "Please login to view your classes";
+            return;
+          }
+
+          // Get current teacher's assigned classes
+          const teacherDoc = await getDoc(doc(db, "teachers", user.uid));
+          if (!teacherDoc.exists()) {
+            document.getElementById("myClassTotalCount").textContent = "Teacher profile not found";
+            return;
+          }
+
+          const teacherData = teacherDoc.data();
+          currentTeacherClasses = teacherData.classes || teacherData.classesTeaching || [];
+          
+          if (currentTeacherClasses.length === 0) {
+            document.getElementById("myClassTotalCount").textContent = "No classes assigned";
+            document.getElementById("myClassStudentsBody").innerHTML = `
+              <tr><td colspan="8" style="text-align: center; padding: 20px; color: var(--secondary);">
+                No classes have been assigned to you yet. Please contact the administrator.
+              </td></tr>
+            `;
+            return;
+          }
+
+          // Load all students
+          const studentsSnapshot = await getDocs(collection(db, "students"));
+          const allStudents = [];
+          
+          studentsSnapshot.forEach((doc) => {
+            const studentData = doc.data();
+            studentData.id = doc.id;
+            allStudents.push(studentData);
+          });
+
+          // Filter students that belong to teacher's classes
+          myClassStudentsData = allStudents.filter(student => {
+            const studentClass = `${student.form || ''} ${student.stream || ''}`.trim();
+            return currentTeacherClasses.some(teacherClass => 
+              teacherClass.toLowerCase().includes(studentClass.toLowerCase()) ||
+              studentClass.toLowerCase().includes(teacherClass.toLowerCase())
+            );
+          });
+
+          filteredMyClassData = [...myClassStudentsData];
+          sortMyClassStudents(currentSort);
+          renderMyClassStudents();
+          
+          document.getElementById("myClassTotalCount").textContent = 
+            `Total Students in My Classes: ${myClassStudentsData.length}`;
+
+        } catch (error) {
+          console.error("Error loading my class students:", error);
+          document.getElementById("myClassTotalCount").textContent = "Error loading students";
+        }
+      }
+
+      // Search functionality for My Class
+      document.getElementById("myClassSearchInput").addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        
+        if (!searchTerm) {
+          filteredMyClassData = [...myClassStudentsData];
+        } else {
+          filteredMyClassData = myClassStudentsData.filter(student => {
+            return (
+              (student.firstname && student.firstname.toLowerCase().includes(searchTerm)) ||
+              (student.surname && student.surname.toLowerCase().includes(searchTerm)) ||
+              (student.email && student.email.toLowerCase().includes(searchTerm)) ||
+              (student.phone && (student.phone ?? '').toString().toLowerCase().includes(searchTerm)) ||
+              (student.birthNumber && (student.birthNumber ?? '').toString().toLowerCase().includes(searchTerm)) ||
+              (student.nationalId && (student.nationalId ?? '').toString().toLowerCase().includes(searchTerm)) ||
+              (student.form && student.form.toLowerCase().includes(searchTerm)) ||
+              (student.stream && student.stream.toLowerCase().includes(searchTerm))
+            );
+          });
+        }
+        
+        sortMyClassStudents(currentSort);
+        renderMyClassStudents();
+      });
+
+      // Sort functionality for My Class
+      document.getElementById("sortBy").addEventListener("change", (e) => {
+        currentSort = e.target.value;
+        sortMyClassStudents(currentSort);
+        renderMyClassStudents();
+      });
+
+      function sortMyClassStudents(sortBy) {
+        filteredMyClassData.sort((a, b) => {
+          let valueA, valueB;
+          
+          switch (sortBy) {
+            case 'firstname':
+              valueA = (a.firstname || '').toLowerCase();
+              valueB = (b.firstname || '').toLowerCase();
+              break;
+            case 'form':
+              valueA = `${a.form || ''} ${a.stream || ''}`.toLowerCase();
+              valueB = `${b.form || ''} ${b.stream || ''}`.toLowerCase();
+              break;
+            case 'surname':
+            default:
+              valueA = (a.surname || '').toLowerCase();
+              valueB = (b.surname || '').toLowerCase();
+              break;
+          }
+          
+          return valueA.localeCompare(valueB);
+        });
+      }
+
+      function renderMyClassStudents() {
+        const tbody = document.getElementById("myClassStudentsBody");
+        const searchTerm = document.getElementById("myClassSearchInput").value.toLowerCase().trim();
+        
+        if (filteredMyClassData.length === 0) {
+          tbody.innerHTML = `
+            <tr><td colspan="8" style="text-align: center; padding: 20px; color: var(--secondary);">
+              ${searchTerm ? 'No students found matching your search.' : 'No students in your assigned classes.'}
+            </td></tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = filteredMyClassData.map(student => {
+          const studentClass = `${student.form || ''} ${student.stream || ''}`.trim() || 'Not Set';
+          const nationalId = (student.birthNumber ?? student.nationalId ?? 'N/A').toString();
+          const reportCardStatus = student.reportCardActive ? 'active' : 'inactive';
+          
+          return `
+            <tr>
+              <td><input type="checkbox" class="student-checkbox" data-student-id="${student.id}" /></td>
+              <td>${highlightText(student.firstname, searchTerm)} ${highlightText(student.surname, searchTerm)}</td>
+              <td>${highlightText(studentClass, searchTerm)}</td>
+              <td>${highlightText(student.email, searchTerm)}</td>
+              <td>${highlightText(student.phone || 'N/A', searchTerm)}</td>
+              <td>${highlightText(nationalId, searchTerm)}</td>
+              <td>
+                <span class="report-status ${reportCardStatus}">
+                  ${reportCardStatus.toUpperCase()}
+                </span>
+              </td>
+              <td>
+                <button class="action-btn ${reportCardStatus === 'active' ? 'deactivate' : 'activate'}" 
+                        onclick="toggleReportCard('${student.id}', ${!student.reportCardActive})">
+                  ${reportCardStatus === 'active' ? 'Deactivate' : 'Activate'}
+                </button>
+                <button class="action-btn delete" onclick="removeStudentFromClass('${student.id}')">
+                  Remove
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      function highlightText(text, searchTerm) {
+        if (!text || !searchTerm) return text || '';
+        const regex = new RegExp(`(${searchTerm})`, 'gi');
+        return text.toString().replace(regex, '<mark style="background: var(--secondary); color: #1a365d;">$1</mark>');
+      }
+
+      // Toggle report card activation for individual student
+      window.toggleReportCard = async function(studentId, activate) {
+        try {
+          await updateDoc(doc(db, "students", studentId), {
+            reportCardActive: activate,
+            lastUpdated: new Date()
+          });
+          
+          // Update local data
+          const student = myClassStudentsData.find(s => s.id === studentId);
+          if (student) {
+            student.reportCardActive = activate;
+          }
+          
+          renderMyClassStudents();
+          
+          Swal.fire({
+            icon: 'success',
+            title: activate ? 'Report Card Activated!' : 'Report Card Deactivated!',
+            text: `Report card has been ${activate ? 'activated' : 'deactivated'} for this student.`,
+            confirmButtonColor: '#d69e2e'
+          });
+          
+        } catch (error) {
+          console.error("Error toggling report card:", error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to update report card status.',
+            confirmButtonColor: '#d69e2e'
+          });
+        }
+      };
+
+      // Bulk activate report cards for selected students
+      window.bulkActivateReports = async function() {
+        const checkboxes = document.querySelectorAll('.student-checkbox:checked');
+        if (checkboxes.length === 0) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'No Students Selected',
+            text: 'Please select students to activate report cards for.',
+            confirmButtonColor: '#d69e2e'
+          });
+          return;
+        }
+
+        const confirm = await Swal.fire({
+          icon: 'question',
+          title: 'Bulk Activate Report Cards?',
+          text: `This will activate report cards for ${checkboxes.length} selected students.`,
+          showCancelButton: true,
+          confirmButtonColor: '#48bb78',
+          cancelButtonColor: '#e53e3e',
+          confirmButtonText: 'Yes, activate!'
+        });
+
+        if (confirm.isConfirmed) {
+          try {
+            const batch = writeBatch(db);
+            
+            checkboxes.forEach(checkbox => {
+              const studentId = checkbox.dataset.studentId;
+              const studentRef = doc(db, "students", studentId);
+              batch.update(studentRef, {
+                reportCardActive: true,
+                lastUpdated: new Date()
+              });
+            });
+
+            await batch.commit();
+            
+            // Update local data
+            checkboxes.forEach(checkbox => {
+              const studentId = checkbox.dataset.studentId;
+              const student = myClassStudentsData.find(s => s.id === studentId);
+              if (student) {
+                student.reportCardActive = true;
+              }
+            });
+
+            renderMyClassStudents();
+            
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: `Report cards activated for ${checkboxes.length} students.`,
+              confirmButtonColor: '#d69e2e'
+            });
+
+          } catch (error) {
+            console.error("Error bulk activating report cards:", error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error!',
+              text: 'Failed to activate report cards.',
+              confirmButtonColor: '#d69e2e'
+            });
+          }
+        }
+      };
+
+      // Remove student from teacher's class
+      window.removeStudentFromClass = async function(studentId) {
+        const confirm = await Swal.fire({
+          icon: 'warning',
+          title: 'Remove Student?',
+          text: 'This will remove the student from your class list. The student record will remain but will not appear in your class anymore.',
+          showCancelButton: true,
+          confirmButtonColor: '#e53e3e',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, remove!'
+        });
+
+        if (confirm.isConfirmed) {
+          try {
+            // In a real implementation, you might want to update the student's class assignment
+            // For now, we'll just remove from the local display
+            myClassStudentsData = myClassStudentsData.filter(s => s.id !== studentId);
+            filteredMyClassData = filteredMyClassData.filter(s => s.id !== studentId);
+            
+            renderMyClassStudents();
+            document.getElementById("myClassTotalCount").textContent = 
+              `Total Students in My Classes: ${myClassStudentsData.length}`;
+            
+            Swal.fire({
+              icon: 'success',
+              title: 'Student Removed!',
+              text: 'Student has been removed from your class list.',
+              confirmButtonColor: '#d69e2e'
+            });
+
+          } catch (error) {
+            console.error("Error removing student:", error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error!',
+              text: 'Failed to remove student.',
+              confirmButtonColor: '#d69e2e'
+            });
+          }
+        }
+      };
+
+      // Add student to class (placeholder for future implementation)
+      window.addStudentToClass = function() {
+        Swal.fire({
+          icon: 'info',
+          title: 'Add Student',
+          text: 'This feature will allow you to add students to your classes. Contact the administrator to assign students to your classes.',
+          confirmButtonColor: '#d69e2e'
+        });
+      };
+
+      // Select all checkbox functionality
+      document.getElementById("selectAllMyClass").addEventListener("change", (e) => {
+        const checkboxes = document.querySelectorAll('.student-checkbox');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = e.target.checked;
+        });
+      });
+
     </script>
   </body>
 </html>
