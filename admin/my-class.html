@@ -872,6 +872,9 @@
       <div class="assigned-classes" id="assignedClasses">
         <!-- Class badges will be loaded here -->
       </div>
+      <button class="btn btn-secondary" id="changeClassesBtn" style="margin-top: 15px; display: none;">
+        <i class="fas fa-edit"></i> Change Classes
+      </button>
     </div>
     
     <!-- Control Bar -->
@@ -1065,7 +1068,7 @@
               Swal.fire({
                 icon: 'error',
                 title: 'Account Error',
-                text: 'Your account information was not found. Please contact the administrator.',
+                text: 'Your account information was not found. Please contact the administrator to set up your teacher account.',
                 confirmButtonColor: '#d69e2e'
               }).then(() => {
                 window.location.href = "/teacherslogin";
@@ -1145,6 +1148,107 @@
     }
 
     // ========================
+    // Class Selection Modal
+    // ========================
+    
+    async function showClassSelectionModal(availableClasses) {
+      // Get student counts for each class
+      const classOptions = [];
+      for (const cls of availableClasses) {
+        try {
+          const q = query(collection(db, "students"), where("form", "==", cls));
+          const snapshot = await getDocs(q);
+          classOptions.push({
+            class: cls,
+            count: snapshot.size
+          });
+        } catch (error) {
+          console.warn(`Could not get count for class ${cls}:`, error);
+          classOptions.push({
+            class: cls,
+            count: 0
+          });
+        }
+      }
+      
+      classOptions.sort((a, b) => a.class.localeCompare(b.class));
+
+      const checkboxOptions = classOptions.map(option => 
+        `<label style="display: flex; align-items: center; margin: 10px 0; padding: 10px; background: rgba(214, 158, 46, 0.1); border-radius: 8px; cursor: pointer;">
+          <input type="checkbox" value="${option.class}" style="margin-right: 10px; transform: scale(1.2);">
+          <span style="font-weight: 500;">${option.class}</span>
+          <span style="margin-left: auto; color: var(--secondary); font-size: 0.9rem;">(${option.count} students)</span>
+        </label>`
+      ).join('');
+
+      const result = await Swal.fire({
+        title: 'Choose Your Classes',
+        html: `
+          <div style="text-align: left; max-height: 400px; overflow-y: auto;">
+            <p style="margin-bottom: 20px; text-align: center; color: var(--secondary);">
+              Select the classes you want to manage:
+            </p>
+            ${checkboxOptions}
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#d69e2e',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Save Selection',
+        cancelButtonText: 'Cancel',
+        width: 600,
+        preConfirm: () => {
+          const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+          const selectedClasses = Array.from(checkedBoxes).map(cb => cb.value);
+          
+          if (selectedClasses.length === 0) {
+            Swal.showValidationMessage('Please select at least one class');
+            return false;
+          }
+          
+          return selectedClasses;
+        }
+      });
+
+      if (result.isConfirmed) {
+        teacherClasses = result.value;
+        
+        // Save selected classes to teacher profile
+        try {
+          await setDoc(doc(db, "users", currentTeacher.id), {
+            classes: teacherClasses,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+          
+          // Reload teacher info and students
+          loadTeacherInfo();
+          await loadStudents();
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Classes Updated!',
+            text: `You are now managing ${teacherClasses.length} class(es)`,
+            confirmButtonColor: '#d69e2e',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          
+        } catch (error) {
+          console.error("Error saving class selection:", error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Save Failed',
+            text: 'Failed to save your class selection. Please try again.',
+            confirmButtonColor: '#d69e2e'
+          });
+        }
+      } else {
+        // User cancelled, redirect to dashboard
+        window.location.href = "/teachersdashboard";
+      }
+    }
+
+    // ========================
     // Data Loading
     // ========================
     
@@ -1155,12 +1259,16 @@
       document.getElementById("teacherName").textContent = `Welcome, ${teacherName}!`;
       
       const classesContainer = document.getElementById("assignedClasses");
+      const changeClassesBtn = document.getElementById("changeClassesBtn");
+      
       if (teacherClasses.length === 0) {
         classesContainer.innerHTML = '<span class="class-badge">No classes assigned</span>';
+        changeClassesBtn.style.display = "none";
       } else {
         classesContainer.innerHTML = teacherClasses
           .map(cls => `<span class="class-badge">${cls}</span>`)
           .join("");
+        changeClassesBtn.style.display = "inline-flex";
       }
       
       // Populate form dropdown with teacher's classes
@@ -1170,29 +1278,52 @@
     }
 
     async function loadStudents() {
-      if (teacherClasses.length === 0) {
-        document.getElementById("totalCount").textContent = "No classes assigned to you.";
-        document.getElementById("studentsList").innerHTML = 
-          '<div style="text-align: center; padding: 40px; color: var(--secondary);">' +
-          '<i class="fas fa-info-circle" style="font-size: 3rem; margin-bottom: 20px;"></i>' +
-          '<h3>No Classes Assigned</h3>' +
-          '<p>Contact your administrator to assign classes to your account.</p>' +
-          '</div>';
-        return;
-      }
-      
       showSpinner(true);
       
       try {
-        const studentsRef = collection(db, "students");
-        const q = query(studentsRef, where("form", "in", teacherClasses));
-        const querySnapshot = await getDocs(q);
+        // If teacher has no classes assigned, show them all available classes to choose from
+        if (teacherClasses.length === 0) {
+          const studentsRef = collection(db, "students");
+          const querySnapshot = await getDocs(studentsRef);
+          
+          const allClasses = new Set();
+          querySnapshot.forEach(docSnap => {
+            const student = docSnap.data();
+            if (student.form) {
+              allClasses.add(student.form);
+            }
+          });
+          
+          await showClassSelectionModal(Array.from(allClasses));
+          return;
+        }
         
+        // Load students using chunked queries to avoid Firestore "in" limit of 10
         studentsData = [];
-        querySnapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          data.id = docSnap.id;
-          studentsData.push(data);
+        const studentsRef = collection(db, "students");
+        
+        // Split classes into chunks of 10 for Firestore "in" operator
+        const chunkSize = 10;
+        const classChunks = [];
+        for (let i = 0; i < teacherClasses.length; i += chunkSize) {
+          classChunks.push(teacherClasses.slice(i, i + chunkSize));
+        }
+        
+        // Run parallel queries for each chunk
+        const queryPromises = classChunks.map(chunk => {
+          const q = query(studentsRef, where("form", "in", chunk));
+          return getDocs(q);
+        });
+        
+        const queryResults = await Promise.all(queryPromises);
+        
+        // Combine results from all chunks
+        queryResults.forEach(querySnapshot => {
+          querySnapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            data.id = docSnap.id;
+            studentsData.push(data);
+          });
         });
         
         filteredData = studentsData;
@@ -1419,10 +1550,10 @@
         
         if (isEdit) {
           const studentId = document.getElementById("studentId").value;
-          await updateDoc(doc(db, "students", studentId), {
+          await setDoc(doc(db, "students", studentId), {
             ...studentData,
             updatedAt: serverTimestamp()
-          });
+          }, { merge: true });
           
           Swal.fire({
             icon: 'success',
@@ -1472,10 +1603,10 @@
         
         const newStatus = !student.reportCardActive;
         
-        await updateDoc(doc(db, "students", studentId), {
+        await setDoc(doc(db, "students", studentId), {
           reportCardActive: newStatus,
           updatedAt: serverTimestamp()
-        });
+        }, { merge: true });
         
         // Update local data
         student.reportCardActive = newStatus;
@@ -1531,10 +1662,10 @@
           
           const classStudents = studentsData.filter(s => s.form === className);
           const updatePromises = classStudents.map(student => 
-            updateDoc(doc(db, "students", student.id), {
+            setDoc(doc(db, "students", student.id), {
               reportCardActive: true,
               updatedAt: serverTimestamp()
-            })
+            }, { merge: true })
           );
           
           await Promise.all(updatePromises);
@@ -1911,10 +2042,10 @@
           showSpinner(true);
           
           const updatePromises = studentsData.map(student => 
-            updateDoc(doc(db, "students", student.id), {
+            setDoc(doc(db, "students", student.id), {
               reportCardActive: true,
               updatedAt: serverTimestamp()
-            })
+            }, { merge: true })
           );
           
           await Promise.all(updatePromises);
@@ -1948,6 +2079,40 @@
     
     // Bulk Delete button
     document.getElementById("bulkDeleteBtn").addEventListener("click", bulkDeleteStudents);
+    
+    // Change Classes button
+    document.getElementById("changeClassesBtn").addEventListener("click", async () => {
+      try {
+        showSpinner(true);
+        const studentsRef = collection(db, "students");
+        const querySnapshot = await getDocs(studentsRef);
+        
+        // Get all available classes from students
+        const allClasses = new Set();
+        const allStudentsData = [];
+        
+        querySnapshot.forEach(docSnap => {
+          const student = { id: docSnap.id, ...docSnap.data() };
+          allStudentsData.push(student);
+          if (student.form) {
+            allClasses.add(student.form);
+          }
+        });
+        
+        showSpinner(false);
+        await showClassSelectionModal(Array.from(allClasses), allStudentsData);
+        
+      } catch (error) {
+        console.error("Error loading classes:", error);
+        showSpinner(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load available classes. Please try again.',
+          confirmButtonColor: '#d69e2e'
+        });
+      }
+    });
     
     // Export PDF button
     document.getElementById("exportPDFBtn").addEventListener("click", () => {
