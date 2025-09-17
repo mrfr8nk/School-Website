@@ -558,6 +558,50 @@
 
     <!-- Firebase and JavaScript -->
     <script type="module">
+      // Function to wait for SweetAlert2 to load
+      function waitForSwal() {
+        return new Promise((resolve, reject) => {
+          if (typeof Swal !== 'undefined') {
+            resolve();
+          } else {
+            let attempts = 0;
+            const maxAttempts = 50; // Wait up to 5 seconds
+            const checkSwal = setInterval(() => {
+              attempts++;
+              if (typeof Swal !== 'undefined') {
+                clearInterval(checkSwal);
+                resolve();
+              } else if (attempts >= maxAttempts) {
+                clearInterval(checkSwal);
+                reject(new Error('SweetAlert2 failed to load'));
+              }
+            }, 100);
+          }
+        });
+      }
+
+      // Fallback alert function
+      function showAlert(type, title, text) {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: type,
+            title: title,
+            text: text,
+            confirmButtonColor: '#d69e2e'
+          });
+        } else {
+          alert(title + ': ' + text);
+        }
+      }
+
+      // Wait for SweetAlert2 to be available
+      try {
+        await waitForSwal();
+        console.log('SweetAlert2 loaded successfully');
+      } catch (error) {
+        console.warn('SweetAlert2 failed to load, using fallback alerts');
+      }
+
       // Import Firebase services and functions from centralized config
       import {
         auth,
@@ -611,26 +655,26 @@
           })
           .then((docSnap) => {
             if (docSnap.exists() && docSnap.data().role === "admin") {
-              Swal.fire({
-                icon: 'success',
-                title: 'Login Successful',
-                text: 'Welcome to the Admin Dashboard',
-                confirmButtonColor: '#d69e2e'
-              }).then(() => {
+              if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Login Successful',
+                  text: 'Welcome to the Admin Dashboard',
+                  confirmButtonColor: '#d69e2e'
+                }).then(() => {
+                  window.location.href = '/teachersdashboard';
+                });
+              } else {
+                alert('Login Successful: Welcome to the Admin Dashboard');
                 window.location.href = '/teachersdashboard';
-              });
+              }
             } else {
               auth.signOut();
               throw new Error('You do not have admin privileges');
             }
           })
           .catch((error) => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Login Failed',
-              text: error.message,
-              confirmButtonColor: '#d69e2e'
-            });
+            showAlert('error', 'Login Failed', error.message);
           })
           .finally(() => {
             loginBtn.innerHTML = originalText;
@@ -653,26 +697,26 @@
           })
           .then((docSnap) => {
             if (docSnap.exists() && docSnap.data().role === "admin") {
-              Swal.fire({
-                icon: 'success',
-                title: 'Login Successful',
-                text: 'Welcome to the Admin Dashboard',
-                confirmButtonColor: '#d69e2e'
-              }).then(() => {
+              if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Login Successful',
+                  text: 'Welcome to the Admin Dashboard',
+                  confirmButtonColor: '#d69e2e'
+                }).then(() => {
+                  window.location.href = '/teachersdashboard';
+                });
+              } else {
+                alert('Login Successful: Welcome to the Admin Dashboard');
                 window.location.href = '/teachersdashboard';
-              });
+              }
             } else {
               auth.signOut();
               throw new Error('You do not have admin privileges');
             }
           })
           .catch((error) => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Google Login Failed',
-              text: error.message,
-              confirmButtonColor: '#d69e2e'
-            });
+            showAlert('error', 'Google Login Failed', error.message);
           })
           .finally(() => {
             googleBtn.innerHTML = originalText;
@@ -684,12 +728,7 @@
       document.getElementById('send-otp-btn').addEventListener('click', () => {
         const phone = document.getElementById('phone').value;
         if (!phone) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Missing Phone Number',
-            text: 'Please enter your phone number with country code',
-            confirmButtonColor: '#d69e2e'
-          });
+          showAlert('error', 'Missing Phone Number', 'Please enter your phone number with country code');
           return;
         }
 
@@ -711,12 +750,7 @@
         signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
           .then((result) => {
             confirmationResult = result;
-            Swal.fire({
-              icon: 'success',
-              title: 'OTP Sent',
-              text: 'Verification code has been sent to your phone',
-              confirmButtonColor: '#d69e2e'
-            });
+            showAlert('success', 'OTP Sent', 'Verification code has been sent to your phone');
             
             // Show OTP input fields
             document.getElementById('otp-input-group').style.display = 'block';
@@ -724,12 +758,7 @@
             otpBtn.style.display = 'none';
           })
           .catch((error) => {
-            Swal.fire({
-              icon: 'error',
-              title: 'OTP Failed',
-              text: error.message,
-              confirmButtonColor: '#d69e2e'
-            });
+            showAlert('error', 'OTP Failed', error.message);
           })
           .finally(() => {
             otpBtn.innerHTML = originalText;
@@ -740,12 +769,7 @@
       document.getElementById('verify-otp-btn').addEventListener('click', () => {
         const otpCode = document.getElementById('otp-code').value;
         if (!otpCode) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Missing OTP',
-            text: 'Please enter the verification code',
-            confirmButtonColor: '#d69e2e'
-          });
+          showAlert('error', 'Missing OTP', 'Please enter the verification code');
           return;
         }
 
@@ -761,26 +785,26 @@
           })
           .then((docSnap) => {
             if (docSnap.exists() && docSnap.data().role === "admin") {
-              Swal.fire({
-                icon: 'success',
-                title: 'Login Successful',
-                text: 'Welcome to the Admin Dashboard',
-                confirmButtonColor: '#d69e2e'
-              }).then(() => {
+              if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Login Successful',
+                  text: 'Welcome to the Admin Dashboard',
+                  confirmButtonColor: '#d69e2e'
+                }).then(() => {
+                  window.location.href = '/teachersdashboard';
+                });
+              } else {
+                alert('Login Successful: Welcome to the Admin Dashboard');
                 window.location.href = '/teachersdashboard';
-              });
+              }
             } else {
               auth.signOut();
               throw new Error('You do not have admin privileges');
             }
           })
           .catch((error) => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Verification Failed',
-              text: error.message,
-              confirmButtonColor: '#d69e2e'
-            });
+            showAlert('error', 'Verification Failed', error.message);
           })
           .finally(() => {
             verifyBtn.innerHTML = originalText;
