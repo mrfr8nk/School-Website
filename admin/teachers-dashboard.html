@@ -23,6 +23,7 @@
         --glass: rgba(26, 54, 93, 0.15);
         --bg-gradient: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
         --text-color: #ffffff;
+        --text-secondary: #e2e8f0;
         --overlay: rgba(0, 0, 0, 0.5);
         --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
         --header-height: 80px;
@@ -35,6 +36,7 @@
         --glass: rgba(237, 242, 247, 0.9);
         --bg-gradient: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
         --text-color: #2d3748;
+        --text-secondary: #4a5568;
         --overlay: rgba(255, 255, 255, 0.4);
       }
       
@@ -76,7 +78,7 @@
         font-weight: 700;
         display: flex;
         align-items: center;
-        color: white;
+        color: var(--text-color);
       }
       
       .logo span {
@@ -94,7 +96,7 @@
         cursor: pointer;
         background: transparent;
         border: none;
-        color: white;
+        color: var(--text-color);
         transition: transform 0.3s ease;
       }
       
@@ -156,7 +158,7 @@
       
       .close-btn:hover {
         background: var(--primary);
-        color: white;
+        color: var(--text-color);
         transform: scale(1.1);
       }
       
@@ -182,7 +184,7 @@
       
       .menu-links a:hover {
         background: var(--primary);
-        color: white;
+        color: var(--text-color);
         transform: translateX(5px);
       }
       
@@ -242,7 +244,7 @@
         font-size: 2.5rem;
         margin-bottom: 1.5rem;
         animation: fadeIn 1s ease-in-out;
-        color: white;
+        color: var(--text-color);
         text-shadow: 0 2px 4px rgba(0,0,0,0.2);
       }
       
@@ -275,7 +277,7 @@
       .stat-card p {
         font-size: 2rem;
         font-weight: 700;
-        color: white;
+        color: var(--text-color);
       }
       
       .stats-grid {
@@ -375,7 +377,7 @@
       
       table th {
         background: var(--primary);
-        color: white;
+        color: var(--text-color);
         font-weight: 600;
         text-transform: uppercase;
         font-size: 0.85rem;
@@ -415,7 +417,7 @@
       
       .edit-btn {
         background: #38a169;
-        color: white;
+        color: var(--text-color);
       }
       
       .edit-btn:hover {
@@ -425,7 +427,7 @@
       
       .delete-btn {
         background: #e53e3e;
-        color: white;
+        color: var(--text-color);
       }
       
       .delete-btn:hover {
@@ -442,7 +444,7 @@
       
       .attendance-table th {
         background: var(--primary);
-        color: white;
+        color: var(--text-color);
         text-align: center;
         padding: 10px;
       }
@@ -511,7 +513,7 @@
       
       .notice-actions .edit-notice {
         background: #4299e1;
-        color: white;
+        color: var(--text-color);
       }
       
       .notice-actions .edit-notice:hover {
@@ -520,7 +522,7 @@
       
       .notice-actions .delete-notice {
         background: #e53e3e;
-        color: white;
+        color: var(--text-color);
       }
       
       .notice-actions .delete-notice:hover {
@@ -619,7 +621,7 @@
       /* Footer - Compact Design like Student Dashboard */
       footer {
         background: var(--primary);
-        color: white;
+        color: var(--text-color);
         padding: 0.5rem 0;
         text-align: center;
         position: relative;
@@ -634,7 +636,7 @@
       }
       
       .social-icons a {
-        color: white;
+        color: var(--text-color);
         font-size: 1rem;
         transition: all 0.3s ease;
         opacity: 0.8;
@@ -1043,6 +1045,10 @@
                 <div class="form-group">
                   <label for="editEmail">Email:</label>
                   <input type="email" id="editEmail" required />
+                </div>
+                <div class="form-group">
+                  <label for="editBirthNumber">Birth Number/National ID:</label>
+                  <input type="text" id="editBirthNumber" placeholder="Enter birth certificate or national ID number" />
                 </div>
                 <div class="form-group">
                   <label for="editParentName">Parent Name:</label>
@@ -1756,6 +1762,7 @@
                 <th>First Name</th>
                 <th>Surname</th>
                 <th>Email</th>
+                <th>Birth Number/National ID</th>
                 <th>Class</th>
                 <th>Actions</th>
               </tr>
@@ -1771,6 +1778,7 @@
                 <td>${student.firstname || "-"}</td>
                 <td>${student.surname || "-"}</td>
                 <td>${student.email || "-"}</td>
+                <td>${student.birthNumber || "-"}</td>
                 <td>${student.form || "-"} ${student.stream || ""}</td>
                 <td class="action-buttons">
                   <button class="edit-btn" onclick="editStudent('${student.id}')">
@@ -1820,6 +1828,7 @@
         document.getElementById("editSurname").value = student.surname || "";
         document.getElementById("editPhone").value = student.phone || "";
         document.getElementById("editEmail").value = student.email || "";
+        document.getElementById("editBirthNumber").value = student.birthNumber || "";
         document.getElementById("editParentName").value = student.parentName || "";
         document.getElementById("editParentPhone").value = student.parentPhone || "";
         document.getElementById("editDob").value = student.dob || "";
@@ -1847,6 +1856,7 @@
           surname: document.getElementById("editSurname").value,
           phone: document.getElementById("editPhone").value,
           email: document.getElementById("editEmail").value,
+          birthNumber: document.getElementById("editBirthNumber").value,
           parentName: document.getElementById("editParentName").value,
           parentPhone: document.getElementById("editParentPhone").value,
           dob: document.getElementById("editDob").value,
@@ -2115,7 +2125,7 @@ loadingStyle.textContent = `
     bottom: 20px;
     right: 20px;
     background: #38a169;
-    color: white;
+    color: var(--text-color);
     padding: 15px 25px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);

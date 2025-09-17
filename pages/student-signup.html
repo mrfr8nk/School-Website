@@ -507,6 +507,11 @@
         </div>
 
         <div class="form-group">
+          <label for="birth-number">Birth Number/National ID</label>
+          <input type="text" id="birth-number" class="form-control" placeholder="Enter birth certificate or national ID number" />
+        </div>
+
+        <div class="form-group">
           <label for="email">Email Address</label>
           <input type="email" id="email" class="form-control" placeholder="yourname@example.com" required />
         </div>
@@ -700,6 +705,7 @@
       // Get form values
       const firstname = document.getElementById("firstname").value.trim();
       const surname = document.getElementById("surname").value.trim();
+      const birthNumber = document.getElementById("birth-number").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const countryCode = document.getElementById("country-code").value;
@@ -776,6 +782,7 @@
         await setDoc(doc(db, "students", email), {
           firstname: firstname,
           surname: surname,
+          birthNumber: birthNumber,
           email: email,
           phone: fullPhone,
           dob: dob,
