@@ -1105,6 +1105,21 @@
           } catch (error) {
             console.error('Error checking authentication:', error);
             showSpinner(false);
+            
+            // Show offline indicator but don't allow access - security first
+            if (error.code === 'unavailable' || error.code === 'deadline-exceeded') {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Connection Issue',
+                text: 'Unable to verify your account permissions. Please check your connection and try again.',
+                confirmButtonColor: '#d69e2e',
+                allowOutsideClick: false
+              }).then(() => {
+                window.location.reload(); // Retry
+              });
+              return;
+            }
+            
             Swal.fire({
               icon: 'error',
               title: 'Database Error',

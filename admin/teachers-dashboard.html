@@ -2218,39 +2218,80 @@ function checkAuthState() {
       return;
     }
 
-    // Get user document from Firestore
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    
-    if (!userDoc.exists()) {
-      // User document doesn't exist, log out
+    try {
+      // Get user document from Firestore
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      
+      if (!userDoc.exists()) {
+        console.error('User document not found in database');
+        await signOut(auth);
+        Swal.fire({
+          icon: 'error',
+          title: 'Account Error',
+          text: 'Your account information was not found. Please contact the administrator.',
+          confirmButtonColor: '#d69e2e'
+        }).then(() => {
+          window.location.href = "/teacherslogin";
+        });
+        return;
+      }
+
+      const userData = userDoc.data();
+      
+      // Explicit role check - must be teacher or admin
+      if (!userData.role || !['admin', 'teacher'].includes(userData.role.toLowerCase())) {
+        console.error('Invalid user role:', userData.role);
+        await signOut(auth);
+        
+        // Show appropriate message based on role
+        if (userData.role && userData.role.toLowerCase() === "student") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Access Denied',
+            text: 'Students cannot access the admin portal',
+            confirmButtonColor: '#d69e2e'
+          }).then(() => {
+            window.location.href = "/login";
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Access Denied',
+            text: 'You do not have permission to access this page.',
+            confirmButtonColor: '#d69e2e'
+          }).then(() => {
+            window.location.href = "/teacherslogin";
+          });
+        }
+        return;
+      }
+
+      // Valid teacher/admin - allow access
+      const welcomeMessage = document.getElementById("welcomeMessage");
+      if (welcomeMessage) {
+        welcomeMessage.innerHTML = `Welcome, <span>${userData.firstname || user.email.split('@')[0]}</span> (${userData.role})!`;
+      }
+      
+    } catch (error) {
+      console.error('Error checking user authorization:', error);
+      
+      // Show offline indicator but don't allow access - security first
+      if (error.code === 'unavailable' || error.code === 'deadline-exceeded') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Connection Issue',
+          text: 'Unable to verify your account permissions. Please check your connection and try again.',
+          confirmButtonColor: '#d69e2e',
+          allowOutsideClick: false
+        }).then(() => {
+          window.location.reload(); // Retry
+        });
+        return;
+      }
+      
+      // Other errors - redirect to login
       await signOut(auth);
       window.location.href = "/teacherslogin";
-      return;
-    }
-
-    const userData = userDoc.data();
-    
-    // Check if user is a student (shouldn't have access)
-    if (userData.role && userData.role.toLowerCase() === "student") {
-      // Log out student users immediately
-      await signOut(auth);
-      
-      // Show message and redirect
-      Swal.fire({
-        icon: 'error',
-        title: 'Access Denied',
-        text: 'Students cannot access the admin portal',
-        confirmButtonColor: '#d69e2e'
-      }).then(() => {
-        window.location.href = "/studentlogin"; // Redirect to student login
-      });
-      return;
-    }
-
-    // For teachers/admins, you can optionally show their role
-    const welcomeMessage = document.getElementById("welcomeMessage");
-    if (welcomeMessage) {
-      welcomeMessage.innerHTML = `Welcome, <span>${userData.firstname || user.email.split('@')[0]}</span> (${userData.role || 'teacher'})!`;
     }
   });
 }
