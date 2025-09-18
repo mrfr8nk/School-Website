@@ -882,7 +882,7 @@
       <div class="search-sort-container">
         <div class="search-bar">
           <i class="fas fa-search"></i>
-          <input type="text" id="searchInput" placeholder="Search students by name, email, or phone..." />
+          <input type="text" id="searchInput" placeholder="Search students by name, email, phone, or national ID..." />
         </div>
         <div class="sort-options">
           <select id="sortBy">
@@ -949,6 +949,11 @@
               <label for="phone">Phone</label>
               <input type="tel" id="phone" />
             </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="birthNumber">National ID / Birth Number</label>
+            <input type="text" id="birthNumber" placeholder="Enter national ID or birth certificate number" />
           </div>
           
           <div class="form-row">
@@ -1092,7 +1097,7 @@
             }
 
             currentTeacher = { ...userData, id: user.uid };
-            teacherClasses = userData.classes || [];
+            teacherClasses = userData.classesTeaching || userData.classes || [];
             
             console.log('Authentication successful for:', userData.firstname, userData.surname);
             showSpinner(false);
@@ -1311,18 +1316,56 @@
         
         // Run parallel queries for each chunk
         const queryPromises = classChunks.map(chunk => {
-          const q = query(studentsRef, where("form", "in", chunk));
-          return getDocs(q);
+          const promises = [];
+          
+          chunk.forEach(classStr => {
+            // Robust parsing for different class formats using regex
+            // Handles: "Form 1", "Form 1G", "Form 1 G", "Upper 6 Sciences", etc.
+            const formStreamMatch = classStr.match(/^(Form\s+\d+)\s*([A-Za-z]+)?$/) || 
+                                   classStr.match(/^(Upper\s+6|Lower\s+6)\s+([A-Za-z]+)$/) ||
+                                   classStr.match(/^([^0-9]+\s*\d+)\s*([A-Za-z]+)?$/);
+            
+            if (formStreamMatch) {
+              const form = formStreamMatch[1].trim(); // "Form 1", "Upper 6", etc.
+              const stream = formStreamMatch[2] || ''; // "G", "Sciences", etc.
+              
+              if (stream) {
+                // Query for specific form + stream combination
+                promises.push(getDocs(query(studentsRef, 
+                  where("form", "==", form), 
+                  where("stream", "==", stream)
+                )));
+              } else {
+                // Query for form only (no stream specified)
+                promises.push(getDocs(query(studentsRef, 
+                  where("form", "==", form)
+                )));
+              }
+            } else {
+              // Fallback: treat as form-only for any unmatched patterns
+              promises.push(getDocs(query(studentsRef, 
+                where("form", "==", classStr)
+              )));
+            }
+          });
+          
+          return Promise.all(promises);
         });
         
-        const queryResults = await Promise.all(queryPromises);
+        const nestedQueryResults = await Promise.all(queryPromises);
         
-        // Combine results from all chunks
+        
+        // Flatten nested results and combine from all chunks
+        const queryResults = nestedQueryResults.flat();
+        
         queryResults.forEach(querySnapshot => {
           querySnapshot.forEach(docSnap => {
             const data = docSnap.data();
             data.id = docSnap.id;
-            studentsData.push(data);
+            // Avoid duplicates by checking if student already exists
+            if (!studentsData.find(existing => existing.id === data.id)) {
+              studentsData.push(data);
+            }
           });
         });
         
@@ -1441,6 +1484,7 @@
               <th>#</th>
               <th onclick="sortByColumn('firstname')">First Name <i class="fas fa-sort"></i></th>
               <th onclick="sortByColumn('surname')">Surname <i class="fas fa-sort"></i></th>
+              <th>National ID</th>
               <th>Class</th>
               <th>Stream</th>
               <th>Email</th>
@@ -1466,6 +1510,7 @@
                 <td>${idx + 1}</td>
                 <td>${highlightText(student.firstname || '', searchTerm)}</td>
                 <td>${highlightText(student.surname || '', searchTerm)}</td>
+                <td>${highlightText(student.birthNumber || 'Not provided', searchTerm)}</td>
                 <td>${student.form || 'N/A'}</td>
                 <td>${student.stream || 'N/A'}</td>
                 <td>${highlightText(student.email || '', searchTerm)}</td>
@@ -1532,7 +1577,8 @@
             (student.phone && student.phone.includes(searchTerm)) ||
             (student.form && student.form.toLowerCase().includes(searchTerm)) ||
             (student.stream && student.stream.toLowerCase().includes(searchTerm)) ||
-            (student.parentName && student.parentName.toLowerCase().includes(searchTerm))
+            (student.parentName && student.parentName.toLowerCase().includes(searchTerm)) ||
+            (student.birthNumber && String(student.birthNumber).toLowerCase().includes(searchTerm))
           );
         });
       }
@@ -1715,6 +1761,7 @@
         document.getElementById("surname").value = studentData.surname || "";
         document.getElementById("email").value = studentData.email || "";
         document.getElementById("phone").value = studentData.phone || "";
+        document.getElementById("birthNumber").value = studentData.birthNumber || "";
         document.getElementById("form").value = studentData.form || "";
         document.getElementById("stream").value = studentData.stream || "";
         document.getElementById("dob").value = studentData.dob || "";
@@ -1747,6 +1794,7 @@
           <p><strong>Name:</strong> ${student.firstname} ${student.surname}</p>
           <p><strong>Email:</strong> ${student.email || 'N/A'}</p>
           <p><strong>Phone:</strong> ${student.phone || 'N/A'}</p>
+          <p><strong>National ID:</strong> ${student.birthNumber || 'Not provided'}</p>
           <p><strong>Class:</strong> ${student.form || 'N/A'}</p>
           <p><strong>Stream:</strong> ${student.stream || 'N/A'}</p>
           <p><strong>Date of Birth:</strong> ${formatDate(student.dob)}</p>
@@ -1996,6 +2044,7 @@
         surname: document.getElementById("surname").value.trim(),
         email: document.getElementById("email").value.trim(),
         phone: document.getElementById("phone").value.trim(),
+        birthNumber: document.getElementById("birthNumber").value.trim(),
         form: document.getElementById("form").value,
         stream: document.getElementById("stream").value.trim(),
         dob: document.getElementById("dob").value,
