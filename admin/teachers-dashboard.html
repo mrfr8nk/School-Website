@@ -952,7 +952,7 @@
         <a href="#dashboard" class="active">
           <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
-        <a href="#myclass">
+        <a href="/myclass">
           <i class="fas fa-users"></i> My Class
         </a>
         <a href="/fees">
@@ -998,60 +998,18 @@
         </div>
       </section>
 
-      <!-- My Class Section -->
+      <!-- My Class Section - Redirects to dedicated page -->
       <section id="myclass" style="display: none;">
         <h2><i class="fas fa-users"></i> My Class Students</h2>
         
         <div class="table-container">
-          <div class="table-header">
-            <div class="total-count" id="myClassTotalCount">Loading students...</div>
-            <div class="controls-row">
-              <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="myClassSearchInput" placeholder="Search students in my classes..." />
-              </div>
-              <div class="sort-controls">
-                <label for="sortBy">Sort by:</label>
-                <select id="sortBy">
-                  <option value="surname">Surname (A-Z)</option>
-                  <option value="firstname">First Name (A-Z)</option>
-                  <option value="form">Form/Class</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          <div class="quick-actions">
-            <button class="btn btn-primary" onclick="addStudentToClass()">
-              <i class="fas fa-user-plus"></i> Add Student
-            </button>
-            <button class="btn btn-secondary" onclick="bulkActivateReports()">
-              <i class="fas fa-file-alt"></i> Bulk Activate Reports
-            </button>
-          </div>
-          
-          <div class="table-wrapper">
-            <table id="myClassStudentsTable">
-              <thead>
-                <tr>
-                  <th><input type="checkbox" id="selectAllMyClass" /></th>
-                  <th>Name</th>
-                  <th>Form/Class</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>National ID</th>
-                  <th>Report Card</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="myClassStudentsBody">
-                <!-- Student data will be loaded here -->
-              </tbody>
-            </table>
-          </div>
-          
-          <div class="pagination-controls" id="myClassPagination" style="display: none;">
-            <!-- Pagination will be added here -->
+          <div style="text-align: center; padding: 40px; background: rgba(214, 158, 46, 0.1); border-radius: 12px; border: 1px solid var(--secondary);">
+            <i class="fas fa-users" style="font-size: 3rem; color: var(--secondary); margin-bottom: 20px;"></i>
+            <h3 style="color: var(--secondary); margin-bottom: 15px;">My Class Management</h3>
+            <p style="margin-bottom: 25px; font-size: 1.1rem;">Manage your students, track attendance, and set grades in the dedicated My Class page.</p>
+            <a href="/myclass" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">
+              <i class="fas fa-external-link-alt"></i> Go to My Class
+            </a>
           </div>
         </div>
       </section>
@@ -2209,95 +2167,7 @@
       
 
 
-// Auth state checker function
-function checkAuthState() {
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      // No user logged in, redirect to login
-      window.location.href = "/teacherslogin";
-      return;
-    }
-
-    try {
-      // Get user document from Firestore
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      
-      if (!userDoc.exists()) {
-        console.error('User document not found in database');
-        await signOut(auth);
-        Swal.fire({
-          icon: 'error',
-          title: 'Account Error',
-          text: 'Your account information was not found. Please contact the administrator.',
-          confirmButtonColor: '#d69e2e'
-        }).then(() => {
-          window.location.href = "/teacherslogin";
-        });
-        return;
-      }
-
-      const userData = userDoc.data();
-      
-      // Explicit role check - must be teacher or admin
-      if (!userData.role || !['admin', 'teacher'].includes(userData.role.toLowerCase())) {
-        console.error('Invalid user role:', userData.role);
-        await signOut(auth);
-        
-        // Show appropriate message based on role
-        if (userData.role && userData.role.toLowerCase() === "student") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Access Denied',
-            text: 'Students cannot access the admin portal',
-            confirmButtonColor: '#d69e2e'
-          }).then(() => {
-            window.location.href = "/login";
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Access Denied',
-            text: 'You do not have permission to access this page.',
-            confirmButtonColor: '#d69e2e'
-          }).then(() => {
-            window.location.href = "/teacherslogin";
-          });
-        }
-        return;
-      }
-
-      // Valid teacher/admin - allow access
-      const welcomeMessage = document.getElementById("welcomeMessage");
-      if (welcomeMessage) {
-        welcomeMessage.innerHTML = `Welcome, <span>${userData.firstname || user.email.split('@')[0]}</span> (${userData.role})!`;
-      }
-      
-    } catch (error) {
-      console.error('Error checking user authorization:', error);
-      
-      // Show offline indicator but don't allow access - security first
-      if (error.code === 'unavailable' || error.code === 'deadline-exceeded') {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Connection Issue',
-          text: 'Unable to verify your account permissions. Please check your connection and try again.',
-          confirmButtonColor: '#d69e2e',
-          allowOutsideClick: false
-        }).then(() => {
-          window.location.reload(); // Retry
-        });
-        return;
-      }
-      
-      // Other errors - redirect to login
-      await signOut(auth);
-      window.location.href = "/teacherslogin";
-    }
-  });
-}
-
-// Call this when your page loads
-checkAuthState();
+// Auth state checker function removed - using single onAuthStateChanged listener above to prevent race conditions
 
 // Add this to your logout button handler
 document.getElementById("logoutBtn").addEventListener("click", async (e) => {
