@@ -2570,13 +2570,21 @@ loadTeacherStats();
           }
 
           // Get current teacher's assigned classes
-          const teacherDoc = await getDoc(doc(db, "teachers", user.uid));
+          const teacherDoc = await getDoc(doc(db, "users", user.uid));
           if (!teacherDoc.exists()) {
             document.getElementById("myClassTotalCount").textContent = "Teacher profile not found";
             return;
           }
 
           const teacherData = teacherDoc.data();
+          
+          // Validate user role (same as my-class.html)
+          if (!teacherData.role || !['admin', 'teacher'].includes(teacherData.role.toLowerCase())) {
+            console.error('Invalid user role:', teacherData.role);
+            document.getElementById("myClassTotalCount").textContent = "Access denied - invalid user role";
+            return;
+          }
+          
           currentTeacherClasses = teacherData.classes || teacherData.classesTeaching || [];
           
           if (currentTeacherClasses.length === 0) {
