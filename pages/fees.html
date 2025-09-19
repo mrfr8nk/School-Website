@@ -880,23 +880,31 @@
           <div class="value" id="totalOutstandingUSD">$0</div>
           <div class="trend up"><i class="fas fa-arrow-up"></i> <span id="outstandingTrend">0%</span> from last term</div>
         </div>
-        <div class="stat-card">
-          <h3><i class="fas fa-exchange-alt"></i> Currency Converter</h3>
-          <div class="converter-container">
-            <div class="converter-row">
-              <div class="converter-input" data-currency="$">
-                <input type="number" id="usdAmount" placeholder="USD" oninput="convertCurrency('usd')">
+        <div class="stat-card" style="grid-column: span 2;">
+          <h3><i class="fas fa-exchange-alt"></i> Simple Currency Converter</h3>
+          <div style="background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 16px; margin-top: 1rem;">
+            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: end; margin-bottom: 1.5rem;">
+              <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--secondary);">USD Amount</label>
+                <div style="position: relative;">
+                  <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-color); font-weight: 600;">$</span>
+                  <input type="number" id="usdInput" placeholder="0.00" step="0.01" style="width: 100%; padding: 1rem 1rem 1rem 35px; border: 2px solid rgba(214, 158, 46, 0.3); border-radius: 12px; font-size: 1.1rem; background: rgba(255,255,255,0.1); color: var(--text-color); font-weight: 600;" oninput="convertToZWL()">
+                </div>
               </div>
-              <button class="converter-swap-btn" onclick="swapCurrencies()">
-                <i class="fas fa-exchange-alt"></i>
-              </button>
-              <div class="converter-input" data-currency="ZWL$">
-                <input type="number" id="zwlAmount" placeholder="ZWL" oninput="convertCurrency('zwl')">
+              <div style="text-align: center; padding-top: 20px;">
+                <div style="background: var(--secondary); color: #1a365d; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 600; margin: 0 auto;">≈</div>
+              </div>
+              <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--secondary);">ZWL Amount</label>
+                <div style="position: relative;">
+                  <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-color); font-weight: 600;">ZWL$</span>
+                  <input type="number" id="zwlInput" placeholder="0.00" step="0.01" style="width: 100%; padding: 1rem 1rem 1rem 55px; border: 2px solid rgba(214, 158, 46, 0.3); border-radius: 12px; font-size: 1.1rem; background: rgba(255,255,255,0.1); color: var(--text-color); font-weight: 600;" oninput="convertToUSD()">
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="exchangeRate">Exchange Rate (USD to ZWL)</label>
-              <input type="number" id="exchangeRate" value="500" onchange="updateExchangeRate()">
+            <div style="text-align: center; padding: 1rem; background: rgba(214, 158, 46, 0.1); border-radius: 8px; border-left: 4px solid var(--secondary);">
+              <span style="font-size: 0.9rem; color: var(--text-color);">Exchange Rate: <strong style="color: var(--secondary);">1 USD = <span id="currentRate">40</span> ZWL</strong></span>
+              <button onclick="updateRate()" style="margin-left: 15px; padding: 0.3rem 0.8rem; background: var(--secondary); color: #1a365d; border: none; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">Update Rate</button>
             </div>
           </div>
         </div>
@@ -979,31 +987,6 @@
           <canvas id="paymentMethodsChart" height="300"></canvas>
         </div>
         
-        <!-- Currency Converter Section -->
-        <div class="converter-container">
-          <h2><i class="fas fa-exchange-alt"></i> Currency Converter & Exchange Rate Management</h2>
-          <div class="converter-row">
-            <div class="converter-input" data-currency="USD">
-              <input type="number" id="dashboardUsdAmount" placeholder="0.00" oninput="convertDashboardCurrency('usd')" step="0.01">
-            </div>
-            <button class="converter-swap-btn" onclick="swapDashboardCurrencies()">
-              <i class="fas fa-exchange-alt"></i>
-            </button>
-            <div class="converter-input" data-currency="ZWL">
-              <input type="number" id="dashboardZwlAmount" placeholder="0.00" oninput="convertDashboardCurrency('zwl')" step="0.01">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="dashboardExchangeRate">Exchange Rate (1 USD = ? ZWL)</label>
-            <input type="number" id="dashboardExchangeRate" placeholder="40" step="0.01" oninput="updateDashboardExchangeRate()">
-            <button class="btn btn-primary btn-sm" onclick="saveDashboardExchangeRate()" style="margin-top: 10px;">
-              <i class="fas fa-save"></i> Save Rate
-            </button>
-          </div>
-          <div style="font-size: 0.9rem; color: var(--text-color); opacity: 0.8; margin-top: 10px;">
-            Last updated: <span id="dashboardRateLastUpdated">-</span> by <span id="dashboardRateUpdatedBy">System</span>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -5912,11 +5895,3 @@ window.generateReport = function() {
     loadInitialData = async function() {
       await originalLoadInitialData();
       try {
-        await loadPettyCashData();
-      } catch (err) {
-        console.warn("Could not load petty cash data:", err.message);
-      }
-    };
-  </script>
-</body>
-</html>
