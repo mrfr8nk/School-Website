@@ -2331,94 +2331,93 @@
           allStudents = [];
           allPayments = [];
           
+          // Load students with individual error handling
           try {
-            // Load students with individual error handling
-            try {
-              const studentsQuery = query(collection(db, "students"), orderBy("surname"));
-              const studentsSnapshot = await getDocs(studentsQuery);
-              allStudents = studentsSnapshot.docs.map(doc => ({ 
-                id: doc.id, 
-                ...doc.data(),
-                admissionNumber: doc.data().admissionNumber || generateAdmissionNumber(doc.data().form)
-              }));
-              console.log(`Loaded ${allStudents.length} students`);
-            } catch (err) {
-              console.warn("Could not load students:", err.message);
-              showNotification("Could not load students - using offline mode", "error");
-            }
-            
-            // Load payments with individual error handling
-            try {
-              const paymentsQuery = query(collection(db, "payments"), orderBy("date", "desc"));
-              const paymentsSnapshot = await getDocs(paymentsQuery);
-              allPayments = paymentsSnapshot.docs
-                .map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(payment => !payment.deleted);
-              console.log(`Loaded ${allPayments.length} payments`);
-            } catch (err) {
-              console.warn("Could not load payments:", err.message);
-              showNotification("Could not load payments - using offline mode", "error");
-            }
-            
-            // Load exchange rate settings with error handling
-            try {
-              await loadExchangeRateSettings();
-            } catch (err) {
-              console.warn("Could not load exchange rate settings:", err.message);
-              settings.exchangeRate = 40; // Default fallback
-            }
-            
-            // Load fee settings with error handling
-            try {
-              const feeSettingsDoc = await getDoc(doc(db, "settings", "fees"));
-              if (feeSettingsDoc.exists()) {
-                const feeData = feeSettingsDoc.data();
-                if (feeData.feeStructure) {
-                  settings.feeStructure = feeData.feeStructure;
-                }
+            const studentsQuery = query(collection(db, "students"), orderBy("surname"));
+            const studentsSnapshot = await getDocs(studentsQuery);
+            allStudents = studentsSnapshot.docs.map(doc => ({ 
+              id: doc.id, 
+              ...doc.data(),
+              admissionNumber: doc.data().admissionNumber || generateAdmissionNumber(doc.data().form)
+            }));
+            console.log(`Loaded ${allStudents.length} students`);
+          } catch (err) {
+            console.warn("Could not load students:", err.message);
+            showNotification("Could not load students - using offline mode", "error");
+          }
+          
+          // Load payments with individual error handling
+          try {
+            const paymentsQuery = query(collection(db, "payments"), orderBy("date", "desc"));
+            const paymentsSnapshot = await getDocs(paymentsQuery);
+            allPayments = paymentsSnapshot.docs
+              .map(doc => ({ id: doc.id, ...doc.data() }))
+              .filter(payment => !payment.deleted);
+            console.log(`Loaded ${allPayments.length} payments`);
+          } catch (err) {
+            console.warn("Could not load payments:", err.message);
+            showNotification("Could not load payments - using offline mode", "error");
+          }
+          
+          // Load exchange rate settings with error handling
+          try {
+            await loadExchangeRateSettings();
+          } catch (err) {
+            console.warn("Could not load exchange rate settings:", err.message);
+            settings.exchangeRate = 40; // Default fallback
+          }
+          
+          // Load fee settings with error handling
+          try {
+            const feeSettingsDoc = await getDoc(doc(db, "settings", "fees"));
+            if (feeSettingsDoc.exists()) {
+              const feeData = feeSettingsDoc.data();
+              if (feeData.feeStructure) {
+                settings.feeStructure = feeData.feeStructure;
               }
-            } catch (err) {
-              console.warn("Fee settings not found, using defaults:", err.message);
             }
-            
-            // Update UI with error handling for each function
-            try {
-              updateDashboardStats();
-            } catch (err) {
-              console.warn("Could not update dashboard stats:", err.message);
-            }
-            
-            try {
-              populateStudentDropdown();
-            } catch (err) {
-              console.warn("Could not populate student dropdown:", err.message);
-            }
-            
-            try {
-              populateStudentsTable();
-            } catch (err) {
-              console.warn("Could not populate students table:", err.message);
-            }
-            
-            try {
-              populatePaymentsTable();
-            } catch (err) {
-              console.warn("Could not populate payments table:", err.message);
-            }
-            
-            try {
-              populateRecentPayments();
-            } catch (err) {
-              console.warn("Could not populate recent payments:", err.message);
-            }
-            
-            // Initialize fee structure UI with error handling
-            try {
-              updateFeeStructureUI();
-              initFeeStructureListeners();
-            } catch (err) {
-              console.warn("Could not initialize fee structure UI:", err.message);
-            }
+          } catch (err) {
+            console.warn("Fee settings not found, using defaults:", err.message);
+          }
+          
+          // Update UI with error handling for each function
+          try {
+            updateDashboardStats();
+          } catch (err) {
+            console.warn("Could not update dashboard stats:", err.message);
+          }
+          
+          try {
+            populateStudentDropdown();
+          } catch (err) {
+            console.warn("Could not populate student dropdown:", err.message);
+          }
+          
+          try {
+            populateStudentsTable();
+          } catch (err) {
+            console.warn("Could not populate students table:", err.message);
+          }
+          
+          try {
+            populatePaymentsTable();
+          } catch (err) {
+            console.warn("Could not populate payments table:", err.message);
+          }
+          
+          try {
+            populateRecentPayments();
+          } catch (err) {
+            console.warn("Could not populate recent payments:", err.message);
+          }
+          
+          // Initialize fee structure UI with error handling
+          try {
+            updateFeeStructureUI();
+            initFeeStructureListeners();
+          } catch (err) {
+            console.warn("Could not initialize fee structure UI:", err.message);
+          }
           })(),
           timeoutPromise
         ])
