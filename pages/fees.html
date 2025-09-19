@@ -2041,22 +2041,38 @@
 
   // Initialize navigation
   function initNavigation() {
-    document.getElementById('dashboardLink').addEventListener('click', () => showPage('dashboardPage'));
-    document.getElementById('studentsLink').addEventListener('click', () => showPage('studentsPage'));
-    document.getElementById('paymentsLink').addEventListener('click', () => showPage('paymentsPage'));
-    document.getElementById('pettyCashLink').addEventListener('click', () => showPage('pettyCashPage'));
-    document.getElementById('feeStructureLink').addEventListener('click', () => showPage('feeStructurePage'));
-    document.getElementById('reportsLink').addEventListener('click', () => showPage('reportsPage'));
+    // Add null checks for all navigation elements
+    const navElements = [
+      { id: 'dashboardLink', page: 'dashboardPage' },
+      { id: 'studentsLink', page: 'studentsPage' },
+      { id: 'paymentsLink', page: 'paymentsPage' },
+      { id: 'pettyCashLink', page: 'pettyCashPage' },
+      { id: 'feeStructureLink', page: 'feeStructurePage' },
+      { id: 'reportsLink', page: 'reportsPage' }
+    ];
+    
+    navElements.forEach(nav => {
+      const element = document.getElementById(nav.id);
+      if (element) {
+        element.addEventListener('click', () => showPage(nav.page));
+      } else {
+        console.warn(`Navigation element ${nav.id} not found in DOM`);
+      }
+    });
     
     // Show dashboard by default
     showPage('dashboardPage');
     
-    // Hamburger menu toggle
+    // Hamburger menu toggle with null checks
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const sideMenu = document.getElementById('sideMenu');
-    hamburgerBtn.addEventListener('click', () => {
-      sideMenu.classList.toggle('shown');
-    });
+    if (hamburgerBtn && sideMenu) {
+      hamburgerBtn.addEventListener('click', () => {
+        sideMenu.classList.toggle('shown');
+      });
+    } else {
+      console.warn('Hamburger menu elements not found in DOM');
+    }
   }
 
   // Initialize currency converter
@@ -2587,44 +2603,64 @@
   // Update dashboard statistics with USD/ZWL split
   function updateDashboardStats() {
     try {
+      // Ensure allPayments and allStudents exist
+      const safePayments = Array.isArray(allPayments) ? allPayments : [];
+      const safeStudents = Array.isArray(allStudents) ? allStudents : [];
+      
       // Calculate total collected in USD and ZWL
-      const totalCollectedUSD = allPayments
+      const totalCollectedUSD = safePayments
         .filter(payment => payment.currency === 'USD')
         .reduce((sum, payment) => sum + payment.amount, 0);
       
-      const totalCollectedZWL = allPayments
+      const totalCollectedZWL = safePayments
         .filter(payment => payment.currency === 'ZWL')
         .reduce((sum, payment) => sum + payment.amount, 0);
       
-      document.getElementById('totalCollectedUSD').textContent = `$${totalCollectedUSD.toLocaleString()}`;
-      document.getElementById('totalCollectedZWL').textContent = `ZWL$${totalCollectedZWL.toLocaleString()}`;
+      // Update DOM elements with null checks
+      const usdElement = document.getElementById('totalCollectedUSD');
+      const zwlElement = document.getElementById('totalCollectedZWL');
+      const studentsElement = document.getElementById('totalStudents');
+      const fullyPaidElement = document.getElementById('fullyPaid');
+      
+      if (usdElement) usdElement.textContent = `$${totalCollectedUSD.toLocaleString()}`;
+      if (zwlElement) zwlElement.textContent = `ZWL$${totalCollectedZWL.toLocaleString()}`;
       
       // Total students
-      document.getElementById('totalStudents').textContent = allStudents.length;
+      if (studentsElement) studentsElement.textContent = safeStudents.length;
       
       // Fully paid students
-      const fullyPaid = allStudents.filter(student => {
+      const fullyPaid = safeStudents.filter(student => {
         const totalFees = calculateTotalFees(student);
         const paidAmount = calculatePaidAmount(student.id);
         return paidAmount >= totalFees;
       }).length;
-      document.getElementById('fullyPaid').textContent = fullyPaid;
+      if (fullyPaidElement) fullyPaidElement.textContent = fullyPaid;
       
       // Total outstanding in USD
       let totalOutstandingUSD = 0;
-      allStudents.forEach(student => {
+      safeStudents.forEach(student => {
         const totalFees = calculateTotalFees(student);
         const paidAmount = calculatePaidAmount(student.id);
         totalOutstandingUSD += Math.max(0, totalFees - paidAmount);
       });
-      document.getElementById('totalOutstandingUSD').textContent = `$${totalOutstandingUSD.toLocaleString()}`;
+      const outstandingElement = document.getElementById('totalOutstandingUSD');
+      if (outstandingElement) outstandingElement.textContent = `$${totalOutstandingUSD.toLocaleString()}`;
       
-      // Update trends (demo values)
-      document.getElementById('collectionTrend').textContent = '12%';
-      document.getElementById('collectionTrendZWL').textContent = '15%';
-      document.getElementById('studentsTrend').textContent = '5%';
-      document.getElementById('paidTrend').textContent = '8%';
-      document.getElementById('outstandingTrend').textContent = '15%';
+      // Update trends (demo values) with null checks
+      const trendElements = {
+        'collectionTrend': '12%',
+        'collectionTrendZWL': '15%',
+        'studentsTrend': '5%',
+        'paidTrend': '8%',
+        'outstandingTrend': '15%'
+      };
+      
+      Object.entries(trendElements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.textContent = value;
+        }
+      });
     } catch (err) {
       console.error("Error updating dashboard stats:", err);
     }
