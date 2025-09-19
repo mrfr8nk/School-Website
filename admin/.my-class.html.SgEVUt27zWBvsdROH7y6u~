@@ -1430,7 +1430,6 @@
         console.log(`Filtered to ${studentsData.length} students for teacher's classes:`, teacherClasses);
         
         filteredData = studentsData;
-        populateFormFilter();
         sortAndRenderStudents();
       } catch (error) {
         console.error("Error loading students:", error);
@@ -1443,77 +1442,6 @@
       }
       
       showSpinner(false);
-    }
-
-    // ========================
-    // Form and Stream Filtering
-    // ========================
-    
-    function populateFormFilter() {
-      const formFilter = document.getElementById("formFilter");
-      const availableForms = [...new Set(studentsData.map(student => student.form).filter(form => form))];
-      
-      formFilter.innerHTML = '<option value="">All Forms</option>' + 
-        availableForms.sort().map(form => `<option value="${form}">${form}</option>`).join('');
-    }
-    
-    function populateStreamFilter(selectedForm) {
-      const streamFilter = document.getElementById("streamFilter");
-      
-      if (!selectedForm) {
-        streamFilter.innerHTML = '<option value="">All Streams</option>';
-        streamFilter.disabled = true;
-        return;
-      }
-      
-      // Get streams for the selected form
-      const availableStreams = [...new Set(
-        studentsData
-          .filter(student => student.form === selectedForm && student.stream)
-          .map(student => student.stream)
-      )];
-      
-      // Define standard stream options in order
-      const standardStreams = ['G', 'W', 'E', 'Z', 'U', 'A level sciences', 'commercials', 'arts', 'SP'];
-      
-      // Sort streams with standard ones first, then any additional ones
-      const sortedStreams = standardStreams.filter(stream => availableStreams.includes(stream))
-        .concat(availableStreams.filter(stream => !standardStreams.includes(stream)).sort());
-      
-      streamFilter.innerHTML = '<option value="">All Streams</option>' + 
-        sortedStreams.map(stream => `<option value="${stream}">${stream}</option>`).join('');
-      
-      streamFilter.disabled = false;
-    }
-    
-    function applyFormStreamFilter() {
-      const selectedForm = document.getElementById("formFilter").value;
-      const selectedStream = document.getElementById("streamFilter").value;
-      
-      filteredData = studentsData.filter(student => {
-        const formMatch = !selectedForm || student.form === selectedForm;
-        const streamMatch = !selectedStream || student.stream === selectedStream;
-        return formMatch && streamMatch;
-      });
-      
-      // Apply search filter if there's a search term
-      const searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
-      if (searchTerm) {
-        filteredData = filteredData.filter(student => {
-          return (
-            (student.firstname && student.firstname.toLowerCase().includes(searchTerm)) ||
-            (student.surname && student.surname.toLowerCase().includes(searchTerm)) ||
-            (student.email && student.email.toLowerCase().includes(searchTerm)) ||
-            (student.phone && student.phone.includes(searchTerm)) ||
-            (student.form && student.form.toLowerCase().includes(searchTerm)) ||
-            (student.stream && student.stream.toLowerCase().includes(searchTerm)) ||
-            (student.parentName && student.parentName.toLowerCase().includes(searchTerm)) ||
-            (student.birthNumber && String(student.birthNumber).toLowerCase().includes(searchTerm))
-          );
-        });
-      }
-      
-      sortAndRenderStudents();
     }
 
     // ========================
@@ -1696,8 +1624,26 @@
     // Search Functionality
     // ========================
     function searchStudents() {
-      // Apply form/stream filtering first, then search on top of that
-      applyFormStreamFilter();
+      const searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
+      
+      if (!searchTerm) {
+        filteredData = studentsData;
+      } else {
+        filteredData = studentsData.filter(student => {
+          return (
+            (student.firstname && student.firstname.toLowerCase().includes(searchTerm)) ||
+            (student.surname && student.surname.toLowerCase().includes(searchTerm)) ||
+            (student.email && student.email.toLowerCase().includes(searchTerm)) ||
+            (student.phone && student.phone.includes(searchTerm)) ||
+            (student.form && student.form.toLowerCase().includes(searchTerm)) ||
+            (student.stream && student.stream.toLowerCase().includes(searchTerm)) ||
+            (student.parentName && student.parentName.toLowerCase().includes(searchTerm)) ||
+            (student.birthNumber && String(student.birthNumber).toLowerCase().includes(searchTerm))
+          );
+        });
+      }
+      
+      sortAndRenderStudents();
     }
 
     // ========================
@@ -2143,16 +2089,6 @@
     
     // Sort dropdown
     document.getElementById("sortBy").addEventListener("change", sortAndRenderStudents);
-    
-    // Form filter dropdown
-    document.getElementById("formFilter").addEventListener("change", function() {
-      const selectedForm = this.value;
-      populateStreamFilter(selectedForm);
-      applyFormStreamFilter();
-    });
-    
-    // Stream filter dropdown
-    document.getElementById("streamFilter").addEventListener("change", applyFormStreamFilter);
     
     // Add student button
     document.getElementById("addStudentBtn").addEventListener("click", () => {
