@@ -1387,43 +1387,40 @@
         
         console.log(`Loaded ${allStudents.length} total students from database`);
         
-        // Filter students based on teacher's assigned classes using flexible matching
+        // Filter students based on teacher's assigned classes using precise matching (same as teacher dashboard)
         studentsData = allStudents.filter(student => {
           if (!student.form) return false;
           
-          const studentForm = student.form.trim();
-          const studentStream = (student.stream || '').trim();
-          const studentFullClass = `${studentForm}${studentStream ? ` ${studentStream}` : ''}`;
-          
           // Check if student belongs to any of the teacher's assigned classes
           return teacherClasses.some(teacherClass => {
-            const teacherClassTrimmed = teacherClass.trim();
+            // Skip falsy or empty teacher class entries
+            if (!teacherClass || !teacherClass.trim()) return false;
             
-            // Multiple matching strategies for reliability:
+            // Parse teacher class format like "Form 1G" -> form="Form 1", stream="G"
+            const formStreamMatch = teacherClass.match(/^(Form\s+\d+)\s*([A-Za-z]+)?$/) || 
+                                   teacherClass.match(/^(Upper\s+6|Lower\s+6)\s+([A-Za-z]+)$/) ||
+                                   teacherClass.match(/^([^0-9]+\s*\d+)\s*([A-Za-z]+)?$/);
             
-            // 1. Exact match (case-insensitive)
-            if (studentFullClass.toLowerCase() === teacherClassTrimmed.toLowerCase()) {
-              return true;
+            if (formStreamMatch) {
+              const expectedForm = formStreamMatch[1].trim().toUpperCase(); // "FORM 1"
+              const expectedStream = formStreamMatch[2] ? formStreamMatch[2].toUpperCase() : ''; // "G"
+              
+              // Student has separate form and stream fields  
+              const studentForm = (student.form || '').toUpperCase();
+              const studentStream = (student.stream || '').toUpperCase();
+              
+              if (expectedStream) {
+                // Match both form and stream - teacher selected specific stream like "Form 1G"
+                return studentForm === expectedForm && studentStream === expectedStream;
+              } else {
+                // Match form only - teacher selected general form like "Form 1"
+                return studentForm === expectedForm;
+              }
+            } else {
+              // Fallback: direct form matching (case-insensitive)
+              const studentForm = (student.form || '').toUpperCase();
+              return studentForm === teacherClass.toUpperCase();
             }
-            
-            // 2. Form-only match (handles "Form 5" teacher assignment with "Form 5 Sciences" students)
-            if (studentForm.toLowerCase() === teacherClassTrimmed.toLowerCase()) {
-              return true;
-            }
-            
-            // 3. Partial match for teacher class containing student form (handles "Form 5 Sciences" teacher assignment)
-            if (teacherClassTrimmed.toLowerCase().includes(studentForm.toLowerCase())) {
-              return true;
-            }
-            
-            // 4. Handle case where teacher has specific stream but student has same form
-            // "Form 1 G" teacher should see "Form 1" students and "Form 1 G" students
-            if (teacherClassTrimmed.toLowerCase().includes(studentForm.toLowerCase()) &&
-                studentForm.toLowerCase().includes(teacherClassTrimmed.split(' ')[0].toLowerCase() + ' ' + teacherClassTrimmed.split(' ')[1])) {
-              return true;
-            }
-            
-            return false;
           });
         });
         
