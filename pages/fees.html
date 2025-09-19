@@ -835,6 +835,7 @@
       <li><a href="#" id="studentsLink"><i class="fas fa-user-graduate"></i> Students</a></li>
       <li><a href="#" id="paymentsLink"><i class="fas fa-money-bill-wave"></i> Payments</a></li>
       <li><a href="#" id="pettyCashLink"><i class="fas fa-wallet"></i> Petty Cash</a></li>
+      <li><a href="#" id="scholarshipLink"><i class="fas fa-graduation-cap"></i> Scholarship Management</a></li>
       <li><a href="#" id="feeStructureLink"><i class="fas fa-list-alt"></i> Fee Structure</a></li>
       <li><a href="#" id="reportsLink"><i class="fas fa-chart-bar"></i> Reports</a></li>
     </ul>
@@ -1988,6 +1989,9 @@
     
     // Load all data
     await loadInitialData();
+    
+    // Load petty cash data
+    await loadPettyCashData();
     
     // Set up real-time listeners
     setupRealTimeListeners();
@@ -5890,8 +5894,6 @@ window.generateReport = function() {
       showNotification("Petty cash report exported successfully!", "success");
     };
 
-    // Load petty cash data in the main loadInitialData function
-    const originalLoadInitialData = loadInitialData;
-    loadInitialData = async function() {
-      await originalLoadInitialData();
-      try {
+  </script>
+</body>
+</html>
