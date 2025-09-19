@@ -834,6 +834,7 @@
       <li><a href="#" class="active" id="dashboardLink"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
       <li><a href="#" id="studentsLink"><i class="fas fa-user-graduate"></i> Students</a></li>
       <li><a href="#" id="paymentsLink"><i class="fas fa-money-bill-wave"></i> Payments</a></li>
+      <li><a href="#" id="pettyCashLink"><i class="fas fa-wallet"></i> Petty Cash</a></li>
       <li><a href="#" id="feeStructureLink"><i class="fas fa-list-alt"></i> Fee Structure</a></li>
       <li><a href="#" id="reportsLink"><i class="fas fa-chart-bar"></i> Reports</a></li>
     </ul>
@@ -1428,6 +1429,175 @@
       </div>
     </div>
   </div>
+
+  <!-- Petty Cash Page -->
+  <div id="pettyCashPage" class="page-content">
+    <div class="page-title">
+      <h1><i class="fas fa-wallet"></i> Petty Cash Management</h1>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="showModal('pettyCashModal')"><i class="fas fa-plus"></i> Record Transaction</button>
+        <button class="btn btn-secondary" onclick="exportPettyCash()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+      </div>
+    </div>
+
+    <!-- Petty Cash Stats Cards -->
+    <div class="stats-cards">
+      <div class="stat-card">
+        <h3><i class="fas fa-gas-pump"></i> Fuel</h3>
+        <div class="value" id="totalFuelAmount">$0</div>
+        <div class="trend up"><i class="fas fa-arrow-up"></i> <span id="fuelTrend">0</span> transactions this month</div>
+      </div>
+      <div class="stat-card">
+        <h3><i class="fas fa-paperclip"></i> Stationary</h3>
+        <div class="value" id="totalStationaryAmount">$0</div>
+        <div class="trend up"><i class="fas fa-arrow-up"></i> <span id="stationaryTrend">0</span> transactions this month</div>
+      </div>
+      <div class="stat-card">
+        <h3><i class="fas fa-car"></i> Travel</h3>
+        <div class="value" id="totalTravelAmount">$0</div>
+        <div class="trend up"><i class="fas fa-arrow-up"></i> <span id="travelTrend">0</span> transactions this month</div>
+      </div>
+      <div class="stat-card">
+        <h3><i class="fas fa-calendar-alt"></i> Events</h3>
+        <div class="value" id="totalEventsAmount">$0</div>
+        <div class="trend up"><i class="fas fa-arrow-up"></i> <span id="eventsTrend">0</span> transactions this month</div>
+      </div>
+      <div class="stat-card">
+        <h3><i class="fas fa-calculator"></i> Total This Month</h3>
+        <div class="value" id="totalPettyCashMonth">$0</div>
+        <div class="trend up"><i class="fas fa-arrow-up"></i> <span id="totalTransactionsTrend">0</span> total transactions</div>
+      </div>
+    </div>
+
+    <!-- Petty Cash Transactions Table -->
+    <div class="page-title">
+      <h1><i class="fas fa-list"></i> Recent Transactions</h1>
+      <div class="actions">
+        <div class="form-group" style="margin-bottom: 0; min-width: 150px;">
+          <select id="pettyCashFilter" onchange="filterPettyCash()" style="padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: var(--glass); color: var(--text-color);">
+            <option value="">All Categories</option>
+            <option value="Fuel">Fuel</option>
+            <option value="Stationary">Stationary</option>
+            <option value="Travel">Travel</option>
+            <option value="Events">Events</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <input type="text" id="pettyCashSearch" placeholder="Search transactions..." onkeyup="filterPettyCash()" style="padding: 0.9rem 1.2rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: var(--glass); color: var(--text-color);">
+        <button class="btn btn-secondary" onclick="refreshPettyCashData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+    </div>
+
+    <div class="data-table">
+      <table id="pettyCashTable">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Category</th>
+            <th>Item Description</th>
+            <th>Amount</th>
+            <th>Receipt Name</th>
+            <th>Receipt Phone</th>
+            <th>Person Name</th>
+            <th>Person Phone</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="pettyCashBody">
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Petty Cash Modal -->
+<div id="pettyCashModal" class="modal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeModal('pettyCashModal')">&times;</button>
+    <h2><i class="fas fa-wallet"></i> Record Petty Cash Transaction</h2>
+    
+    <div class="form-group">
+      <label for="pettyCashCategory">Category *</label>
+      <select id="pettyCashCategory" class="form-control" required onchange="updateOtherCategory()">
+        <option value="">Select Category</option>
+        <option value="Fuel">Fuel</option>
+        <option value="Stationary">Stationary</option>
+        <option value="Travel">Travel Costs</option>
+        <option value="Events">Events</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    
+    <div class="form-group" id="customCategoryGroup" style="display: none;">
+      <label for="customCategory">Custom Category *</label>
+      <input type="text" id="customCategory" class="form-control" placeholder="Enter custom category name">
+    </div>
+    
+    <div class="form-group">
+      <label for="pettyCashItem">Item Name/Description *</label>
+      <input type="text" id="pettyCashItem" class="form-control" placeholder="e.g., Office supplies, Fuel for school bus, etc." required>
+    </div>
+    
+    <div class="form-group currency-input">
+      <label for="pettyCashAmount">Amount *</label>
+      <input type="number" id="pettyCashAmount" class="form-control" step="0.01" min="0" placeholder="Enter amount" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="pettyCashCurrency">Currency</label>
+      <select id="pettyCashCurrency" class="form-control">
+        <option value="USD">USD ($)</option>
+        <option value="ZWL">ZWL (ZWL$)</option>
+      </select>
+    </div>
+    
+    <div class="form-card" style="background: rgba(72, 187, 120, 0.1); border: 1px solid rgba(72, 187, 120, 0.3); margin-bottom: 2rem;">
+      <h3 style="color: #48bb78; margin-bottom: 1rem;"><i class="fas fa-receipt"></i> Receipt Information</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="form-group">
+          <label for="receiptFullName">Receipt Full Name *</label>
+          <input type="text" id="receiptFullName" class="form-control" placeholder="Enter full name on receipt" required>
+        </div>
+        <div class="form-group">
+          <label for="receiptPhone">Receipt Phone Number *</label>
+          <input type="tel" id="receiptPhone" class="form-control" placeholder="Enter phone number" required>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-card" style="background: rgba(66, 153, 225, 0.1); border: 1px solid rgba(66, 153, 225, 0.3); margin-bottom: 2rem;">
+      <h3 style="color: #4299e1; margin-bottom: 1rem;"><i class="fas fa-user"></i> Person Who Made Transaction</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="form-group">
+          <label for="personName">Person Name *</label>
+          <input type="text" id="personName" class="form-control" placeholder="Enter person's full name" required>
+        </div>
+        <div class="form-group">
+          <label for="personPhone">Person Phone Number *</label>
+          <input type="tel" id="personPhone" class="form-control" placeholder="Enter person's phone number" required>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="pettyCashNotes">Additional Notes</label>
+      <textarea id="pettyCashNotes" class="form-control" rows="3" placeholder="Any additional notes or comments"></textarea>
+    </div>
+    
+    <div style="background: rgba(214, 158, 46, 0.1); border: 1px solid rgba(214, 158, 46, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
+      <p style="margin: 0; font-size: 0.9rem; color: var(--text-color);">
+        <i class="fas fa-info-circle" style="color: var(--secondary);"></i> 
+        Date and time will be automatically recorded when you save this transaction.
+      </p>
+    </div>
+    
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="recordPettyCash()"><i class="fas fa-save"></i> Record Transaction</button>
+      <button class="btn btn-secondary" onclick="resetPettyCashForm(); closeModal('pettyCashModal')"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+  </div>
 </div>
 
 <!-- Payment Modal -->
@@ -1795,6 +1965,7 @@
   // Global variables
   let allStudents = [];
   let allPayments = [];
+  let allPettyCash = [];
   let feeStructure = [];
   let settings = {
     currency: "USD",
@@ -1873,6 +2044,7 @@
     document.getElementById('dashboardLink').addEventListener('click', () => showPage('dashboardPage'));
     document.getElementById('studentsLink').addEventListener('click', () => showPage('studentsPage'));
     document.getElementById('paymentsLink').addEventListener('click', () => showPage('paymentsPage'));
+    document.getElementById('pettyCashLink').addEventListener('click', () => showPage('pettyCashPage'));
     document.getElementById('feeStructureLink').addEventListener('click', () => showPage('feeStructurePage'));
     document.getElementById('reportsLink').addEventListener('click', () => showPage('reportsPage'));
     
@@ -2121,60 +2293,149 @@
     document.getElementById('paymentModal').dataset.editId = '';
   }
 
-  // Load initial data
+  // Load initial data with timeout and better error handling
   async function loadInitialData() {
+    const LOAD_TIMEOUT = 30000; // 30 second timeout
+    let timeoutId;
+    
+    // Set up timeout to prevent indefinite loading
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(new Error('Loading timeout - data took too long to load'));
+      }, LOAD_TIMEOUT);
+    });
+    
     showLoading(true, "Loading school data...");
     
     try {
-      // Load students
-      const studentsQuery = query(collection(db, "students"), orderBy("surname"));
-      const studentsSnapshot = await getDocs(studentsQuery);
-      allStudents = studentsSnapshot.docs.map(doc => ({ 
-        id: doc.id, 
-        ...doc.data(),
-        admissionNumber: doc.data().admissionNumber || generateAdmissionNumber(doc.data().form)
-      }));
+      // Wrap the entire loading process in a race with timeout
+      await Promise.race([
+        (async () => {
+          // Initialize with empty data if Firebase fails
+          allStudents = [];
+          allPayments = [];
+          
+          try {
+            // Load students with individual error handling
+            try {
+              const studentsQuery = query(collection(db, "students"), orderBy("surname"));
+              const studentsSnapshot = await getDocs(studentsQuery);
+              allStudents = studentsSnapshot.docs.map(doc => ({ 
+                id: doc.id, 
+                ...doc.data(),
+                admissionNumber: doc.data().admissionNumber || generateAdmissionNumber(doc.data().form)
+              }));
+              console.log(`Loaded ${allStudents.length} students`);
+            } catch (err) {
+              console.warn("Could not load students:", err.message);
+              showNotification("Could not load students - using offline mode", "error");
+            }
+            
+            // Load payments with individual error handling
+            try {
+              const paymentsQuery = query(collection(db, "payments"), orderBy("date", "desc"));
+              const paymentsSnapshot = await getDocs(paymentsQuery);
+              allPayments = paymentsSnapshot.docs
+                .map(doc => ({ id: doc.id, ...doc.data() }))
+                .filter(payment => !payment.deleted);
+              console.log(`Loaded ${allPayments.length} payments`);
+            } catch (err) {
+              console.warn("Could not load payments:", err.message);
+              showNotification("Could not load payments - using offline mode", "error");
+            }
+            
+            // Load exchange rate settings with error handling
+            try {
+              await loadExchangeRateSettings();
+            } catch (err) {
+              console.warn("Could not load exchange rate settings:", err.message);
+              settings.exchangeRate = 40; // Default fallback
+            }
+            
+            // Load fee settings with error handling
+            try {
+              const feeSettingsDoc = await getDoc(doc(db, "settings", "fees"));
+              if (feeSettingsDoc.exists()) {
+                const feeData = feeSettingsDoc.data();
+                if (feeData.feeStructure) {
+                  settings.feeStructure = feeData.feeStructure;
+                }
+              }
+            } catch (err) {
+              console.warn("Fee settings not found, using defaults:", err.message);
+            }
+            
+            // Update UI with error handling for each function
+            try {
+              updateDashboardStats();
+            } catch (err) {
+              console.warn("Could not update dashboard stats:", err.message);
+            }
+            
+            try {
+              populateStudentDropdown();
+            } catch (err) {
+              console.warn("Could not populate student dropdown:", err.message);
+            }
+            
+            try {
+              populateStudentsTable();
+            } catch (err) {
+              console.warn("Could not populate students table:", err.message);
+            }
+            
+            try {
+              populatePaymentsTable();
+            } catch (err) {
+              console.warn("Could not populate payments table:", err.message);
+            }
+            
+            try {
+              populateRecentPayments();
+            } catch (err) {
+              console.warn("Could not populate recent payments:", err.message);
+            }
+            
+            // Initialize fee structure UI with error handling
+            try {
+              updateFeeStructureUI();
+              initFeeStructureListeners();
+            } catch (err) {
+              console.warn("Could not initialize fee structure UI:", err.message);
+            }
+          })(),
+          timeoutPromise
+        ])
+      ]);
       
-      // Load payments (only non-deleted payments)
-      // Note: Can't use where clause with "deleted" field because existing payments don't have this field
-      const paymentsQuery = query(collection(db, "payments"), orderBy("date", "desc"));
-      const paymentsSnapshot = await getDocs(paymentsQuery);
-      allPayments = paymentsSnapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(payment => !payment.deleted); // Filter out deleted payments in JavaScript
-      
-      // Load exchange rate settings
-      await loadExchangeRateSettings();
-      
-      // Load fee settings
-      try {
-        const feeSettingsDoc = await getDoc(doc(db, "settings", "fees"));
-        if (feeSettingsDoc.exists()) {
-          const feeData = feeSettingsDoc.data();
-          if (feeData.feeStructure) {
-            settings.feeStructure = feeData.feeStructure;
-          }
-        }
-      } catch (err) {
-        console.log("Fee settings not found, using defaults");
-      }
-      
-      // Update UI
-      updateDashboardStats();
-      populateStudentDropdown();
-      populateStudentsTable();
-      populatePaymentsTable();
-      populateRecentPayments();
-      
-      // Initialize fee structure UI
-      updateFeeStructureUI();
-      initFeeStructureListeners();
-      
+      clearTimeout(timeoutId);
       showNotification("Data loaded successfully", "success");
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error("Error loading initial data:", err);
-      showNotification("Error loading data. Please try again.", "error");
+      
+      if (err.message.includes('timeout')) {
+        showNotification("Loading took too long - working in offline mode", "error");
+      } else if (err.message.includes('network') || err.message.includes('fetch')) {
+        showNotification("Network error - check your connection and try again", "error");
+      } else {
+        showNotification("Error loading data - working in offline mode", "error");
+      }
+      
+      // Ensure UI is still updated even if data loading fails
+      try {
+        updateDashboardStats();
+        populateStudentDropdown();
+        populateStudentsTable();
+        populatePaymentsTable();
+        populateRecentPayments();
+        updateFeeStructureUI();
+        initFeeStructureListeners();
+      } catch (uiErr) {
+        console.error("Error updating UI:", uiErr);
+      }
     } finally {
+      // Always hide loading regardless of success/failure
       showLoading(false);
     }
   }
@@ -5211,6 +5472,443 @@ window.generateReport = function() {
         }
       });
     }
+
+    // ========== PETTY CASH FUNCTIONALITY ==========
+    
+    // Load petty cash data from Firebase
+    async function loadPettyCashData() {
+      try {
+        const pettyCashQuery = query(collection(db, "pettyCash"), orderBy("dateTime", "desc"));
+        const pettyCashSnapshot = await getDocs(pettyCashQuery);
+        allPettyCash = pettyCashSnapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter(transaction => !transaction.deleted);
+        
+        updatePettyCashStats();
+        populatePettyCashTable();
+      } catch (err) {
+        console.error("Error loading petty cash data:", err);
+        showNotification("Error loading petty cash data", "error");
+      }
+    }
+
+    // Record new petty cash transaction
+    window.recordPettyCash = async function() {
+      const category = document.getElementById('pettyCashCategory').value;
+      const customCategory = document.getElementById('customCategory').value;
+      const item = document.getElementById('pettyCashItem').value;
+      const amount = parseFloat(document.getElementById('pettyCashAmount').value);
+      const currency = document.getElementById('pettyCashCurrency').value;
+      const receiptName = document.getElementById('receiptFullName').value;
+      const receiptPhone = document.getElementById('receiptPhone').value;
+      const personName = document.getElementById('personName').value;
+      const personPhone = document.getElementById('personPhone').value;
+      const notes = document.getElementById('pettyCashNotes').value;
+
+      // Validation
+      if (!category) {
+        showNotification("Please select a category", "error");
+        return;
+      }
+      if (category === 'Other' && !customCategory) {
+        showNotification("Please enter a custom category name", "error");
+        return;
+      }
+      if (!item) {
+        showNotification("Please enter item description", "error");
+        return;
+      }
+      if (!amount || amount <= 0) {
+        showNotification("Please enter a valid amount", "error");
+        return;
+      }
+      if (!receiptName) {
+        showNotification("Please enter receipt full name", "error");
+        return;
+      }
+      if (!receiptPhone) {
+        showNotification("Please enter receipt phone number", "error");
+        return;
+      }
+      if (!personName) {
+        showNotification("Please enter person's name", "error");
+        return;
+      }
+      if (!personPhone) {
+        showNotification("Please enter person's phone number", "error");
+        return;
+      }
+
+      try {
+        showLoading(true, "Recording petty cash transaction...");
+
+        const finalCategory = category === 'Other' ? customCategory : category;
+        
+        const transactionData = {
+          category: finalCategory,
+          itemDescription: item,
+          amount: amount,
+          currency: currency,
+          receiptName: receiptName,
+          receiptPhone: receiptPhone,
+          personName: personName,
+          personPhone: personPhone,
+          notes: notes,
+          dateTime: serverTimestamp(),
+          recordedBy: currentUser.name,
+          deleted: false
+        };
+
+        await addDoc(collection(db, "pettyCash"), transactionData);
+        
+        showNotification("Petty cash transaction recorded successfully!", "success");
+        resetPettyCashForm();
+        closeModal('pettyCashModal');
+        
+        // Reload data to update the display
+        await loadPettyCashData();
+      } catch (err) {
+        console.error("Error recording petty cash transaction:", err);
+        showNotification("Error recording transaction. Please try again.", "error");
+      } finally {
+        showLoading(false);
+      }
+    };
+
+    // Update petty cash statistics
+    function updatePettyCashStats() {
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      
+      const categories = {
+        'Fuel': { total: 0, count: 0 },
+        'Stationary': { total: 0, count: 0 },
+        'Travel': { total: 0, count: 0 },
+        'Events': { total: 0, count: 0 }
+      };
+      
+      let totalThisMonth = 0;
+      let totalTransactionsThisMonth = 0;
+
+      allPettyCash.forEach(transaction => {
+        const date = transaction.dateTime?.toDate ? transaction.dateTime.toDate() : new Date(transaction.dateTime);
+        const amount = transaction.currency === 'USD' ? transaction.amount : transaction.amount / settings.exchangeRate;
+        
+        // Update category totals
+        if (categories[transaction.category]) {
+          categories[transaction.category].total += amount;
+          categories[transaction.category].count += 1;
+        }
+        
+        // Update monthly totals
+        if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+          totalThisMonth += amount;
+          totalTransactionsThisMonth += 1;
+        }
+      });
+
+      // Update DOM elements with null checks
+      const elements = {
+        'totalFuelAmount': `$${categories.Fuel.total.toFixed(2)}`,
+        'fuelTrend': categories.Fuel.count,
+        'totalStationaryAmount': `$${categories.Stationary.total.toFixed(2)}`,
+        'stationaryTrend': categories.Stationary.count,
+        'totalTravelAmount': `$${categories.Travel.total.toFixed(2)}`,
+        'travelTrend': categories.Travel.count,
+        'totalEventsAmount': `$${categories.Events.total.toFixed(2)}`,
+        'eventsTrend': categories.Events.count,
+        'totalPettyCashMonth': `$${totalThisMonth.toFixed(2)}`,
+        'totalTransactionsTrend': totalTransactionsThisMonth
+      };
+
+      Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.textContent = value;
+        } else {
+          console.warn(`Element with id '${id}' not found`);
+        }
+      });
+    }
+
+    // Populate petty cash table
+    function populatePettyCashTable() {
+      const tbody = document.getElementById('pettyCashBody');
+      tbody.innerHTML = '';
+
+      if (allPettyCash.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-color); opacity: 0.7;">No petty cash transactions found. <a href="#" onclick="showModal(\'pettyCashModal\')" style="color: var(--secondary);">Record your first transaction</a></td></tr>';
+        return;
+      }
+
+      allPettyCash.forEach(transaction => {
+        const date = transaction.dateTime?.toDate ? transaction.dateTime.toDate() : new Date(transaction.dateTime);
+        const formattedDate = date.toLocaleDateString();
+        const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const currencySymbol = transaction.currency === 'USD' ? '$' : 'ZWL$';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${formattedDate}<br><small style="opacity: 0.8;">${formattedTime}</small></td>
+          <td><span class="status-badge" style="background: rgba(72, 187, 120, 0.2); color: #48bb78;">${transaction.category}</span></td>
+          <td>${transaction.itemDescription}</td>
+          <td style="font-weight: 600;">${currencySymbol}${transaction.amount.toLocaleString()}</td>
+          <td>${transaction.receiptName}</td>
+          <td>${transaction.receiptPhone}</td>
+          <td>${transaction.personName}</td>
+          <td>${transaction.personPhone}</td>
+          <td>
+            <button class="btn btn-sm btn-secondary" onclick="viewPettyCashDetails('${transaction.id}')" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deletePettyCashTransaction('${transaction.id}')" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Filter and search petty cash transactions
+    window.filterPettyCash = function() {
+      const categoryFilter = document.getElementById('pettyCashFilter').value;
+      const searchTerm = document.getElementById('pettyCashSearch').value.toLowerCase();
+      
+      const filteredTransactions = allPettyCash.filter(transaction => {
+        // Apply category filter
+        if (categoryFilter && transaction.category !== categoryFilter) return false;
+        
+        // Apply search filter
+        if (searchTerm) {
+          const searchableText = `${transaction.category} ${transaction.itemDescription} ${transaction.receiptName} ${transaction.personName}`.toLowerCase();
+          if (!searchableText.includes(searchTerm)) return false;
+        }
+        
+        return true;
+      });
+
+      // Update table with filtered results
+      const tbody = document.getElementById('pettyCashBody');
+      tbody.innerHTML = '';
+
+      if (filteredTransactions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-color); opacity: 0.7;">No transactions match your filter criteria.</td></tr>';
+        return;
+      }
+
+      filteredTransactions.forEach(transaction => {
+        const date = transaction.dateTime?.toDate ? transaction.dateTime.toDate() : new Date(transaction.dateTime);
+        const formattedDate = date.toLocaleDateString();
+        const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const currencySymbol = transaction.currency === 'USD' ? '$' : 'ZWL$';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${formattedDate}<br><small style="opacity: 0.8;">${formattedTime}</small></td>
+          <td><span class="status-badge" style="background: rgba(72, 187, 120, 0.2); color: #48bb78;">${transaction.category}</span></td>
+          <td>${transaction.itemDescription}</td>
+          <td style="font-weight: 600;">${currencySymbol}${transaction.amount.toLocaleString()}</td>
+          <td>${transaction.receiptName}</td>
+          <td>${transaction.receiptPhone}</td>
+          <td>${transaction.personName}</td>
+          <td>${transaction.personPhone}</td>
+          <td>
+            <button class="btn btn-sm btn-secondary" onclick="viewPettyCashDetails('${transaction.id}')" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deletePettyCashTransaction('${transaction.id}')" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    };
+
+    // Handle category selection for custom category
+    window.updateOtherCategory = function() {
+      const categorySelect = document.getElementById('pettyCashCategory');
+      const customCategoryGroup = document.getElementById('customCategoryGroup');
+      
+      if (categorySelect.value === 'Other') {
+        customCategoryGroup.style.display = 'block';
+        document.getElementById('customCategory').required = true;
+      } else {
+        customCategoryGroup.style.display = 'none';
+        document.getElementById('customCategory').required = false;
+      }
+    };
+
+    // Reset petty cash form
+    window.resetPettyCashForm = function() {
+      document.getElementById('pettyCashCategory').value = '';
+      document.getElementById('customCategory').value = '';
+      document.getElementById('pettyCashItem').value = '';
+      document.getElementById('pettyCashAmount').value = '';
+      document.getElementById('pettyCashCurrency').value = 'USD';
+      document.getElementById('receiptFullName').value = '';
+      document.getElementById('receiptPhone').value = '';
+      document.getElementById('personName').value = '';
+      document.getElementById('personPhone').value = '';
+      document.getElementById('pettyCashNotes').value = '';
+      document.getElementById('customCategoryGroup').style.display = 'none';
+    };
+
+    // Refresh petty cash data
+    window.refreshPettyCashData = async function() {
+      showLoading(true, "Refreshing petty cash data...");
+      try {
+        await loadPettyCashData();
+        showNotification("Petty cash data refreshed successfully!", "success");
+      } catch (err) {
+        showNotification("Error refreshing data", "error");
+      } finally {
+        showLoading(false);
+      }
+    };
+
+    // View petty cash transaction details
+    window.viewPettyCashDetails = function(transactionId) {
+      const transaction = allPettyCash.find(t => t.id === transactionId);
+      if (!transaction) return;
+
+      const date = transaction.dateTime?.toDate ? transaction.dateTime.toDate() : new Date(transaction.dateTime);
+      const currencySymbol = transaction.currency === 'USD' ? '$' : 'ZWL$';
+
+      const detailsHtml = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <h4>Transaction Details</h4>
+            <p><strong>Date & Time:</strong> ${date.toLocaleString()}</p>
+            <p><strong>Category:</strong> ${transaction.category}</p>
+            <p><strong>Item:</strong> ${transaction.itemDescription}</p>
+            <p><strong>Amount:</strong> ${currencySymbol}${transaction.amount.toLocaleString()}</p>
+          </div>
+          <div>
+            <h4>People Involved</h4>
+            <p><strong>Receipt Name:</strong> ${transaction.receiptName}</p>
+            <p><strong>Receipt Phone:</strong> ${transaction.receiptPhone}</p>
+            <p><strong>Person Name:</strong> ${transaction.personName}</p>
+            <p><strong>Person Phone:</strong> ${transaction.personPhone}</p>
+          </div>
+        </div>
+        ${transaction.notes ? `<div style="margin-top: 20px;"><h4>Notes</h4><p>${transaction.notes}</p></div>` : ''}
+        <div style="margin-top: 20px;"><small><strong>Recorded by:</strong> ${transaction.recordedBy || 'System'}</small></div>
+      `;
+
+      // Create and show modal
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.style.display = 'block';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+          <h2><i class="fas fa-info-circle"></i> Transaction Details</h2>
+          ${detailsHtml}
+        </div>
+      `;
+      document.body.appendChild(modal);
+    };
+
+    // Delete petty cash transaction
+    window.deletePettyCashTransaction = async function(transactionId) {
+      if (!confirm('Are you sure you want to delete this petty cash transaction? This action cannot be undone.')) return;
+
+      try {
+        showLoading(true, "Deleting transaction...");
+        
+        // Mark as deleted instead of actually deleting
+        await updateDoc(doc(db, "pettyCash", transactionId), {
+          deleted: true,
+          deletedAt: serverTimestamp(),
+          deletedBy: currentUser.name
+        });
+
+        showNotification("Transaction deleted successfully", "success");
+        await loadPettyCashData(); // Reload data
+      } catch (err) {
+        console.error("Error deleting transaction:", err);
+        showNotification("Error deleting transaction", "error");
+      } finally {
+        showLoading(false);
+      }
+    };
+
+    // Export petty cash data
+    window.exportPettyCash = function() {
+      if (allPettyCash.length === 0) {
+        showNotification("No petty cash data to export", "error");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // Add school logo
+      doc.addImage('https://i.postimg.cc/mZ81jqGW/In-Shot-20250227-051117557.jpg', 'JPEG', 10, 10, 30, 30);
+
+      // School header
+      doc.setFontSize(18);
+      doc.setTextColor(26, 54, 93);
+      doc.text('St. Mary\'s High School', 50, 20);
+      doc.setFontSize(12);
+      doc.text('Petty Cash Transactions Report', 50, 28);
+
+      // Report date
+      doc.setFontSize(10);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 160, 15);
+
+      // Create table data
+      const tableData = allPettyCash.map(transaction => {
+        const date = transaction.dateTime?.toDate ? transaction.dateTime.toDate() : new Date(transaction.dateTime);
+        const currencySymbol = transaction.currency === 'USD' ? '$' : 'ZWL$';
+        
+        return [
+          date.toLocaleDateString(),
+          transaction.category,
+          transaction.itemDescription,
+          `${currencySymbol}${transaction.amount.toLocaleString()}`,
+          transaction.receiptName,
+          transaction.personName,
+          transaction.recordedBy || 'System'
+        ];
+      });
+
+      // Add table to PDF
+      doc.autoTable({
+        head: [['Date', 'Category', 'Item', 'Amount', 'Receipt Name', 'Person Name', 'Recorded By']],
+        body: tableData,
+        startY: 50,
+        headStyles: {
+          fillColor: [26, 54, 93],
+          textColor: 255
+        },
+        alternateRowStyles: {
+          fillColor: [240, 240, 240]
+        },
+        styles: {
+          cellPadding: 3,
+          fontSize: 8,
+          overflow: 'linebreak'
+        }
+      });
+
+      // Save the PDF
+      doc.save(`petty_cash_report_${new Date().toISOString().split('T')[0]}.pdf`);
+      showNotification("Petty cash report exported successfully!", "success");
+    };
+
+    // Load petty cash data in the main loadInitialData function
+    const originalLoadInitialData = loadInitialData;
+    loadInitialData = async function() {
+      await originalLoadInitialData();
+      try {
+        await loadPettyCashData();
+      } catch (err) {
+        console.warn("Could not load petty cash data:", err.message);
+      }
+    };
   </script>
 </body>
 </html>
