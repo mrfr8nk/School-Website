@@ -3681,7 +3681,10 @@ window.generateReport = function() {
   doc.setFontSize(14);
   doc.text('Recent Payments', 14, 110);
   
-  const recentPayments = allPayments.slice(0, 10); // Last 10 payments
+  const recentPayments = [...allPayments].sort((a, b) => {
+    // Sort by date (newest first) for PDF report
+    return (b.date?.toDate ? b.date.toDate() : new Date(0)) - (a.date?.toDate ? a.date.toDate() : new Date(0));
+  }).slice(0, 10); // Show last 10 payments in PDF report
   let rows = recentPayments.map(payment => {
     const student = allStudents.find(s =>         s.id === payment.studentId);
         const studentName = student ? `${student.firstname} ${student.surname}` : 'Unknown';
