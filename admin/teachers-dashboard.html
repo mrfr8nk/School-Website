@@ -2539,7 +2539,7 @@ loadTeacherStats();
             return;
           }
           
-          currentTeacherClasses = teacherData.classes || teacherData.classesTeaching || [];
+          currentTeacherClasses = teacherData.classesTeaching || teacherData.classes || [];
           
           if (currentTeacherClasses.length === 0) {
             document.getElementById("myClassTotalCount").textContent = "No classes assigned";
@@ -2561,13 +2561,35 @@ loadTeacherStats();
             allStudents.push(studentData);
           });
 
-          // Filter students that belong to teacher's classes
+          // Filter students that belong to teacher's classes using proper parsing
           myClassStudentsData = allStudents.filter(student => {
-            const studentClass = `${student.form || ''} ${student.stream || ''}`.trim();
-            return currentTeacherClasses.some(teacherClass => 
-              teacherClass.toLowerCase().includes(studentClass.toLowerCase()) ||
-              studentClass.toLowerCase().includes(teacherClass.toLowerCase())
-            );
+            return currentTeacherClasses.some(teacherClass => {
+              // Parse teacher class format like "Form 1G" -> form="FORM 1", stream="G"
+              const formStreamMatch = teacherClass.match(/^(Form\s+\d+)\s*([A-Za-z]+)?$/) || 
+                                     teacherClass.match(/^(Upper\s+6|Lower\s+6)\s+([A-Za-z]+)$/) ||
+                                     teacherClass.match(/^([^0-9]+\s*\d+)\s*([A-Za-z]+)?$/);
+              
+              if (formStreamMatch) {
+                const expectedForm = formStreamMatch[1].trim().toUpperCase(); // "FORM 1"
+                const expectedStream = formStreamMatch[2] ? formStreamMatch[2].toUpperCase() : ''; // "G"
+                
+                // Student has separate form and stream fields  
+                const studentForm = (student.form || '').toUpperCase();
+                const studentStream = (student.stream || '').toUpperCase();
+                
+                if (expectedStream) {
+                  // Match both form and stream
+                  return studentForm === expectedForm && studentStream === expectedStream;
+                } else {
+                  // Match form only
+                  return studentForm === expectedForm;
+                }
+              } else {
+                // Fallback: direct form matching (case-insensitive)
+                const studentForm = (student.form || '').toUpperCase();
+                return studentForm === teacherClass.toUpperCase();
+              }
+            });
           });
 
           filteredMyClassData = [...myClassStudentsData];
@@ -2845,12 +2867,15 @@ loadTeacherStats();
       };
 
       // Select all checkbox functionality
-      document.getElementById("selectAllMyClass").addEventListener("change", (e) => {
-        const checkboxes = document.querySelectorAll('.student-checkbox');
-        checkboxes.forEach(checkbox => {
-          checkbox.checked = e.target.checked;
+      const selectAllMyClass = document.getElementById("selectAllMyClass");
+      if (selectAllMyClass) {
+        selectAllMyClass.addEventListener("change", (e) => {
+          const checkboxes = document.querySelectorAll('.student-checkbox');
+          checkboxes.forEach(checkbox => {
+            checkbox.checked = e.target.checked;
+          });
         });
-      });
+      }
 
     </script>
   </body>
