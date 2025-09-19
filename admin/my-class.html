@@ -1176,7 +1176,8 @@
       const classOptions = [];
       for (const cls of availableClasses) {
         try {
-          const q = query(collection(db, "students"), where("form", "==", cls));
+          // Handle case-insensitive matching for class counts
+          const q = query(collection(db, "students"), where("form", "==", cls.toUpperCase()));
           const snapshot = await getDocs(q);
           classOptions.push({
             class: cls,
@@ -1236,7 +1237,8 @@
         // Save selected classes to teacher profile
         try {
           await setDoc(doc(db, "users", currentTeacher.id), {
-            classes: teacherClasses,
+            classesTeaching: teacherClasses,
+            classes: teacherClasses, // Keep for backward compatibility
             updatedAt: serverTimestamp()
           }, { merge: true });
           
@@ -1344,23 +1346,32 @@
               const form = formStreamMatch[1].trim(); // "Form 1", "Upper 6", etc.
               const stream = formStreamMatch[2] || ''; // "G", "Sciences", etc.
               
+              // Handle case variations - convert to uppercase to match database format
+              const formUpper = form.toUpperCase(); // "FORM 1", "UPPER 6", etc.
+              
               if (stream) {
                 // Query for specific form + stream combination
                 promises.push(getDocs(query(studentsRef, 
-                  where("form", "==", form), 
-                  where("stream", "==", stream)
+                  where("form", "==", formUpper), 
+                  where("stream", "==", stream.toUpperCase())
                 )));
               } else {
                 // Query for form only (no stream specified)
                 promises.push(getDocs(query(studentsRef, 
-                  where("form", "==", form)
+                  where("form", "==", formUpper)
                 )));
               }
             } else {
               // Fallback: treat as form-only for any unmatched patterns
+              // Try both original and uppercase versions
               promises.push(getDocs(query(studentsRef, 
                 where("form", "==", classStr)
               )));
+              if (classStr !== classStr.toUpperCase()) {
+                promises.push(getDocs(query(studentsRef, 
+                  where("form", "==", classStr.toUpperCase())
+                )));
+              }
             }
           });
           
