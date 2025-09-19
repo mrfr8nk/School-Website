@@ -1,4 +1,4 @@
-modules = ["nodejs-20"]
+modules = ["nodejs-20", "postgresql-16"]
 [agent]
 expertMode = true
 
@@ -32,7 +32,3 @@ channel = "stable-25_05"
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 44679
-externalPort = 3000
