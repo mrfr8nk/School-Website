@@ -697,7 +697,17 @@
     .nav-controls {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .nav-info {
+      font-size: 0.9rem;
+      color: var(--text-color);
+      font-weight: 500;
     }
     .nav-buttons {
       display: flex;
@@ -706,6 +716,19 @@
     .nav-buttons button {
       padding: 0.5rem 1rem;
       min-width: 100px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .nav-buttons button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: rgba(255,255,255,0.1);
+    }
+    .nav-buttons button:disabled:hover {
+      transform: none;
+      background: rgba(255,255,255,0.1);
     }
   </style>
 </head>
@@ -805,15 +828,38 @@
       <div class="page-title">
         <h1><i class="fas fa-history"></i> Recent Payments</h1>
         <div class="actions">
+          <div class="form-group" style="margin-bottom: 0; min-width: 150px;">
+            <select id="paymentsSortBy" onchange="sortRecentPayments()" style="padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: var(--glass); color: var(--text-color);">
+              <option value="date-desc">Date (Newest First)</option>
+              <option value="date-asc">Date (Oldest First)</option>
+              <option value="amount-desc">Amount (High to Low)</option>
+              <option value="amount-asc">Amount (Low to High)</option>
+              <option value="student-asc">Student (A-Z)</option>
+              <option value="student-desc">Student (Z-A)</option>
+            </select>
+          </div>
           <button class="btn btn-secondary" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
         </div>
       </div>
 
       <div class="data-table">
+        <div class="nav-controls">
+          <div class="nav-info">
+            <span id="paymentsInfo">Showing 0 - 0 of 0 payments</span>
+          </div>
+          <div class="nav-buttons">
+            <button class="btn btn-sm btn-secondary" id="prevPaymentsBtn" onclick="navigateRecentPayments(-1)" disabled>
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <button class="btn btn-sm btn-secondary" id="nextPaymentsBtn" onclick="navigateRecentPayments(1)" disabled>
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
         <table id="recentPaymentsTable">
           <thead>
             <tr>
-              <th>Date</th>
+              <th>Date & Time</th>
               <th>Student</th>
               <th>Class</th>
               <th>Amount</th>
@@ -826,6 +872,19 @@
             <!-- Dynamically populated -->
           </tbody>
         </table>
+        <div class="nav-controls">
+          <div class="nav-info">
+            <span id="paymentsInfoBottom">Showing 0 - 0 of 0 payments</span>
+          </div>
+          <div class="nav-buttons">
+            <button class="btn btn-sm btn-secondary" onclick="navigateRecentPayments(-1)" disabled id="prevPaymentsBtnBottom">
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <button class="btn btn-sm btn-secondary" onclick="navigateRecentPayments(1)" disabled id="nextPaymentsBtnBottom">
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Charts -->
@@ -2410,21 +2469,110 @@ function populateFeeStructureTable() {
   }
 }
 
-// Populate recent payments
+// Pagination variables for recent payments
+let currentRecentPaymentsPage = 1;
+const paymentsPerPage = 10;
+let sortedPayments = [];
+let currentPaymentsSortBy = 'date-desc';
+
+// Sort recent payments
+window.sortRecentPayments = function() {
+  currentPaymentsSortBy = document.getElementById('paymentsSortBy').value;
+  currentRecentPaymentsPage = 1; // Reset to first page when sorting
+  populateRecentPayments();
+};
+
+// Navigate recent payments
+window.navigateRecentPayments = function(direction) {
+  const totalPages = Math.ceil(sortedPayments.length / paymentsPerPage);
+  const newPage = currentRecentPaymentsPage + direction;
+  
+  if (newPage >= 1 && newPage <= totalPages) {
+    currentRecentPaymentsPage = newPage;
+    populateRecentPayments();
+  }
+};
+
+// Populate recent payments with pagination and sorting
 function populateRecentPayments() {
   const tbody = document.getElementById('recentPaymentsBody');
   tbody.innerHTML = '';
   
-  const recentPayments = allPayments.slice(0, 5); // Get last 5 payments
+  // Sort all payments based on selected criteria
+  sortedPayments = [...allPayments].sort((a, b) => {
+    const studentA = allStudents.find(s => s.id === a.studentId);
+    const studentB = allStudents.find(s => s.id === b.studentId);
+    const nameA = studentA ? `${studentA.firstname} ${studentA.surname}` : 'Unknown';
+    const nameB = studentB ? `${studentB.firstname} ${studentB.surname}` : 'Unknown';
+    
+    switch(currentPaymentsSortBy) {
+      case 'date-asc':
+        return (a.date?.toDate ? a.date.toDate() : new Date(0)) - (b.date?.toDate ? b.date.toDate() : new Date(0));
+      case 'date-desc':
+        return (b.date?.toDate ? b.date.toDate() : new Date(0)) - (a.date?.toDate ? a.date.toDate() : new Date(0));
+      case 'amount-asc':
+        const amountA = a.currency === 'USD' ? a.amount : a.amount / (settings.exchangeRate || 500);
+        const amountB = b.currency === 'USD' ? b.amount : b.amount / (settings.exchangeRate || 500);
+        return amountA - amountB;
+      case 'amount-desc':
+        const amountADesc = a.currency === 'USD' ? a.amount : a.amount / (settings.exchangeRate || 500);
+        const amountBDesc = b.currency === 'USD' ? b.amount : b.amount / (settings.exchangeRate || 500);
+        return amountBDesc - amountADesc;
+      case 'student-asc':
+        return nameA.localeCompare(nameB);
+      case 'student-desc':
+        return nameB.localeCompare(nameA);
+      default:
+        return (b.date?.toDate ? b.date.toDate() : new Date(0)) - (a.date?.toDate ? a.date.toDate() : new Date(0));
+    }
+  });
   
-  recentPayments.forEach(payment => {
+  // Calculate pagination
+  const totalPayments = sortedPayments.length;
+  const totalPages = Math.ceil(totalPayments / paymentsPerPage);
+  const startIndex = (currentRecentPaymentsPage - 1) * paymentsPerPage;
+  const endIndex = Math.min(startIndex + paymentsPerPage, totalPayments);
+  const currentPagePayments = sortedPayments.slice(startIndex, endIndex);
+  
+  // Update pagination info
+  const infoText = totalPayments > 0 ? 
+    `Showing ${startIndex + 1} - ${endIndex} of ${totalPayments} payments` : 
+    'No payments found';
+  document.getElementById('paymentsInfo').textContent = infoText;
+  document.getElementById('paymentsInfoBottom').textContent = infoText;
+  
+  // Update pagination buttons
+  const prevBtns = [document.getElementById('prevPaymentsBtn'), document.getElementById('prevPaymentsBtnBottom')];
+  const nextBtns = [document.getElementById('nextPaymentsBtn'), document.getElementById('nextPaymentsBtnBottom')];
+  
+  prevBtns.forEach(btn => {
+    btn.disabled = currentRecentPaymentsPage <= 1;
+  });
+  
+  nextBtns.forEach(btn => {
+    btn.disabled = currentRecentPaymentsPage >= totalPages;
+  });
+  
+  // Populate table with current page payments
+  currentPagePayments.forEach(payment => {
     const student = allStudents.find(s => s.id === payment.studentId);
     const studentName = student ? `${student.firstname} ${student.surname}` : 'Unknown Student';
     const studentClass = student ? `${student.form} ${student.stream || ''}` : 'N/A';
     
+    // Format date and time
+    const paymentDate = payment.date?.toDate ? payment.date.toDate() : new Date();
+    const dateTimeFormatted = paymentDate.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${payment.date?.toDate ? payment.date.toDate().toLocaleDateString() : 'N/A'}</td>
+      <td>${dateTimeFormatted}</td>
       <td>${studentName}</td>
       <td>${studentClass}</td>
       <td>${payment.currency === 'USD' ? '$' : 'ZWL$'}${payment.amount.toLocaleString()}</td>
