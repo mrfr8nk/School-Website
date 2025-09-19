@@ -1320,6 +1320,106 @@
     }
 
     // ========================
+    // Class Name Normalization (Centralized Matching Logic)
+    // ========================
+    
+    function normalizeClassName(className) {
+      if (!className || typeof className !== 'string') return '';
+      
+      // Clean up the string
+      let normalized = className.trim().toUpperCase();
+      
+      // Handle common A-level variations and abbreviations
+      normalized = normalized
+        .replace(/\bL6\b/g, 'LOWER 6')
+        .replace(/\bU6\b/g, 'UPPER 6')
+        .replace(/\bL\.?\s*6\b/g, 'LOWER 6')
+        .replace(/\bU\.?\s*6\b/g, 'UPPER 6')
+        .replace(/\bLOWER\s+VI\b/g, 'LOWER 6')
+        .replace(/\bUPPER\s+VI\b/g, 'UPPER 6');
+      
+      // Normalize stream/subject names
+      normalized = normalized
+        .replace(/\bSCI\b|\bSCIENCE\b/g, 'SCIENCES')
+        .replace(/\bCOMM\b|\bCOMMS\b|\bCOMMERCIAL\s+STUDIES?\b/g, 'COMMERCIALS')
+        .replace(/\bART\b/g, 'ARTS');
+      
+      // Collapse multiple spaces and trim
+      normalized = normalized.replace(/\s+/g, ' ').trim();
+      
+      return normalized;
+    }
+    
+    function parseClassName(className) {
+      if (!className) return { form: '', stream: '' };
+      
+      const normalized = normalizeClassName(className);
+      
+      // Try to parse different class formats
+      let match;
+      
+      // Match A-level patterns: "LOWER 6 SCIENCES", "UPPER 6 ARTS", etc.
+      match = normalized.match(/^((?:LOWER|UPPER)\s+6)\s+(.+)$/);
+      if (match) {
+        return {
+          form: match[1].trim(),
+          stream: match[2].trim(),
+          fullClass: normalized
+        };
+      }
+      
+      // Match regular form patterns: "FORM 1 G", "FORM 2 W", etc.
+      match = normalized.match(/^(FORM\s+\d+)\s*([A-Z]+)?$/);
+      if (match) {
+        return {
+          form: match[1].trim(),
+          stream: match[2] ? match[2].trim() : '',
+          fullClass: normalized
+        };
+      }
+      
+      // Fallback: treat the whole string as form
+      return {
+        form: normalized,
+        stream: '',
+        fullClass: normalized
+      };
+    }
+    
+    function classesMatch(teacherClass, student) {
+      if (!teacherClass || !student.form) return false;
+      
+      // Parse teacher's assigned class
+      const teacherParsed = parseClassName(teacherClass);
+      
+      // Try to parse student's class information
+      // Student might have separate form/stream fields OR full class in form field
+      const studentFormOnly = parseClassName(student.form);
+      const studentFullClass = student.stream 
+        ? parseClassName(`${student.form} ${student.stream}`)
+        : studentFormOnly;
+      
+      // Multiple matching strategies
+      const matches = [
+        // Exact full class match
+        teacherParsed.fullClass === studentFullClass.fullClass,
+        
+        // Form + stream match (when both have separate streams)
+        teacherParsed.form === studentFormOnly.form && 
+        teacherParsed.stream === (studentFullClass.stream || studentFormOnly.stream),
+        
+        // Form-only match (when teacher selected general form without stream)
+        !teacherParsed.stream && teacherParsed.form === studentFormOnly.form,
+        
+        // Flexible form match (student's form contains teacher's form)
+        studentFormOnly.form.includes(teacherParsed.form) && 
+        (!teacherParsed.stream || studentFullClass.fullClass.includes(teacherParsed.stream))
+      ];
+      
+      return matches.some(match => match === true);
+    }
+
+    // ========================
     // Data Loading
     // ========================
     
@@ -1391,36 +1491,9 @@
         studentsData = allStudents.filter(student => {
           if (!student.form) return false;
           
-          // Check if student belongs to any of the teacher's assigned classes
+          // Check if student belongs to any of the teacher's assigned classes using centralized matching
           return teacherClasses.some(teacherClass => {
-            // Skip falsy or empty teacher class entries
-            if (!teacherClass || !teacherClass.trim()) return false;
-            
-            // Parse teacher class format like "Form 1G" -> form="Form 1", stream="G"
-            const formStreamMatch = teacherClass.match(/^(Form\s+\d+)\s*([A-Za-z]+)?$/) || 
-                                   teacherClass.match(/^(Upper\s+6|Lower\s+6)\s+([A-Za-z]+)$/) ||
-                                   teacherClass.match(/^([^0-9]+\s*\d+)\s*([A-Za-z]+)?$/);
-            
-            if (formStreamMatch) {
-              const expectedForm = formStreamMatch[1].trim().toUpperCase(); // "FORM 1"
-              const expectedStream = formStreamMatch[2] ? formStreamMatch[2].toUpperCase() : ''; // "G"
-              
-              // Student has separate form and stream fields  
-              const studentForm = (student.form || '').toUpperCase();
-              const studentStream = (student.stream || '').toUpperCase();
-              
-              if (expectedStream) {
-                // Match both form and stream - teacher selected specific stream like "Form 1G"
-                return studentForm === expectedForm && studentStream === expectedStream;
-              } else {
-                // Match form only - teacher selected general form like "Form 1"
-                return studentForm === expectedForm;
-              }
-            } else {
-              // Fallback: direct form matching (case-insensitive)
-              const studentForm = (student.form || '').toUpperCase();
-              return studentForm === teacherClass.toUpperCase();
-            }
+            return classesMatch(teacherClass, student);
           });
         });
         
