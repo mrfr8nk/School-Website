@@ -2821,32 +2821,6 @@ function showPaymentPlan(studentId, totalFees, paidAmount, balance) {
   });
 }
 
-// Update stream dropdown based on selected class
-function updateStreamDropdown(selectedClass) {
-  const streamSelect = document.getElementById('studentFilterStream');
-  streamSelect.innerHTML = '<option value="">All Streams</option>';
-  
-  if (!selectedClass) return;
-  
-  // For Forms 5 and 6, show Arts/Commercials/Sciences
-  if (selectedClass === "Form 5" || selectedClass === "Form 6") {
-    ['Arts', 'Commercials', 'Sciences'].forEach(stream => {
-      const option = document.createElement('option');
-      option.value = stream;
-      option.textContent = stream;
-      streamSelect.appendChild(option);
-    });
-  } 
-  // For other forms, show standard streams
-  else {
-    ['G', 'W', 'Z', 'E', 'U'].forEach(stream => {
-      const option = document.createElement('option');
-      option.value = stream;
-      option.textContent = stream;
-      streamSelect.appendChild(option);
-    });
-  }
-}
 
 // Refresh all students tables
 function refreshStudentsTables() {
