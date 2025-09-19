@@ -715,13 +715,42 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 10px;
+      gap: 15px;
       margin-top: 30px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .page-info {
-      font-size: 0.9rem;
+      font-size: 1rem;
       color: var(--secondary);
+      font-weight: 600;
+      padding: 8px 16px;
+      background: rgba(214, 158, 46, 0.1);
+      border-radius: 6px;
+      border: 1px solid rgba(214, 158, 46, 0.3);
+    }
+    
+    .pagination .btn {
+      min-width: 120px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .pagination .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .pagination .btn:disabled:hover {
+      transform: none;
+      background: rgba(255, 255, 255, 0.1);
     }
 
     /* ==============================
@@ -876,19 +905,31 @@
         <i class="fas fa-search"></i>
         <input type="text" id="searchInput" placeholder="Search students by name, email, phone or form..." />
       </div>
-      <div class="btn-group">
-        <button class="btn btn-primary" id="addStudentBtn">
-          <i class="fas fa-plus"></i> Add Student
-        </button>
-        <button class="btn btn-secondary" id="downloadAllBtn">
-          <i class="fas fa-file-pdf"></i> Export PDF
-        </button>
-        <button class="btn btn-info" id="exportCSVBtn">
-          <i class="fas fa-file-csv"></i> Export CSV
-        </button>
-        <button class="btn btn-danger" id="bulkDeleteBtn">
-          <i class="fas fa-trash"></i> Bulk Delete
-        </button>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--secondary); font-weight: 500;">
+          <label for="entriesPerPageSelect">Show:</label>
+          <select id="entriesPerPageSelect" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--modal-text); font-size: 0.9rem;">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <span>entries</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="addStudentBtn">
+            <i class="fas fa-plus"></i> Add Student
+          </button>
+          <button class="btn btn-secondary" id="downloadAllBtn">
+            <i class="fas fa-file-pdf"></i> Export PDF
+          </button>
+          <button class="btn btn-info" id="exportCSVBtn">
+            <i class="fas fa-file-csv"></i> Export CSV
+          </button>
+          <button class="btn btn-danger" id="bulkDeleteBtn">
+            <i class="fas fa-trash"></i> Bulk Delete
+          </button>
+        </div>
       </div>
     </div>
     
@@ -1811,6 +1852,8 @@
       if (itemsPerPage !== newItemsPerPage) {
         itemsPerPage = newItemsPerPage;
         localStorage.setItem("itemsPerPage", itemsPerPage.toString());
+        // Update the main dropdown too
+        document.getElementById("entriesPerPageSelect").value = itemsPerPage.toString();
         currentPage = 1;
         renderStudents();
       }
@@ -1843,7 +1886,23 @@
       
       // Load items per page from settings
       const savedItemsPerPage = localStorage.getItem("itemsPerPage");
-      if (savedItemsPerPage) itemsPerPage = parseInt(savedItemsPerPage);
+      if (savedItemsPerPage) {
+        itemsPerPage = parseInt(savedItemsPerPage);
+        document.getElementById("entriesPerPageSelect").value = savedItemsPerPage;
+      }
+      
+      // Entries per page dropdown change handler
+      document.getElementById("entriesPerPageSelect").addEventListener("change", (e) => {
+        const newItemsPerPage = parseInt(e.target.value);
+        if (itemsPerPage !== newItemsPerPage) {
+          itemsPerPage = newItemsPerPage;
+          localStorage.setItem("itemsPerPage", itemsPerPage.toString());
+          // Update the settings modal value too
+          document.getElementById("itemsPerPage").value = itemsPerPage.toString();
+          currentPage = 1;
+          renderStudents();
+        }
+      });
       
       // Menu toggle
       document.getElementById("menuBtn").addEventListener("click", () => {

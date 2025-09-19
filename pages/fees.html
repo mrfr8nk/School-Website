@@ -1164,34 +1164,89 @@
   <!-- Fee Structure Page -->
   <div id="feeStructurePage" class="page-content">
     <div class="page-title">
-      <h1><i class="fas fa-list-alt"></i> Fee Structure</h1>
+      <h1><i class="fas fa-list-alt"></i> Fee Structure Settings</h1>
       <div class="actions">
-        <button class="btn btn-primary" onclick="showFeeStructureModal()"><i class="fas fa-plus"></i> Add Fee Item</button>
+        <button class="btn btn-primary" onclick="saveFeeSettings()"><i class="fas fa-save"></i> Save Changes</button>
       </div>
     </div>
 
-    <div class="tabs">
-      <div class="tab active" data-tab="currentStructure">Current Structure</div>
-      <div class="tab" data-tab="historicalStructure">Historical</div>
-    </div>
+    <div class="form-card">
+      <h2><i class="fas fa-graduation-cap"></i> Configure Fee Structure</h2>
+      <p style="margin-bottom: 2rem; color: var(--text-color); opacity: 0.8;">
+        Set the tuition fees and levies for O Level and A Level students. Changes will apply to all future fee calculations.
+      </p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- O Level Fees -->
+        <div class="fee-level-card" style="background: rgba(72, 187, 120, 0.1); border: 2px solid rgba(72, 187, 120, 0.3); border-radius: 12px; padding: 1.5rem;">
+          <h3 style="color: #48bb78; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-users"></i> O Level (Forms 1-4)
+          </h3>
+          <div class="fee-breakdown">
+            <div class="form-group">
+              <label for="oLevelTuition">Tuition Fees (USD):</label>
+              <div class="currency-input">
+                <input type="number" id="oLevelTuition" class="form-control" step="0.01" min="0">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="oLevelLevy">School Levy (USD):</label>
+              <div class="currency-input">
+                <input type="number" id="oLevelLevy" class="form-control" step="0.01" min="0">
+              </div>
+            </div>
+            <hr style="border: 1px solid rgba(72, 187, 120, 0.3); margin: 1rem 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 700; color: #48bb78;">
+              <span>Total per Term:</span>
+              <span id="oLevelTotal">$0.00</span>
+            </div>
+          </div>
+          <div style="margin-top: 1rem; padding: 0.5rem; background: rgba(72, 187, 120, 0.1); border-radius: 6px; font-size: 0.9rem;">
+            <strong>Applies to:</strong> Form 1, Form 2, Form 3, Form 4
+          </div>
+        </div>
 
-    <div class="tab-content active" id="currentStructure">
-      <div class="data-table">
-        <table id="feeStructureTable">
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th>Fee Item</th>
-              <th>Amount (USD)</th>
-              <th>Amount (ZWL)</th>
-              <th>Term</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="feeStructureBody">
-            <!-- Dynamically populated -->
-          </tbody>
-        </table>
+        <!-- A Level Fees -->
+        <div class="fee-level-card" style="background: rgba(66, 153, 225, 0.1); border: 2px solid rgba(66, 153, 225, 0.3); border-radius: 12px; padding: 1.5rem;">
+          <h3 style="color: #4299e1; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-user-graduate"></i> A Level (Forms 5-6)
+          </h3>
+          <div class="fee-breakdown">
+            <div class="form-group">
+              <label for="aLevelTuition">Tuition Fees (USD):</label>
+              <div class="currency-input">
+                <input type="number" id="aLevelTuition" class="form-control" step="0.01" min="0">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="aLevelLevy">School Levy (USD):</label>
+              <div class="currency-input">
+                <input type="number" id="aLevelLevy" class="form-control" step="0.01" min="0">
+              </div>
+            </div>
+            <hr style="border: 1px solid rgba(66, 153, 225, 0.3); margin: 1rem 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 700; color: #4299e1;">
+              <span>Total per Term:</span>
+              <span id="aLevelTotal">$0.00</span>
+            </div>
+          </div>
+          <div style="margin-top: 1rem; padding: 0.5rem; background: rgba(66, 153, 225, 0.1); border-radius: 6px; font-size: 0.9rem;">
+            <strong>Applies to:</strong> Form 5, Form 6
+          </div>
+        </div>
+      </div>
+
+      <div class="fee-structure-info" style="background: rgba(214, 158, 46, 0.1); border: 1px solid rgba(214, 158, 46, 0.3); border-radius: 8px; padding: 1rem; margin-top: 1.5rem;">
+        <h4 style="color: var(--secondary); margin-bottom: 0.5rem;">
+          <i class="fas fa-info-circle"></i> Important Information
+        </h4>
+        <ul style="margin: 0; padding-left: 1.5rem; color: var(--text-color);">
+          <li>Fees are charged per term (3 terms per academic year)</li>
+          <li>All amounts are in US Dollars (USD)</li>
+          <li>Changes will affect all students immediately after saving</li>
+          <li>Tuition fees cover academic instruction and materials</li>
+          <li>School levy covers facilities, maintenance, and administrative costs</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -1612,10 +1667,22 @@
   let settings = {
     currency: "USD",
     exchangeRate: 500,
-    paymentMethods: ["Cash", "Ecocash", "OneMoney", "Bank Transfer", "Swipe"]
+    paymentMethods: ["Cash", "Ecocash", "OneMoney", "Bank Transfer", "Swipe"],
+    feeStructure: {
+      oLevel: {
+        tuitionFees: 80,
+        levy: 40,
+        total: 120
+      },
+      aLevel: {
+        tuitionFees: 100,
+        levy: 40,
+        total: 140
+      }
+    }
   };
   let monthlyPaymentsChart, paymentMethodsChart;
-  let studentsTable, paymentsTable, feeStructureTable;
+  let studentsTable, paymentsTable;
   let paidStudentsTable, unpaidStudentsTable, partialStudentsTable, balanceStudentsTable;
   let currentPaymentHistoryIndex = 0;
   let paymentHistoryData = [];
@@ -1915,17 +1982,29 @@
       const paymentsSnapshot = await getDocs(paymentsQuery);
       allPayments = paymentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       
-      // Load fee structure
-      const feesSnapshot = await getDocs(collection(db, "feeStructure"));
-      feeStructure = feesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // Load fee settings
+      try {
+        const feeSettingsDoc = await getDoc(doc(db, "settings", "fees"));
+        if (feeSettingsDoc.exists()) {
+          const feeData = feeSettingsDoc.data();
+          if (feeData.feeStructure) {
+            settings.feeStructure = feeData.feeStructure;
+          }
+        }
+      } catch (err) {
+        console.log("Fee settings not found, using defaults");
+      }
       
       // Update UI
       updateDashboardStats();
       populateStudentDropdown();
       populateStudentsTable();
       populatePaymentsTable();
-      populateFeeStructureTable();
       populateRecentPayments();
+      
+      // Initialize fee structure UI
+      updateFeeStructureUI();
+      initFeeStructureListeners();
       
       showNotification("Data loaded successfully", "success");
     } catch (err) {
@@ -1969,10 +2048,15 @@
       populateRecentPayments();
     });
 
-    // Fee structure listener
-    onSnapshot(collection(db, "feeStructure"), (snapshot) => {
-      feeStructure = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      populateFeeStructureTable();
+    // Settings listener for fee structure
+    onSnapshot(doc(db, "settings", "fees"), (doc) => {
+      if (doc.exists()) {
+        const feeData = doc.data();
+        if (feeData.feeStructure) {
+          settings.feeStructure = feeData.feeStructure;
+          updateFeeStructureUI();
+        }
+      }
     });
   }
 
@@ -2020,12 +2104,6 @@
       order: [[1, 'desc']] // Default sort by date
     });
 
-    feeStructureTable = new DataTable('#feeStructureTable', {
-      responsive: true,
-      pageLength: 10,
-      lengthMenu: [10, 25, 50, 100],
-      order: [[0, 'asc']] // Default sort by class
-    });
   }
 
   // Update dashboard statistics with USD/ZWL split
@@ -2078,13 +2156,28 @@
   function calculateTotalFees(student) {
     if (!student || !student.form) return 0;
     
-    // Get all fee items for this student's class or all classes
-    const classFees = feeStructure.filter(fee => 
-      fee.class === student.form || fee.class === 'All Classes'
-    );
+    // Use configurable fee structure with safe defaults
+    const oLevelTotal = (settings.feeStructure?.oLevel?.total) || 120;
+    const aLevelTotal = (settings.feeStructure?.aLevel?.total) || 140;
     
-    // Sum up all applicable fees
-    return classFees.reduce((sum, fee) => sum + fee.amountUSD, 0);
+    const form = student.form.toLowerCase();
+    
+    // O Level: Forms 1-4
+    if (form.includes('form 1') || form.includes('form 2') || 
+        form.includes('form 3') || form.includes('form 4') ||
+        form === 'form 1' || form === 'form 2' || 
+        form === 'form 3' || form === 'form 4') {
+      return oLevelTotal;
+    }
+    
+    // A Level: Forms 5-6
+    if (form.includes('form 5') || form.includes('form 6') ||
+        form === 'form 5' || form === 'form 6') {
+      return aLevelTotal;
+    }
+    
+    // Default for any other forms (fallback)
+    return oLevelTotal;
   }
 
   // Calculate paid amount for a student
@@ -2583,41 +2676,6 @@ function populatePaymentsTable() {
 }
 
 // Populate fee structure table with USD/ZWL amounts
-function populateFeeStructureTable() {
-  const tbody = document.getElementById('feeStructureBody');
-  tbody.innerHTML = '';
-  
-  feeStructure.forEach(fee => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${fee.class || 'All Classes'}</td>
-      <td>${fee.item}</td>
-      <td>$${fee.amountUSD?.toLocaleString() || '0'}</td>
-      <td>ZWL$${Math.round(fee.amountUSD * settings.exchangeRate)?.toLocaleString() || '0'}</td>
-      <td>${fee.term || 'All Terms'}</td>
-      <td>
-        <button class="btn btn-sm btn-secondary" onclick="editFeeItem('${fee.id}')">
-          <i class="fas fa-edit"></i>
-        </button>
-        <button class="btn btn-sm btn-danger" onclick="deleteFeeItem('${fee.id}')">
-          <i class="fas fa-trash"></i>
-        </button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-  
-  // Refresh DataTable
-  if (feeStructureTable) {
-    feeStructureTable.destroy();
-    feeStructureTable = new DataTable('#feeStructureTable', {
-      responsive: true,
-      pageLength: 10,
-      lengthMenu: [10, 25, 50, 100],
-      order: [[0, 'asc']]
-    });
-  }
-}
 
 // Pagination variables for recent payments
 let currentRecentPaymentsPage = 1;
@@ -2738,6 +2796,95 @@ function populateRecentPayments() {
       </td>
     `;
     tbody.appendChild(tr);
+  });
+}
+
+// Fee Structure Configuration Functions
+
+// Update fee structure UI with current values
+function updateFeeStructureUI() {
+  if (settings.feeStructure) {
+    // Update O Level inputs
+    const oLevelTuition = document.getElementById('oLevelTuition');
+    const oLevelLevy = document.getElementById('oLevelLevy');
+    const oLevelTotal = document.getElementById('oLevelTotal');
+    
+    if (oLevelTuition) oLevelTuition.value = settings.feeStructure.oLevel.tuitionFees;
+    if (oLevelLevy) oLevelLevy.value = settings.feeStructure.oLevel.levy;
+    if (oLevelTotal) oLevelTotal.textContent = `$${settings.feeStructure.oLevel.total.toFixed(2)}`;
+    
+    // Update A Level inputs
+    const aLevelTuition = document.getElementById('aLevelTuition');
+    const aLevelLevy = document.getElementById('aLevelLevy');
+    const aLevelTotal = document.getElementById('aLevelTotal');
+    
+    if (aLevelTuition) aLevelTuition.value = settings.feeStructure.aLevel.tuitionFees;
+    if (aLevelLevy) aLevelLevy.value = settings.feeStructure.aLevel.levy;
+    if (aLevelTotal) aLevelTotal.textContent = `$${settings.feeStructure.aLevel.total.toFixed(2)}`;
+  }
+}
+
+// Update totals when input values change
+function updateFeeTotals() {
+  // O Level total
+  const oLevelTuition = parseFloat(document.getElementById('oLevelTuition').value) || 0;
+  const oLevelLevy = parseFloat(document.getElementById('oLevelLevy').value) || 0;
+  const oLevelTotal = oLevelTuition + oLevelLevy;
+  document.getElementById('oLevelTotal').textContent = `$${oLevelTotal.toFixed(2)}`;
+  
+  // A Level total
+  const aLevelTuition = parseFloat(document.getElementById('aLevelTuition').value) || 0;
+  const aLevelLevy = parseFloat(document.getElementById('aLevelLevy').value) || 0;
+  const aLevelTotal = aLevelTuition + aLevelLevy;
+  document.getElementById('aLevelTotal').textContent = `$${aLevelTotal.toFixed(2)}`;
+}
+
+// Save fee settings to Firebase
+window.saveFeeSettings = async function() {
+  showLoading(true, "Saving fee structure...");
+  
+  try {
+    const oLevelTuition = parseFloat(document.getElementById('oLevelTuition').value) || 0;
+    const oLevelLevy = parseFloat(document.getElementById('oLevelLevy').value) || 0;
+    const aLevelTuition = parseFloat(document.getElementById('aLevelTuition').value) || 0;
+    const aLevelLevy = parseFloat(document.getElementById('aLevelLevy').value) || 0;
+    
+    const feeStructure = {
+      oLevel: {
+        tuitionFees: oLevelTuition,
+        levy: oLevelLevy,
+        total: oLevelTuition + oLevelLevy
+      },
+      aLevel: {
+        tuitionFees: aLevelTuition,
+        levy: aLevelLevy,
+        total: aLevelTuition + aLevelLevy
+      }
+    };
+    
+    // Save to Firebase
+    await setDoc(doc(db, "settings", "fees"), { feeStructure });
+    
+    // Update local settings
+    settings.feeStructure = feeStructure;
+    
+    showNotification("Fee structure updated successfully!", "success");
+  } catch (err) {
+    console.error("Error saving fee structure:", err);
+    showNotification("Error saving fee structure. Please try again.", "error");
+  } finally {
+    showLoading(false);
+  }
+};
+
+// Initialize fee structure input listeners
+function initFeeStructureListeners() {
+  const inputs = ['oLevelTuition', 'oLevelLevy', 'aLevelTuition', 'aLevelLevy'];
+  inputs.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.addEventListener('input', updateFeeTotals);
+    }
   });
 }
 
