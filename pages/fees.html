@@ -905,7 +905,9 @@
             </div>
             <div style="text-align: center; padding: 1rem; background: rgba(214, 158, 46, 0.1); border-radius: 8px; border-left: 4px solid var(--secondary);">
               <span style="font-size: 0.9rem; color: var(--text-color);">Exchange Rate: <strong style="color: var(--secondary);">1 USD = <span id="currentRate">40</span> ZWL</strong></span>
-              <button onclick="updateRate()" style="margin-left: 15px; padding: 0.3rem 0.8rem; background: var(--secondary); color: #1a365d; border: none; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">Update Rate</button>
+              <button onclick="saveMainExchangeRate()" style="margin-left: 15px; padding: 0.3rem 0.8rem; background: var(--secondary); color: #1a365d; border: none; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-save"></i> Set New Rate
+              </button>
             </div>
           </div>
         </div>
@@ -1890,6 +1892,9 @@
           <button class="btn btn-secondary" onclick="exportScholarshipReport()">
             <i class="fas fa-download"></i> Export Report
           </button>
+          <button class="btn btn-success" onclick="generateScholarshipPaymentReport()">
+            <i class="fas fa-chart-pie"></i> Payment Status Report
+          </button>
         </div>
       </div>
       
@@ -2003,7 +2008,7 @@
     initCharts();
     
     // Initialize currency converter
-    initCurrencyConverter();
+    await initCurrencyConverter();
     
     // Set up report type change listener
     document.getElementById('reportType').addEventListener('change', function() {
@@ -2063,12 +2068,19 @@
   }
 
   // Initialize currency converter
-  function initCurrencyConverter() {
+  async function initCurrencyConverter() {
+    // Load exchange rate from Firebase first
+    await loadExchangeRateSettings();
+    
+    // Initialize dashboard converter if it exists
     const dashboardExchangeRate = document.getElementById('dashboardExchangeRate');
     if (dashboardExchangeRate) {
       dashboardExchangeRate.value = settings.exchangeRate;
+      convertDashboardCurrency('usd');
     }
-    convertDashboardCurrency('usd');
+    
+    // Initialize main currency converter
+    updateCurrentRateDisplay();
   }
 
   // Dashboard currency conversion functions
@@ -2140,6 +2152,43 @@
     } else {
       amountInput.placeholder = "Enter amount in ZWL";
     }
+  };
+
+  // Main currency converter functions
+  window.convertToZWL = function() {
+    const usdAmount = parseFloat(document.getElementById('usdInput').value) || 0;
+    const zwlAmount = usdAmount * settings.exchangeRate;
+    document.getElementById('zwlInput').value = zwlAmount.toFixed(2);
+    updateCurrentRateDisplay();
+  };
+
+  window.convertToUSD = function() {
+    const zwlAmount = parseFloat(document.getElementById('zwlInput').value) || 0;
+    const usdAmount = zwlAmount / settings.exchangeRate;
+    document.getElementById('usdInput').value = usdAmount.toFixed(2);
+    updateCurrentRateDisplay();
+  };
+
+  window.updateCurrentRateDisplay = function() {
+    const currentRateEl = document.getElementById('currentRate');
+    if (currentRateEl) {
+      currentRateEl.textContent = settings.exchangeRate.toFixed(2);
+    }
+  };
+
+  window.saveMainExchangeRate = async function() {
+    const newRate = parseFloat(prompt("Enter new exchange rate (ZWL per 1 USD):", settings.exchangeRate));
+    
+    if (!newRate || newRate <= 0 || !isFinite(newRate)) {
+      showNotification("Please enter a valid exchange rate greater than 0", "error");
+      return;
+    }
+    
+    await saveExchangeRate(newRate);
+    updateCurrentRateDisplay();
+    
+    // Update current conversion
+    convertToZWL();
   };
 
   // Search students function for payment modal
@@ -2811,53 +2860,63 @@ function showPaymentPlan(studentId, totalFees, paidAmount, balance) {
 
 // Refresh all students tables
 function refreshStudentsTables() {
-  populateStudentsTable();
-  populatePaidStudentsTable();
-  populateUnpaidStudentsTable();
-  populatePartialStudentsTable();
-  populateBalanceStudentsTable();
+  // Only update data, don't repopulate entire tables to avoid DataTables issues
+  if (studentsTable && $.fn.DataTable.isDataTable('#studentsTable')) {
+    populateStudentsTable();
+  }
+  if (paidStudentsTable && $.fn.DataTable.isDataTable('#paidStudentsTable')) {
+    populatePaidStudentsTable();
+  }
+  if (unpaidStudentsTable && $.fn.DataTable.isDataTable('#unpaidStudentsTable')) {
+    populateUnpaidStudentsTable();
+  }
+  if (partialStudentsTable && $.fn.DataTable.isDataTable('#partialStudentsTable')) {
+    populatePartialStudentsTable();
+  }
+  if (balanceStudentsTable && $.fn.DataTable.isDataTable('#balanceStudentsTable')) {
+    populateBalanceStudentsTable();
+  }
 }
 
 // Populate all students table
 function populateStudentsTable() {
-  const tbody = document.getElementById('studentsBody');
-  tbody.innerHTML = '';
-  
-  allStudents.forEach(student => {
+  // Prepare data for DataTables
+  const tableData = allStudents.map(student => {
     const totalFees = calculateTotalFees(student);
     const paidAmount = calculatePaidAmount(student.id);
     const balance = totalFees - paidAmount;
     const status = getPaymentStatus(student);
     
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${student.admissionNumber || 'N/A'}</td>
-      <td>${student.firstname} ${student.surname}</td>
-      <td>${student.form} ${student.stream || ''}</td>
-      <td>$${totalFees.toLocaleString()}</td>
-      <td>$${paidAmount.toLocaleString()}</td>
-      <td>$${balance.toLocaleString()}</td>
-      <td><span class="status-badge status-${status.status}">${status.text}</span></td>
-      <td>
-        <button class="btn btn-sm btn-secondary" onclick="showPaymentHistory('${student.id}')">
-          <i class="fas fa-history"></i>
-        </button>
-        <button class="btn btn-sm btn-primary" onclick="showPaymentModal('${student.id}')">
-          <i class="fas fa-money-bill-wave"></i>
-        </button>
-      </td>
-    `;
-    tbody.appendChild(tr);
+    return [
+      student.admissionNumber || 'N/A',
+      `${student.firstname} ${student.surname}`,
+      `${student.form} ${student.stream || ''}`,
+      `$${totalFees.toLocaleString()}`,
+      `$${paidAmount.toLocaleString()}`,
+      `$${balance.toLocaleString()}`,
+      `<span class="status-badge status-${status.status}">${status.text}</span>`,
+      `<button class="btn btn-sm btn-secondary" onclick="showPaymentHistory('${student.id}')">
+         <i class="fas fa-history"></i>
+       </button>
+       <button class="btn btn-sm btn-primary" onclick="showPaymentModal('${student.id}')">
+         <i class="fas fa-money-bill-wave"></i>
+       </button>`
+    ];
   });
   
-  // Refresh DataTable
+  // Update DataTable data
   if (studentsTable) {
-    studentsTable.destroy();
-    studentsTable = new DataTable('#studentsTable', {
-      responsive: true,
-      pageLength: 10,
-      lengthMenu: [10, 25, 50, 100],
-      order: [[1, 'asc']] // Default sort by student name
+    studentsTable.clear();
+    studentsTable.rows.add(tableData);
+    studentsTable.draw();
+  } else {
+    // Initialize table if it doesn't exist
+    const tbody = document.getElementById('studentsBody');
+    tbody.innerHTML = '';
+    tableData.forEach(rowData => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = rowData.map(cell => `<td>${cell}</td>`).join('');
+      tbody.appendChild(tr);
     });
   }
 }
@@ -4112,7 +4171,102 @@ window.deleteScholarship = async function(scholarshipId) {
   }
 };
 
-// Export scholarship report
+// Generate scholarship payment status report
+window.generateScholarshipPaymentReport = function() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  
+  // Add header
+  doc.setFontSize(18);
+  doc.text('Scholarship Payment Status Report', 20, 20);
+  doc.setFontSize(12);
+  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
+  doc.text(`St. Mary's High School`, 20, 40);
+  
+  const fullScholarshipStudents = [];
+  const partialScholarshipStudents = [];
+  
+  allScholarships.forEach(scholarship => {
+    const student = allStudents.find(s => s.id === scholarship.studentId);
+    if (!student) return;
+    
+    const studentName = `${student.firstname} ${student.surname}`;
+    const totalFees = calculateTotalFees(student);
+    const paidAmount = calculatePaidAmount(student.id);
+    const scholarshipAmount = scholarship.currency === 'USD' ? 
+      scholarship.amount : scholarship.amount / settings.exchangeRate;
+    
+    const isFullScholarship = scholarshipAmount >= totalFees;
+    const isPaid = paidAmount >= totalFees;
+    
+    const studentData = [
+      studentName,
+      student.form || 'N/A',
+      `$${totalFees.toFixed(2)}`,
+      `$${scholarshipAmount.toFixed(2)}`,
+      `$${paidAmount.toFixed(2)}`,
+      isPaid ? 'Fully Paid' : 'Outstanding',
+      scholarship.organization || 'N/A'
+    ];
+    
+    if (isFullScholarship) {
+      fullScholarshipStudents.push(studentData);
+    } else {
+      partialScholarshipStudents.push(studentData);
+    }
+  });
+  
+  // Full Scholarship Students Section
+  doc.setFontSize(14);
+  doc.text('Full Scholarship Students', 20, 60);
+  
+  if (fullScholarshipStudents.length > 0) {
+    doc.autoTable({
+      head: [['Student Name', 'Form', 'Total Fees', 'Scholarship Amount', 'Amount Paid', 'Payment Status', 'Organization']],
+      body: fullScholarshipStudents,
+      startY: 70,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [26, 54, 93] }
+    });
+  } else {
+    doc.setFontSize(10);
+    doc.text('No full scholarship students found.', 20, 80);
+  }
+  
+  // Partial Scholarship Students Section
+  const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 100;
+  doc.setFontSize(14);
+  doc.text('Partial Scholarship Students', 20, finalY);
+  
+  if (partialScholarshipStudents.length > 0) {
+    doc.autoTable({
+      head: [['Student Name', 'Form', 'Total Fees', 'Scholarship Amount', 'Amount Paid', 'Payment Status', 'Organization']],
+      body: partialScholarshipStudents,
+      startY: finalY + 10,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [26, 54, 93] }
+    });
+  } else {
+    doc.setFontSize(10);
+    doc.text('No partial scholarship students found.', 20, finalY + 10);
+  }
+  
+  // Summary
+  const summaryY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : finalY + 30;
+  doc.setFontSize(12);
+  doc.text('Summary:', 20, summaryY);
+  doc.setFontSize(10);
+  doc.text(`Full Scholarship Students: ${fullScholarshipStudents.length}`, 20, summaryY + 10);
+  doc.text(`Partial Scholarship Students: ${partialScholarshipStudents.length}`, 20, summaryY + 20);
+  doc.text(`Total Scholarship Students: ${fullScholarshipStudents.length + partialScholarshipStudents.length}`, 20, summaryY + 30);
+  
+  // Save the PDF
+  doc.save(`scholarship_payment_report_${new Date().toISOString().split('T')[0]}.pdf`);
+  
+  showNotification("Scholarship payment report generated successfully!", "success");
+};
+
+// Export scholarship report (original function renamed for clarity)
 window.exportScholarshipReport = function() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
