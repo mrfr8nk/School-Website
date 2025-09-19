@@ -1172,24 +1172,40 @@
     // ========================
     
     async function showClassSelectionModal(availableClasses) {
-      // Get student counts for each class
+      // Load all students once and count them in JavaScript for reliable matching
+      let allStudentsForCounting = [];
+      try {
+        const studentsRef = collection(db, "students");
+        const querySnapshot = await getDocs(studentsRef);
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          allStudentsForCounting.push(data);
+        });
+      } catch (error) {
+        console.warn("Could not load students for counting:", error);
+      }
+      
+      // Count students for each class using flexible matching
       const classOptions = [];
       for (const cls of availableClasses) {
-        try {
-          // Handle case-insensitive matching for class counts
-          const q = query(collection(db, "students"), where("form", "==", cls.toUpperCase()));
-          const snapshot = await getDocs(q);
-          classOptions.push({
-            class: cls,
-            count: snapshot.size
-          });
-        } catch (error) {
-          console.warn(`Could not get count for class ${cls}:`, error);
-          classOptions.push({
-            class: cls,
-            count: 0
-          });
-        }
+        const count = allStudentsForCounting.filter(student => {
+          if (!student.form) return false;
+          
+          const studentForm = student.form.trim();
+          const studentStream = (student.stream || '').trim();
+          const studentFullClass = `${studentForm}${studentStream ? ` ${studentStream}` : ''}`;
+          const clsTrimmed = cls.trim();
+          
+          // Use same flexible matching as main loading logic
+          return studentFullClass.toLowerCase() === clsTrimmed.toLowerCase() ||
+                 studentForm.toLowerCase() === clsTrimmed.toLowerCase() ||
+                 clsTrimmed.toLowerCase().includes(studentForm.toLowerCase());
+        }).length;
+        
+        classOptions.push({
+          class: cls,
+          count: count
+        });
       }
       
       classOptions.sort((a, b) => a.class.localeCompare(b.class));
@@ -1320,80 +1336,65 @@
           return;
         }
         
-        // Load students using chunked queries to avoid Firestore "in" limit of 10
+        // Use simple approach like the working student users page - load ALL students first
+        console.log("Loading all students for teacher classes:", teacherClasses);
         studentsData = [];
         const studentsRef = collection(db, "students");
         
-        // Split classes into chunks of 10 for Firestore "in" operator
-        const chunkSize = 10;
-        const classChunks = [];
-        for (let i = 0; i < teacherClasses.length; i += chunkSize) {
-          classChunks.push(teacherClasses.slice(i, i + chunkSize));
-        }
+        // Simple query that works reliably (same as student users page)
+        const querySnapshot = await getDocs(studentsRef);
         
-        // Run parallel queries for each chunk
-        const queryPromises = classChunks.map(chunk => {
-          const promises = [];
+        // Load all students first
+        const allStudents = [];
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          data.id = doc.id;
+          allStudents.push(data);
+        });
+        
+        console.log(`Loaded ${allStudents.length} total students from database`);
+        
+        // Filter students based on teacher's assigned classes using flexible matching
+        studentsData = allStudents.filter(student => {
+          if (!student.form) return false;
           
-          chunk.forEach(classStr => {
-            // Robust parsing for different class formats using regex
-            // Handles: "Form 1", "Form 1G", "Form 1 G", "Upper 6 Sciences", etc.
-            const formStreamMatch = classStr.match(/^(Form\s+\d+)\s*([A-Za-z]+)?$/) || 
-                                   classStr.match(/^(Upper\s+6|Lower\s+6)\s+([A-Za-z]+)$/) ||
-                                   classStr.match(/^([^0-9]+\s*\d+)\s*([A-Za-z]+)?$/);
+          const studentForm = student.form.trim();
+          const studentStream = (student.stream || '').trim();
+          const studentFullClass = `${studentForm}${studentStream ? ` ${studentStream}` : ''}`;
+          
+          // Check if student belongs to any of the teacher's assigned classes
+          return teacherClasses.some(teacherClass => {
+            const teacherClassTrimmed = teacherClass.trim();
             
-            if (formStreamMatch) {
-              const form = formStreamMatch[1].trim(); // "Form 1", "Upper 6", etc.
-              const stream = formStreamMatch[2] || ''; // "G", "Sciences", etc.
-              
-              // Handle case variations - convert to uppercase to match database format
-              const formUpper = form.toUpperCase(); // "FORM 1", "UPPER 6", etc.
-              
-              if (stream) {
-                // Query for specific form + stream combination
-                promises.push(getDocs(query(studentsRef, 
-                  where("form", "==", formUpper), 
-                  where("stream", "==", stream.toUpperCase())
-                )));
-              } else {
-                // Query for form only (no stream specified)
-                promises.push(getDocs(query(studentsRef, 
-                  where("form", "==", formUpper)
-                )));
-              }
-            } else {
-              // Fallback: treat as form-only for any unmatched patterns
-              // Try both original and uppercase versions
-              promises.push(getDocs(query(studentsRef, 
-                where("form", "==", classStr)
-              )));
-              if (classStr !== classStr.toUpperCase()) {
-                promises.push(getDocs(query(studentsRef, 
-                  where("form", "==", classStr.toUpperCase())
-                )));
-              }
+            // Multiple matching strategies for reliability:
+            
+            // 1. Exact match (case-insensitive)
+            if (studentFullClass.toLowerCase() === teacherClassTrimmed.toLowerCase()) {
+              return true;
             }
-          });
-          
-          return Promise.all(promises);
-        });
-        
-        const nestedQueryResults = await Promise.all(queryPromises);
-        
-        
-        // Flatten nested results and combine from all chunks
-        const queryResults = nestedQueryResults.flat();
-        
-        queryResults.forEach(querySnapshot => {
-          querySnapshot.forEach(docSnap => {
-            const data = docSnap.data();
-            data.id = docSnap.id;
-            // Avoid duplicates by checking if student already exists
-            if (!studentsData.find(existing => existing.id === data.id)) {
-              studentsData.push(data);
+            
+            // 2. Form-only match (handles "Form 5" teacher assignment with "Form 5 Sciences" students)
+            if (studentForm.toLowerCase() === teacherClassTrimmed.toLowerCase()) {
+              return true;
             }
+            
+            // 3. Partial match for teacher class containing student form (handles "Form 5 Sciences" teacher assignment)
+            if (teacherClassTrimmed.toLowerCase().includes(studentForm.toLowerCase())) {
+              return true;
+            }
+            
+            // 4. Handle case where teacher has specific stream but student has same form
+            // "Form 1 G" teacher should see "Form 1" students and "Form 1 G" students
+            if (teacherClassTrimmed.toLowerCase().includes(studentForm.toLowerCase()) &&
+                studentForm.toLowerCase().includes(teacherClassTrimmed.split(' ')[0].toLowerCase() + ' ' + teacherClassTrimmed.split(' ')[1])) {
+              return true;
+            }
+            
+            return false;
           });
         });
+        
+        console.log(`Filtered to ${studentsData.length} students for teacher's classes:`, teacherClasses);
         
         filteredData = studentsData;
         sortAndRenderStudents();
