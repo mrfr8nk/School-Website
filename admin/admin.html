@@ -254,6 +254,240 @@
       margin-right: var(--space-sm);
     }
 
+    /* New Admin Settings Styles */
+    .section-header {
+      border-bottom: 2px solid var(--secondary);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-sm);
+    }
+
+    .section-header h2 {
+      color: var(--primary);
+      font-size: var(--text-2xl);
+      margin-bottom: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-lg);
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: var(--space-sm);
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: var(--space-sm) var(--space-md);
+      border: 2px solid var(--input-border);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      transition: border-color var(--transition-normal);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+    }
+
+    .profile-pic-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .profile-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .profile-pic-container input[type="file"] {
+      display: none;
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-lg) 0;
+      border-bottom: 1px solid var(--input-border);
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-item label {
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .description {
+      color: var(--text-light);
+      font-size: var(--text-sm);
+      margin-top: var(--space-xs);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 60px;
+      height: 30px;
+      background: #ccc;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background var(--transition-normal);
+    }
+
+    .toggle-switch.active {
+      background: var(--success);
+    }
+
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: transform var(--transition-normal);
+    }
+
+    .toggle-switch.active::before {
+      transform: translateX(30px);
+    }
+
+    .grading-levels {
+      display: grid;
+      gap: var(--space-xl);
+    }
+
+    .level-card {
+      background: var(--light-gray);
+      padding: var(--space-lg);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--input-border);
+    }
+
+    .level-card h3 {
+      color: var(--primary);
+      margin-bottom: var(--space-lg);
+      font-size: var(--text-xl);
+      text-align: center;
+      padding-bottom: var(--space-sm);
+      border-bottom: 2px solid var(--secondary);
+    }
+
+    .grade-ranges {
+      display: grid;
+      gap: var(--space-md);
+    }
+
+    .grade-item {
+      display: grid;
+      grid-template-columns: 100px 1fr auto 1fr;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm);
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--input-border);
+    }
+
+    .grade-item label {
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .grade-item input {
+      width: 70px;
+      text-align: center;
+      margin: 0;
+    }
+
+    .class-assignment {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .class-checkbox {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      background: var(--light-gray);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--input-border);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .class-checkbox:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    .class-checkbox input[type="checkbox"] {
+      margin: 0;
+      width: auto;
+    }
+
+    .class-checkbox label {
+      margin: 0;
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    .term-info {
+      background: var(--light-gray);
+      padding: var(--space-lg);
+      border-radius: var(--radius-lg);
+      border-left: 4px solid var(--primary);
+      margin-bottom: var(--space-lg);
+    }
+
+    .term-info ul {
+      margin: var(--space-md) 0;
+      padding-left: var(--space-lg);
+    }
+
+    .term-info li {
+      margin-bottom: var(--space-xs);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: var(--space-xl);
+    }
+
     /* Header & Navigation */
     .header {
       position: fixed;
@@ -767,48 +1001,289 @@
             <a href="/calendar">School Calendar</a>
           </div>
         </li>
-        <li><a href="/teacher-signup" class="active">Teacher Portal</a></li>
+        <li><a href="/teachersdashboard">Teacher Dashboard</a></li>
+        <li><a href="/setreportcard">Set Report Card</a></li>
         <li><a href="/contact">Contact</a></li>
       </ul>
     </div>
   </header>
 
-  <!-- Teacher Account Section -->
+  <!-- Admin Settings Section -->
   <section class="section teacher-account-section">
     <div class="container teacher-account-container">
-      <h1 class="teacher-account-title">Teacher Account Creation</h1>
+      <h1 class="teacher-account-title">Admin Settings</h1>
       
+      <!-- Teacher Profile Settings -->
       <div class="account-card fade-in">
-        <div class="account-info">
-          <h2>Request Teacher Access</h2>
-          <p>To create a teacher account, please follow these steps and contact our developer for verification and setup.</p>
+        <div class="section-header">
+          <h2><i class="fas fa-user"></i> Teacher Profile Settings</h2>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="profilePic">Profile Picture</label>
+            <div class="profile-pic-container">
+              <img id="profilePicPreview" src="https://i.ibb.co/Mk70FGWb/subzero-bot.jpg" alt="Profile Picture" class="profile-preview">
+              <input type="file" id="profilePic" accept="image/*" onchange="previewProfilePic(event)">
+              <button type="button" class="btn btn-secondary" onclick="uploadProfilePic()">
+                <i class="fas fa-camera"></i> Change Picture
+              </button>
+            </div>
+          </div>
           
-          <div class="account-steps">
-            <div class="step-item fade-in delay-1">
-              <div class="step-number">1</div>
-              <div class="step-text">Prepare your school identification and credentials</div>
+          <div class="form-group">
+            <label for="teacherName">Full Name</label>
+            <input type="text" id="teacherName" placeholder="Enter your full name">
+          </div>
+
+          <div class="form-group">
+            <label for="teacherEmail">Email Address</label>
+            <input type="email" id="teacherEmail" placeholder="Enter your email">
+          </div>
+
+          <div class="form-group">
+            <label for="teacherSubjects">Subjects Taught</label>
+            <input type="text" id="teacherSubjects" placeholder="e.g., Mathematics, Physics, Chemistry">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" onclick="saveTeacherProfile()">
+            <i class="fas fa-save"></i> Save Profile
+          </button>
+        </div>
+      </div>
+
+      <!-- Report Card Management -->
+      <div class="account-card fade-in">
+        <div class="section-header">
+          <h2><i class="fas fa-file-alt"></i> Report Card Management</h2>
+        </div>
+        
+        <div class="setting-item">
+          <div>
+            <label>Global Report Card Status</label>
+            <div class="description">Control whether students can view their report cards</div>
+          </div>
+          <div class="toggle-switch" id="globalReportToggle"></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" onclick="activateAllReports()">
+            <i class="fas fa-check-circle"></i> Activate All Reports
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="deactivateAllReports()">
+            <i class="fas fa-times-circle"></i> Deactivate All Reports
+          </button>
+          <button type="button" class="btn btn-outline" onclick="viewReportStatus()">
+            <i class="fas fa-eye"></i> View Report Status
+          </button>
+        </div>
+      </div>
+
+      <!-- Grading Settings by Level -->
+      <div class="account-card fade-in">
+        <div class="section-header">
+          <h2><i class="fas fa-graduation-cap"></i> Grading Settings by Level</h2>
+        </div>
+        
+        <div class="grading-levels">
+          <!-- ZJC Level (Form 1 & 2) -->
+          <div class="level-card">
+            <h3>ZJC Level (Form 1 & 2)</h3>
+            <div class="grade-ranges" id="zjcGrades">
+              <div class="grade-item">
+                <label>A Grade:</label>
+                <input type="number" id="zjc_a_min" value="75" min="0" max="100"> - 
+                <input type="number" id="zjc_a_max" value="100" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>B Grade:</label>
+                <input type="number" id="zjc_b_min" value="65" min="0" max="100"> - 
+                <input type="number" id="zjc_b_max" value="74" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>C Grade:</label>
+                <input type="number" id="zjc_c_min" value="50" min="0" max="100"> - 
+                <input type="number" id="zjc_c_max" value="64" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>D Grade:</label>
+                <input type="number" id="zjc_d_min" value="40" min="0" max="100"> - 
+                <input type="number" id="zjc_d_max" value="49" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>U Grade:</label>
+                <input type="number" id="zjc_u_min" value="0" min="0" max="100"> - 
+                <input type="number" id="zjc_u_max" value="39" min="0" max="100">
+              </div>
             </div>
-            <div class="step-item fade-in delay-2">
-              <div class="step-number">2</div>
-              <div class="step-text">Contact the developer via WhatsApp</div>
+          </div>
+
+          <!-- O Level (Form 3 & 4) -->
+          <div class="level-card">
+            <h3>O Level (Form 3 & 4)</h3>
+            <div class="grade-ranges" id="olevelGrades">
+              <div class="grade-item">
+                <label>A Grade:</label>
+                <input type="number" id="ol_a_min" value="70" min="0" max="100"> - 
+                <input type="number" id="ol_a_max" value="100" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>B Grade:</label>
+                <input type="number" id="ol_b_min" value="60" min="0" max="100"> - 
+                <input type="number" id="ol_b_max" value="69" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>C Grade:</label>
+                <input type="number" id="ol_c_min" value="50" min="0" max="100"> - 
+                <input type="number" id="ol_c_max" value="59" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>D Grade:</label>
+                <input type="number" id="ol_d_min" value="40" min="0" max="100"> - 
+                <input type="number" id="ol_d_max" value="49" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>U Grade:</label>
+                <input type="number" id="ol_u_min" value="0" min="0" max="100"> - 
+                <input type="number" id="ol_u_max" value="39" min="0" max="100">
+              </div>
             </div>
-            <div class="step-item fade-in delay-3">
-              <div class="step-number">3</div>
-              <div class="step-text">Complete verification process</div>
+          </div>
+
+          <!-- A Level (Form 5 & 6) -->
+          <div class="level-card">
+            <h3>A Level (Form 5 & 6)</h3>
+            <div class="grade-ranges" id="alevelGrades">
+              <div class="grade-item">
+                <label>A Grade:</label>
+                <input type="number" id="al_a_min" value="75" min="0" max="100"> - 
+                <input type="number" id="al_a_max" value="100" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>B Grade:</label>
+                <input type="number" id="al_b_min" value="65" min="0" max="100"> - 
+                <input type="number" id="al_b_max" value="74" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>C Grade:</label>
+                <input type="number" id="al_c_min" value="55" min="0" max="100"> - 
+                <input type="number" id="al_c_max" value="64" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>D Grade:</label>
+                <input type="number" id="al_d_min" value="45" min="0" max="100"> - 
+                <input type="number" id="al_d_max" value="54" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>F Grade:</label>
+                <input type="number" id="al_f_min" value="35" min="0" max="100"> - 
+                <input type="number" id="al_f_max" value="44" min="0" max="100">
+              </div>
+              <div class="grade-item">
+                <label>O Grade:</label>
+                <input type="number" id="al_o_min" value="0" min="0" max="100"> - 
+                <input type="number" id="al_o_max" value="34" min="0" max="100">
+              </div>
             </div>
           </div>
         </div>
-        
-        <div class="developer-profile">
-          <img src="https://i.ibb.co/Mk70FGWb/subzero-bot.jpg" alt="Developer Profile">
-          <h3 class="mt-3">Darrell Mucheri</h3>
-          <p>System Developer & Student</p>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" onclick="saveGradingSettings()">
+            <i class="fas fa-save"></i> Save Grading Settings
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="resetToDefaults()">
+            <i class="fas fa-undo"></i> Reset to Defaults
+          </button>
+        </div>
+      </div>
+
+      <!-- Class Assignment -->
+      <div class="account-card fade-in">
+        <div class="section-header">
+          <h2><i class="fas fa-users"></i> Class Assignment</h2>
         </div>
         
-        <div class="contact-buttons">
-          <a href="https://wa.me/263719647303?text=Hi+Darrell,+I+need+a+teacher+account+for+St.+Mary's+High+School" class="whatsapp-btn">
-            <i class="fab fa-whatsapp"></i> Contact via WhatsApp
-          </a>
+        <div class="class-assignment" id="classAssignment">
+          <div class="class-checkbox">
+            <input type="checkbox" id="form1a" value="Form 1A">
+            <label for="form1a">Form 1A</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form1b" value="Form 1B">
+            <label for="form1b">Form 1B</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form2a" value="Form 2A">
+            <label for="form2a">Form 2A</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form2b" value="Form 2B">
+            <label for="form2b">Form 2B</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form3a" value="Form 3A">
+            <label for="form3a">Form 3A</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form3b" value="Form 3B">
+            <label for="form3b">Form 3B</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form4a" value="Form 4A">
+            <label for="form4a">Form 4A</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form4b" value="Form 4B">
+            <label for="form4b">Form 4B</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form5a" value="Form 5A">
+            <label for="form5a">Form 5A</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form5b" value="Form 5B">
+            <label for="form5b">Form 5B</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form6a" value="Form 6A">
+            <label for="form6a">Form 6A</label>
+          </div>
+          <div class="class-checkbox">
+            <input type="checkbox" id="form6b" value="Form 6B">
+            <label for="form6b">Form 6B</label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" onclick="saveClassAssignments()">
+            <i class="fas fa-save"></i> Save Class Assignments
+          </button>
+        </div>
+      </div>
+
+      <!-- Term Settings -->
+      <div class="account-card fade-in">
+        <div class="section-header">
+          <h2><i class="fas fa-calendar-alt"></i> Term Settings</h2>
+        </div>
+        
+        <div class="term-info">
+          <p><strong>Auto Term Detection:</strong> The system automatically detects the current term based on the month:</p>
+          <ul>
+            <li><strong>Term 1:</strong> January - April</li>
+            <li><strong>Term 2:</strong> May - August</li>
+            <li><strong>Term 3:</strong> September - December</li>
+          </ul>
+          <p><strong>Current Term:</strong> <span id="currentTerm"></span></p>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" onclick="updateCurrentTerm()">
+            <i class="fas fa-refresh"></i> Refresh Current Term
+          </button>
         </div>
       </div>
     </div>
@@ -919,7 +1394,7 @@
     });
   </script>
 
-  <!-- Admin Authentication Protection -->
+  <!-- Admin Authentication Protection & Settings -->
   <script type="module">
     import { 
       auth, 
@@ -927,8 +1402,19 @@
       onAuthStateChanged,
       signOut,
       getDoc,
-      doc
+      doc,
+      setDoc,
+      updateDoc,
+      getDocs,
+      collection,
+      storage,
+      ref,
+      uploadBytes,
+      getDownloadURL
     } from "/db/firebase.js";
+
+    // Global variables
+    let currentUser = null;
 
     // Admin auth state checker function
     function checkAdminAuthState() {
@@ -973,8 +1459,10 @@
             return;
           }
 
-          // User is authorized admin/teacher - continue
+          // User is authorized admin/teacher - initialize admin settings
+          currentUser = userData;
           console.log('Admin access granted for:', userData.role, user.email);
+          await initAdminSettings(user);
         } catch (error) {
           console.error('Error checking user authorization:', error);
           await signOut(auth);
@@ -982,6 +1470,441 @@
         }
       });
     }
+
+    // Initialize admin settings functionality
+    async function initAdminSettings(user) {
+      try {
+        // Load existing settings
+        await loadTeacherProfile(user.uid);
+        await loadGradingSettings();
+        await loadGlobalReportStatus();
+        await updateCurrentTerm();
+
+        // Setup event listeners with null checks
+        setupProfileSettings(user.uid);
+        setupReportCardManagement();
+        setupGradingSettings();
+        setupClassAssignments(user.uid);
+        setupTermSettings();
+
+      } catch (error) {
+        console.error('Error initializing admin settings:', error);
+      }
+    }
+
+    // Load teacher profile data
+    async function loadTeacherProfile(uid) {
+      try {
+        const teacherDoc = await getDoc(doc(db, 'teachers', uid));
+        if (teacherDoc.exists()) {
+          const data = teacherDoc.data();
+          
+          const nameInput = document.getElementById('teacherName');
+          const emailInput = document.getElementById('teacherEmail');
+          const subjectsInput = document.getElementById('teacherSubjects');
+          const profilePreview = document.getElementById('profilePicPreview');
+          
+          if (nameInput) nameInput.value = data.name || '';
+          if (emailInput) emailInput.value = data.email || '';
+          if (subjectsInput) subjectsInput.value = data.subjects || '';
+          if (profilePreview && data.profilePicUrl) profilePreview.src = data.profilePicUrl;
+
+          // Load class assignments
+          if (data.assignedClasses) {
+            data.assignedClasses.forEach(className => {
+              const checkbox = document.querySelector(`input[value="${className}"]`);
+              if (checkbox) checkbox.checked = true;
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading teacher profile:', error);
+      }
+    }
+
+    // Load grading settings
+    async function loadGradingSettings() {
+      try {
+        const gradingDoc = await getDoc(doc(db, 'settings', 'grading'));
+        if (gradingDoc.exists()) {
+          const data = gradingDoc.data();
+          
+          // Load ZJC grades
+          if (data.zjc) {
+            Object.keys(data.zjc).forEach(grade => {
+              const minInput = document.getElementById(`zjc_${grade}_min`);
+              const maxInput = document.getElementById(`zjc_${grade}_max`);
+              if (minInput) minInput.value = data.zjc[grade].min;
+              if (maxInput) maxInput.value = data.zjc[grade].max;
+            });
+          }
+
+          // Load O Level grades
+          if (data.olevel) {
+            Object.keys(data.olevel).forEach(grade => {
+              const minInput = document.getElementById(`ol_${grade}_min`);
+              const maxInput = document.getElementById(`ol_${grade}_max`);
+              if (minInput) minInput.value = data.olevel[grade].min;
+              if (maxInput) maxInput.value = data.olevel[grade].max;
+            });
+          }
+
+          // Load A Level grades
+          if (data.alevel) {
+            Object.keys(data.alevel).forEach(grade => {
+              const minInput = document.getElementById(`al_${grade}_min`);
+              const maxInput = document.getElementById(`al_${grade}_max`);
+              if (minInput) minInput.value = data.alevel[grade].min;
+              if (maxInput) maxInput.value = data.alevel[grade].max;
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading grading settings:', error);
+      }
+    }
+
+    // Load global report status
+    async function loadGlobalReportStatus() {
+      try {
+        const settingsDoc = await getDoc(doc(db, 'settings', 'global'));
+        if (settingsDoc.exists()) {
+          const data = settingsDoc.data();
+          const toggle = document.getElementById('globalReportToggle');
+          if (toggle && data.reportsActive) {
+            toggle.classList.add('active');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading global report status:', error);
+      }
+    }
+
+    // Setup profile settings functionality
+    function setupProfileSettings(uid) {
+      // Profile picture upload
+      const profilePicInput = document.getElementById('profilePic');
+      const uploadBtn = document.querySelector('button[onclick="uploadProfilePic()"]');
+      
+      if (uploadBtn) {
+        uploadBtn.onclick = () => {
+          if (profilePicInput) profilePicInput.click();
+        };
+      }
+
+      if (profilePicInput) {
+        profilePicInput.onchange = (event) => {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const preview = document.getElementById('profilePicPreview');
+              if (preview) preview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+      }
+
+      // Save profile button
+      const saveProfileBtn = document.querySelector('button[onclick="saveTeacherProfile()"]');
+      if (saveProfileBtn) {
+        saveProfileBtn.onclick = async () => {
+          try {
+            const name = document.getElementById('teacherName')?.value || '';
+            const email = document.getElementById('teacherEmail')?.value || '';
+            const subjects = document.getElementById('teacherSubjects')?.value || '';
+            const profilePicFile = document.getElementById('profilePic')?.files[0];
+
+            let profilePicUrl = '';
+            
+            // Upload profile picture if selected
+            if (profilePicFile) {
+              const storageRef = ref(storage, `profile-pics/${uid}`);
+              const snapshot = await uploadBytes(storageRef, profilePicFile);
+              profilePicUrl = await getDownloadURL(snapshot.ref);
+            }
+
+            const teacherData = {
+              name,
+              email,
+              subjects,
+              lastUpdated: new Date().toISOString()
+            };
+
+            if (profilePicUrl) {
+              teacherData.profilePicUrl = profilePicUrl;
+            }
+
+            await setDoc(doc(db, 'teachers', uid), teacherData, { merge: true });
+            alert('Profile saved successfully!');
+          } catch (error) {
+            console.error('Error saving profile:', error);
+            alert('Failed to save profile');
+          }
+        };
+      }
+    }
+
+    // Setup report card management
+    function setupReportCardManagement() {
+      // Global report toggle
+      const globalToggle = document.getElementById('globalReportToggle');
+      if (globalToggle) {
+        globalToggle.onclick = async () => {
+          try {
+            const isActive = globalToggle.classList.contains('active');
+            const newStatus = !isActive;
+            
+            await setDoc(doc(db, 'settings', 'global'), {
+              reportsActive: newStatus,
+              lastUpdated: new Date().toISOString(),
+              updatedBy: currentUser?.email || 'admin'
+            }, { merge: true });
+
+            if (newStatus) {
+              globalToggle.classList.add('active');
+            } else {
+              globalToggle.classList.remove('active');
+            }
+
+            alert(`Reports have been ${newStatus ? 'activated' : 'deactivated'} globally`);
+          } catch (error) {
+            console.error('Error toggling global reports:', error);
+            alert('Failed to update global report status');
+          }
+        };
+      }
+
+      // Activate all reports button
+      const activateAllBtn = document.querySelector('button[onclick="activateAllReports()"]');
+      if (activateAllBtn) {
+        activateAllBtn.onclick = async () => {
+          try {
+            const confirmed = confirm('This will make all report cards visible to students. Continue?');
+            if (!confirmed) return;
+
+            const studentsSnapshot = await getDocs(collection(db, 'students'));
+            const updates = [];
+
+            studentsSnapshot.forEach((studentDoc) => {
+              updates.push(updateDoc(doc(db, 'students', studentDoc.id), {
+                reportCardActive: true
+              }));
+            });
+
+            await Promise.all(updates);
+            alert('All report cards have been activated');
+          } catch (error) {
+            console.error('Error activating all reports:', error);
+            alert('Failed to activate all reports');
+          }
+        };
+      }
+
+      // Deactivate all reports button
+      const deactivateAllBtn = document.querySelector('button[onclick="deactivateAllReports()"]');
+      if (deactivateAllBtn) {
+        deactivateAllBtn.onclick = async () => {
+          try {
+            const confirmed = confirm('This will hide all report cards from students. Continue?');
+            if (!confirmed) return;
+
+            const studentsSnapshot = await getDocs(collection(db, 'students'));
+            const updates = [];
+
+            studentsSnapshot.forEach((studentDoc) => {
+              updates.push(updateDoc(doc(db, 'students', studentDoc.id), {
+                reportCardActive: false
+              }));
+            });
+
+            await Promise.all(updates);
+            alert('All report cards have been deactivated');
+          } catch (error) {
+            console.error('Error deactivating all reports:', error);
+            alert('Failed to deactivate all reports');
+          }
+        };
+      }
+
+      // View report status button
+      const viewStatusBtn = document.querySelector('button[onclick="viewReportStatus()"]');
+      if (viewStatusBtn) {
+        viewStatusBtn.onclick = async () => {
+          try {
+            const studentsSnapshot = await getDocs(collection(db, 'students'));
+            let activeCount = 0;
+            let inactiveCount = 0;
+
+            studentsSnapshot.forEach((studentDoc) => {
+              const data = studentDoc.data();
+              if (data.reportCardActive) {
+                activeCount++;
+              } else {
+                inactiveCount++;
+              }
+            });
+
+            const total = activeCount + inactiveCount;
+            alert(`Report Status:\nActive: ${activeCount}\nInactive: ${inactiveCount}\nTotal: ${total}`);
+          } catch (error) {
+            console.error('Error viewing report status:', error);
+            alert('Failed to load report status');
+          }
+        };
+      }
+    }
+
+    // Setup grading settings
+    function setupGradingSettings() {
+      // Save grading settings button
+      const saveGradingBtn = document.querySelector('button[onclick="saveGradingSettings()"]');
+      if (saveGradingBtn) {
+        saveGradingBtn.onclick = async () => {
+          try {
+            const gradingData = {
+              zjc: {
+                a: { min: parseInt(document.getElementById('zjc_a_min')?.value || 75), max: parseInt(document.getElementById('zjc_a_max')?.value || 100) },
+                b: { min: parseInt(document.getElementById('zjc_b_min')?.value || 65), max: parseInt(document.getElementById('zjc_b_max')?.value || 74) },
+                c: { min: parseInt(document.getElementById('zjc_c_min')?.value || 50), max: parseInt(document.getElementById('zjc_c_max')?.value || 64) },
+                d: { min: parseInt(document.getElementById('zjc_d_min')?.value || 40), max: parseInt(document.getElementById('zjc_d_max')?.value || 49) },
+                u: { min: parseInt(document.getElementById('zjc_u_min')?.value || 0), max: parseInt(document.getElementById('zjc_u_max')?.value || 39) }
+              },
+              olevel: {
+                a: { min: parseInt(document.getElementById('ol_a_min')?.value || 70), max: parseInt(document.getElementById('ol_a_max')?.value || 100) },
+                b: { min: parseInt(document.getElementById('ol_b_min')?.value || 60), max: parseInt(document.getElementById('ol_b_max')?.value || 69) },
+                c: { min: parseInt(document.getElementById('ol_c_min')?.value || 50), max: parseInt(document.getElementById('ol_c_max')?.value || 59) },
+                d: { min: parseInt(document.getElementById('ol_d_min')?.value || 40), max: parseInt(document.getElementById('ol_d_max')?.value || 49) },
+                u: { min: parseInt(document.getElementById('ol_u_min')?.value || 0), max: parseInt(document.getElementById('ol_u_max')?.value || 39) }
+              },
+              alevel: {
+                a: { min: parseInt(document.getElementById('al_a_min')?.value || 75), max: parseInt(document.getElementById('al_a_max')?.value || 100) },
+                b: { min: parseInt(document.getElementById('al_b_min')?.value || 65), max: parseInt(document.getElementById('al_b_max')?.value || 74) },
+                c: { min: parseInt(document.getElementById('al_c_min')?.value || 55), max: parseInt(document.getElementById('al_c_max')?.value || 64) },
+                d: { min: parseInt(document.getElementById('al_d_min')?.value || 45), max: parseInt(document.getElementById('al_d_max')?.value || 54) },
+                f: { min: parseInt(document.getElementById('al_f_min')?.value || 35), max: parseInt(document.getElementById('al_f_max')?.value || 44) },
+                o: { min: parseInt(document.getElementById('al_o_min')?.value || 0), max: parseInt(document.getElementById('al_o_max')?.value || 34) }
+              },
+              lastUpdated: new Date().toISOString(),
+              updatedBy: currentUser?.email || 'admin'
+            };
+
+            await setDoc(doc(db, 'settings', 'grading'), gradingData);
+            alert('Grading settings saved successfully!');
+          } catch (error) {
+            console.error('Error saving grading settings:', error);
+            alert('Failed to save grading settings');
+          }
+        };
+      }
+
+      // Reset to defaults button
+      const resetBtn = document.querySelector('button[onclick="resetToDefaults()"]');
+      if (resetBtn) {
+        resetBtn.onclick = () => {
+          const confirmed = confirm('Reset all grading settings to defaults?');
+          if (!confirmed) return;
+
+          // Reset ZJC
+          const zjcInputs = [
+            ['zjc_a_min', 75], ['zjc_a_max', 100],
+            ['zjc_b_min', 65], ['zjc_b_max', 74],
+            ['zjc_c_min', 50], ['zjc_c_max', 64],
+            ['zjc_d_min', 40], ['zjc_d_max', 49],
+            ['zjc_u_min', 0], ['zjc_u_max', 39]
+          ];
+
+          // Reset O Level
+          const olInputs = [
+            ['ol_a_min', 70], ['ol_a_max', 100],
+            ['ol_b_min', 60], ['ol_b_max', 69],
+            ['ol_c_min', 50], ['ol_c_max', 59],
+            ['ol_d_min', 40], ['ol_d_max', 49],
+            ['ol_u_min', 0], ['ol_u_max', 39]
+          ];
+
+          // Reset A Level
+          const alInputs = [
+            ['al_a_min', 75], ['al_a_max', 100],
+            ['al_b_min', 65], ['al_b_max', 74],
+            ['al_c_min', 55], ['al_c_max', 64],
+            ['al_d_min', 45], ['al_d_max', 54],
+            ['al_f_min', 35], ['al_f_max', 44],
+            ['al_o_min', 0], ['al_o_max', 34]
+          ];
+
+          [...zjcInputs, ...olInputs, ...alInputs].forEach(([id, value]) => {
+            const input = document.getElementById(id);
+            if (input) input.value = value;
+          });
+
+          alert('Grading settings reset to defaults');
+        };
+      }
+    }
+
+    // Setup class assignments
+    function setupClassAssignments(uid) {
+      const saveClassBtn = document.querySelector('button[onclick="saveClassAssignments()"]');
+      if (saveClassBtn) {
+        saveClassBtn.onclick = async () => {
+          try {
+            const checkboxes = document.querySelectorAll('#classAssignment input[type="checkbox"]');
+            const assignedClasses = [];
+
+            checkboxes.forEach(checkbox => {
+              if (checkbox.checked) {
+                assignedClasses.push(checkbox.value);
+              }
+            });
+
+            await updateDoc(doc(db, 'teachers', uid), {
+              assignedClasses,
+              lastUpdated: new Date().toISOString()
+            });
+
+            alert(`Class assignments saved! Assigned to: ${assignedClasses.join(', ') || 'None'}`);
+          } catch (error) {
+            console.error('Error saving class assignments:', error);
+            alert('Failed to save class assignments');
+          }
+        };
+      }
+    }
+
+    // Setup term settings
+    function setupTermSettings() {
+      const refreshTermBtn = document.querySelector('button[onclick="updateCurrentTerm()"]');
+      if (refreshTermBtn) {
+        refreshTermBtn.onclick = updateCurrentTerm;
+      }
+    }
+
+    // Auto term calculation
+    function getCurrentTerm() {
+      const now = new Date();
+      const month = now.getMonth() + 1; // getMonth() returns 0-11
+
+      if (month >= 1 && month <= 4) {
+        return 'Term 1';
+      } else if (month >= 5 && month <= 8) {
+        return 'Term 2';
+      } else {
+        return 'Term 3';
+      }
+    }
+
+    // Update current term display
+    function updateCurrentTerm() {
+      const currentTermElement = document.getElementById('currentTerm');
+      if (currentTermElement) {
+        currentTermElement.textContent = getCurrentTerm();
+      }
+    }
+
+    // Export function to get current term for use in report card system
+    window.getAutoTerm = getCurrentTerm;
 
     // Call this when the page loads
     checkAdminAuthState();

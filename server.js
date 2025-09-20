@@ -55,7 +55,6 @@ const routes = [
   { path: '/teacherusers', file: '/admin/teacher-users.html' },
   { path: '/studentusers', file: '/pages/student-users.html' },
   { path: '/myclass', file: '/admin/my-class.html' },
-  { path: '/admin/settings', file: '/admin/settings.html' },
   { path: '/reportcard', file: '/reportcard.html' },
   { path: '/stem', file: '/pages/stem.html' },
   { path: '/arts', file: '/pages/arts.html' },
