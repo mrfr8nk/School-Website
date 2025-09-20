@@ -2147,7 +2147,9 @@ function populateGradingForm() {
 // Save grading settings to database
 async function saveGradingSettings() {
   try {
-    // Collect data from form
+    console.log('Starting to save grading settings...');
+    
+    // Collect data from form with validation
     const newGradingScales = {
       zjc: {},
       olevel: {},
@@ -2156,35 +2158,82 @@ async function saveGradingSettings() {
     
     // ZJC grades
     ['a', 'b', 'c', 'd', 'u'].forEach(grade => {
-      const min = parseInt(document.getElementById(`zjc_${grade}_min`).value);
-      const max = parseInt(document.getElementById(`zjc_${grade}_max`).value);
+      const minEl = document.getElementById(`zjc_${grade}_min`);
+      const maxEl = document.getElementById(`zjc_${grade}_max`);
+      
+      if (!minEl || !maxEl) {
+        throw new Error(`Missing ZJC grade ${grade} input elements`);
+      }
+      
+      const min = parseInt(minEl.value);
+      const max = parseInt(maxEl.value);
+      
+      if (isNaN(min) || isNaN(max) || min < 0 || max < 0 || min > 100 || max > 100 || min > max) {
+        throw new Error(`Invalid ZJC grade ${grade} values: min=${min}, max=${max}`);
+      }
+      
       newGradingScales.zjc[grade.toUpperCase()] = { min, max };
+      console.log(`ZJC ${grade.toUpperCase()}: ${min}-${max}`);
     });
     
     // O Level grades
     ['a', 'b', 'c', 'd', 'u'].forEach(grade => {
-      const min = parseInt(document.getElementById(`olevel_${grade}_min`).value);
-      const max = parseInt(document.getElementById(`olevel_${grade}_max`).value);
+      const minEl = document.getElementById(`olevel_${grade}_min`);
+      const maxEl = document.getElementById(`olevel_${grade}_max`);
+      
+      if (!minEl || !maxEl) {
+        throw new Error(`Missing O Level grade ${grade} input elements`);
+      }
+      
+      const min = parseInt(minEl.value);
+      const max = parseInt(maxEl.value);
+      
+      if (isNaN(min) || isNaN(max) || min < 0 || max < 0 || min > 100 || max > 100 || min > max) {
+        throw new Error(`Invalid O Level grade ${grade} values: min=${min}, max=${max}`);
+      }
+      
       newGradingScales.olevel[grade.toUpperCase()] = { min, max };
+      console.log(`O Level ${grade.toUpperCase()}: ${min}-${max}`);
     });
     
     // A Level grades
     ['a', 'b', 'c', 'd', 'f', 'o'].forEach(grade => {
-      const min = parseInt(document.getElementById(`alevel_${grade}_min`).value);
-      const max = parseInt(document.getElementById(`alevel_${grade}_max`).value);
+      const minEl = document.getElementById(`alevel_${grade}_min`);
+      const maxEl = document.getElementById(`alevel_${grade}_max`);
+      
+      if (!minEl || !maxEl) {
+        throw new Error(`Missing A Level grade ${grade} input elements`);
+      }
+      
+      const min = parseInt(minEl.value);
+      const max = parseInt(maxEl.value);
+      
+      if (isNaN(min) || isNaN(max) || min < 0 || max < 0 || min > 100 || max > 100 || min > max) {
+        throw new Error(`Invalid A Level grade ${grade} values: min=${min}, max=${max}`);
+      }
+      
       newGradingScales.alevel[grade.toUpperCase()] = { min, max };
+      console.log(`A Level ${grade.toUpperCase()}: ${min}-${max}`);
     });
+    
+    console.log('New grading scales to save:', newGradingScales);
     
     // Save to database
     await setDoc(doc(db, 'settings', 'gradingScales'), newGradingScales);
     gradingScales = newGradingScales;
     
+    console.log('Grading settings saved successfully to database');
     alert('Grading settings saved successfully!');
-    document.getElementById('gradingSettingsPanel').style.display = 'none';
+    
+    // Close the panel
+    const panel = document.getElementById('gradingSettingsPanel');
+    if (panel) {
+      panel.style.display = 'none';
+    }
     
   } catch (error) {
     console.error('Error saving grading settings:', error);
-    alert('Error saving grading settings. Please try again.');
+    alert(`Error saving grading settings: ${error.message}. Please check your input values and try again.`);
   }
 }
 
