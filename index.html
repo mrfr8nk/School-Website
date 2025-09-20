@@ -432,6 +432,129 @@
       margin-top: 80px;
     }
 
+    .school-motto {
+      margin: var(--space-lg) 0;
+      text-align: center;
+    }
+
+    .motto-text {
+      font-size: var(--text-2xl);
+      font-weight: 600;
+      color: var(--secondary);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      font-style: italic;
+      background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 3s ease-in-out infinite;
+    }
+
+    .motto-decoration {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: var(--space-sm);
+      gap: var(--space-md);
+    }
+
+    .motto-decoration .star {
+      color: var(--secondary);
+      font-size: var(--text-lg);
+      animation: twinkle 2s ease-in-out infinite alternate;
+    }
+
+    .motto-decoration .line {
+      height: 2px;
+      width: 60px;
+      background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.5; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.1); }
+    }
+
+    /* Head Master's Message Section */
+    .head-message {
+      background: linear-gradient(135deg, var(--light-gray), var(--light));
+      position: relative;
+    }
+
+    .message-content {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: var(--space-xxl);
+      align-items: center;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .head-image {
+      position: relative;
+      text-align: center;
+    }
+
+    .head-image img {
+      width: 280px;
+      height: 350px;
+      object-fit: cover;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      border: 4px solid var(--primary);
+    }
+
+    .quote-mark {
+      position: absolute;
+      top: -20px;
+      right: -10px;
+      font-size: 4rem;
+      color: var(--secondary);
+      font-family: Georgia, serif;
+      opacity: 0.7;
+    }
+
+    .message-text h3 {
+      font-size: var(--text-2xl);
+      color: var(--primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .position {
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: var(--space-lg);
+      display: block;
+    }
+
+    .message-text blockquote {
+      border-left: 4px solid var(--secondary);
+      padding-left: var(--space-lg);
+      margin: var(--space-lg) 0;
+      font-style: italic;
+    }
+
+    .signature {
+      margin-top: var(--space-lg);
+      text-align: right;
+    }
+
+    .signature span {
+      font-weight: 600;
+      color: var(--primary);
+      display: block;
+    }
+
+    .signature small {
+      color: var(--text-light);
+    }
+
     .hero-content {
       max-width: 800px;
       margin: 0 auto;
@@ -1451,6 +1574,14 @@
   <section class="hero">
     <div class="hero-content">
       <h1>Excellence in Education Since 1962</h1>
+      <div class="school-motto">
+        <h2 class="motto-text">"We Think We Can and Indeed We Can"</h2>
+        <div class="motto-decoration">
+          <span class="star">✦</span>
+          <span class="line"></span>
+          <span class="star">✦</span>
+        </div>
+      </div>
       <p>St. Mary's High School provides a transformative educational experience that prepares students for success in college and beyond.</p>
       <div class="hero-buttons">
         <a href="/admissions" class="btn btn-primary btn-lg">
@@ -1488,6 +1619,34 @@
     </div>
   </section>
 
+  <!-- Head Master's Message Section -->
+  <section class="section head-message">
+    <div class="container">
+      <div class="section-title">
+        <h2>Message from Our Head Master</h2>
+      </div>
+      <div class="message-content">
+        <div class="head-image">
+          <img src="https://i.postimg.cc/Nj1yFc9T/Screenshot-2025-02-28-105502.png" alt="Mr. Nyabako - Head Master">
+          <div class="quote-mark">"</div>
+        </div>
+        <div class="message-text">
+          <h3>Mr. Nyabako</h3>
+          <span class="position">Head Master</span>
+          <blockquote>
+            <p>Welcome to St. Mary's High School, where we have embodied our motto "We Think We Can and Indeed We Can" for over six decades. As Head Master, I am proud to lead an institution that consistently demonstrates academic excellence within the ZIMSEC curriculum framework.</p>
+            <p>Our dedicated faculty and staff are committed to nurturing each student's potential, ensuring they develop not only academically but also as responsible citizens. We believe in providing a holistic education that prepares our students for the challenges of the 21st century.</p>
+            <p>At St. Mary's, we don't just teach subjects; we shape futures. I invite you to join our community where tradition meets innovation, and where every student's success story begins.</p>
+          </blockquote>
+          <div class="signature">
+            <span>Mr. Nyabako</span>
+            <small>Head Master, St. Mary's High School</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Academics Section -->
   <section class="section academics">
     <div class="container">
@@ -1502,7 +1661,7 @@
           <div class="academic-content">
             <h3>Science</h3>
             <p>Our STEM programs prepare students for careers in science, technology, engineering, and mathematics with state-of-the-art labs and partnerships with local universities.</p>
-            <a href="/academics/science" class="btn btn-outline">Explore STEM</a>
+            <a href="/stem" class="btn btn-outline">Explore STEM</a>
           </div>
         </div>
         
@@ -1513,7 +1672,7 @@
           <div class="academic-content">
             <h3>Arts & Humanities</h3>
             <p>From visual arts to performing arts and literature, our comprehensive humanities program fosters creativity and critical thinking skills essential for any career path.</p>
-            <a href="/academics/arts" class="btn btn-outline">Explore Arts</a>
+            <a href="/arts" class="btn btn-outline">Explore Arts</a>
           </div>
         </div>
         
@@ -1716,7 +1875,7 @@
         </div>
       </div>
       <div class="text-center mt-5">
-        <a href="/news" class="btn btn-primary">View All News</a>
+        <a href="/allnews" class="btn btn-primary">View All News</a>
       </div>
     </div>
   </section>
