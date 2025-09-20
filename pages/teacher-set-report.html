@@ -1233,6 +1233,7 @@ button:active {
         
         // Load grading settings first, then students data
         await loadGradingSettings();
+        await initializeGradingSettings();
         fetchStudents();
         
       } catch (error) {
@@ -2030,12 +2031,6 @@ let gradingScales = {};
 
 // Initialize grading settings
 async function initializeGradingSettings() {
-  // Ensure userRole is defined before proceeding
-  if (typeof userRole === 'undefined') {
-    console.warn('userRole not defined, skipping grading settings initialization');
-    return;
-  }
-  
   // Show grading settings and admin menu only for admin users
   if (userRole === 'admin') {
     const gradingSettings = document.getElementById('gradingSettings');
@@ -2058,17 +2053,37 @@ async function initializeGradingSettings() {
   // Load existing grading settings
   await loadGradingSettings();
   
-  // Set up event listeners
-  document.getElementById('showGradingSettings').addEventListener('click', () => {
-    document.getElementById('gradingSettingsPanel').style.display = 'block';
-  });
+  // Set up event listeners with error handling
+  const showBtn = document.getElementById('showGradingSettings');
+  const closeBtn = document.getElementById('closeGradingSettings');
+  const saveBtn = document.getElementById('saveGradingSettings');
+  const resetBtn = document.getElementById('resetGradingSettings');
   
-  document.getElementById('closeGradingSettings').addEventListener('click', () => {
-    document.getElementById('gradingSettingsPanel').style.display = 'none';
-  });
+  if (showBtn) {
+    showBtn.addEventListener('click', () => {
+      const panel = document.getElementById('gradingSettingsPanel');
+      if (panel) {
+        panel.style.display = 'block';
+      }
+    });
+  }
   
-  document.getElementById('saveGradingSettings').addEventListener('click', saveGradingSettings);
-  document.getElementById('resetGradingSettings').addEventListener('click', resetGradingSettings);
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      const panel = document.getElementById('gradingSettingsPanel');
+      if (panel) {
+        panel.style.display = 'none';
+      }
+    });
+  }
+  
+  if (saveBtn) {
+    saveBtn.addEventListener('click', saveGradingSettings);
+  }
+  
+  if (resetBtn) {
+    resetBtn.addEventListener('click', resetGradingSettings);
+  }
 }
 
 // Load grading settings from database
@@ -2167,10 +2182,10 @@ function populateGradingForm() {
   });
 }
 
-// Save grading settings to database with retry logic
+// Save grading settings to database
 async function saveGradingSettings() {
-  let saveBtn = document.getElementById('saveGradingSettings');
-  let originalText = saveBtn ? saveBtn.innerHTML : '';
+  const saveBtn = document.getElementById('saveGradingSettings');
+  const originalText = saveBtn ? saveBtn.innerHTML : '';
   
   try {
     console.log('Starting to save grading settings...');
@@ -2250,12 +2265,88 @@ async function saveGradingSettings() {
     
     console.log('New grading scales to save:', newGradingScales);
     
-    // Save to database with retry logic
-    let retryCount = 0;
-    const maxRetries = 3;
+    // Add metadata
+    const dataToSave = {
+      ...newGradingScales,
+      lastUpdated: new Date().toISOString(),
+      updatedBy: auth.currentUser?.email || 'admin'
+    };
     
-    while (retryCount < maxRetries) {
-      try {
+    // Save to database
+    await setDoc(doc(db, 'settings', 'gradingScales'), dataToSave);
+    
+    // Update local variable
+    gradingScales = newGradingScales;
+    
+    console.log('Grading settings saved successfully');
+    alert('Grading settings saved successfully!');
+    
+  } catch (error) {
+    console.error('Error saving grading settings:', error);
+    alert(`Error saving grading settings: ${error.message}`);
+  } finally {
+    // Restore button state
+    if (saveBtn) {
+      saveBtn.innerHTML = originalText;
+      saveBtn.disabled = false;
+    }
+  }
+}
+
+// Reset grading settings to defaults
+async function resetGradingSettings() {
+  if (!confirm('Are you sure you want to reset all grading settings to defaults? This action cannot be undone.')) {
+    return;
+  }
+  
+  try {
+    // Set default values in form inputs
+    // ZJC defaults
+    const zjcDefaults = [
+      ['zjc_a_min', 75], ['zjc_a_max', 100],
+      ['zjc_b_min', 65], ['zjc_b_max', 74],
+      ['zjc_c_min', 50], ['zjc_c_max', 64],
+      ['zjc_d_min', 40], ['zjc_d_max', 49],
+      ['zjc_u_min', 0], ['zjc_u_max', 39]
+    ];
+    
+    // O Level defaults
+    const olevelDefaults = [
+      ['olevel_a_min', 70], ['olevel_a_max', 100],
+      ['olevel_b_min', 60], ['olevel_b_max', 69],
+      ['olevel_c_min', 50], ['olevel_c_max', 59],
+      ['olevel_d_min', 40], ['olevel_d_max', 49],
+      ['olevel_u_min', 0], ['olevel_u_max', 39]
+    ];
+    
+    // A Level defaults
+    const alevelDefaults = [
+      ['alevel_a_min', 75], ['alevel_a_max', 100],
+      ['alevel_b_min', 65], ['alevel_b_max', 74],
+      ['alevel_c_min', 55], ['alevel_c_max', 64],
+      ['alevel_d_min', 45], ['alevel_d_max', 54],
+      ['alevel_f_min', 35], ['alevel_f_max', 44],
+      ['alevel_o_min', 0], ['alevel_o_max', 34]
+    ];
+    
+    // Apply all defaults
+    [...zjcDefaults, ...olevelDefaults, ...alevelDefaults].forEach(([id, value]) => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.value = value;
+      }
+    });
+    
+    // Reset the gradingScales object
+    setDefaultGradingScales();
+    
+    alert('Grading settings reset to defaults! Remember to save the changes.');
+    
+  } catch (error) {
+    console.error('Error resetting grading settings:', error);
+    alert(`Error resetting grading settings: ${error.message}`);
+  }
+}
         await setDoc(doc(db, 'settings', 'gradingScales'), newGradingScales);
         gradingScales = newGradingScales;
         console.log('Grading settings saved successfully to database');
