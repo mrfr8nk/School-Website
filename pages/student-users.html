@@ -849,6 +849,54 @@
         flex-direction: column;
       }
     }
+    
+    /* Payment Status Badge Styles */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    
+    .status-paid {
+      background: rgba(72, 187, 120, 0.2);
+      color: #48bb78;
+      border: 1px solid rgba(72, 187, 120, 0.3);
+    }
+    
+    .status-unpaid {
+      background: rgba(245, 101, 101, 0.2);
+      color: #f56565;
+      border: 1px solid rgba(245, 101, 101, 0.3);
+    }
+    
+    .status-partial {
+      background: rgba(246, 173, 85, 0.2);
+      color: #f6ad55;
+      border: 1px solid rgba(246, 173, 85, 0.3);
+    }
+    
+    .status-balance {
+      background: rgba(255, 159, 64, 0.2);
+      color: #ff9f40;
+      border: 1px solid rgba(255, 159, 64, 0.3);
+    }
+    
+    .status-scholarship {
+      background: rgba(139, 69, 19, 0.2);
+      color: #8b4513;
+      border: 1px solid rgba(139, 69, 19, 0.3);
+    }
+    
+    .status-notset {
+      background: rgba(160, 174, 192, 0.2);
+      color: #a0aec0;
+      border: 1px solid rgba(160, 174, 192, 0.3);
+    }
   </style>
 </head>
 <body>
@@ -905,6 +953,46 @@
         <i class="fas fa-search"></i>
         <input type="text" id="searchInput" placeholder="Search students by name, email, phone or form..." />
       </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label for="formFilter" style="color: var(--secondary); font-weight: 500;">Form:</label>
+          <select id="formFilter" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--modal-text); font-size: 0.9rem;">
+            <option value="">All Forms</option>
+            <option value="FORM 1">FORM 1</option>
+            <option value="FORM 2">FORM 2</option>
+            <option value="FORM 3">FORM 3</option>
+            <option value="FORM 4">FORM 4</option>
+            <option value="FORM 5">FORM 5</option>
+            <option value="FORM 6">FORM 6</option>
+          </select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label for="streamFilter" style="color: var(--secondary); font-weight: 500;">Stream:</label>
+          <select id="streamFilter" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--modal-text); font-size: 0.9rem;">
+            <option value="">All Streams</option>
+            <option value="G">G</option>
+            <option value="W">W</option>
+            <option value="E">E</option>
+            <option value="Z">Z</option>
+            <option value="U">U</option>
+            <option value="SP">SP</option>
+            <option value="Sciences">Sciences</option>
+            <option value="Commercials">Commercials</option>
+            <option value="Arts">Arts</option>
+          </select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label for="paymentStatusFilter" style="color: var(--secondary); font-weight: 500;">Payment Status:</label>
+          <select id="paymentStatusFilter" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--modal-text); font-size: 0.9rem;">
+            <option value="">All Students</option>
+            <option value="paid">Paid in Full</option>
+            <option value="unpaid">Unpaid</option>
+            <option value="partial">Partial Payments</option>
+            <option value="balance">With Balance</option>
+            <option value="scholarship">Scholarship</option>
+          </select>
+        </div>
+      </div>
       <div style="display: flex; align-items: center; gap: 15px;">
         <div style="display: flex; align-items: center; gap: 8px; color: var(--secondary); font-weight: 500;">
           <label for="entriesPerPageSelect">Show:</label>
@@ -913,6 +1001,9 @@
             <option value="25">25</option>
             <option value="50">50</option>
             <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="500">500</option>
+            <option value="1000">1000</option>
           </select>
           <span>entries</span>
         </div>
@@ -995,6 +1086,9 @@
                 <option value="Z">Z</option>
                 <option value="U">U</option>
                 <option value="SP">SP</option>
+                <option value="Sciences">Sciences</option>
+                <option value="Commercials">Commercials</option>
+                <option value="Arts">Arts</option>
               </select>
             </div>
           </div>
@@ -1355,6 +1449,7 @@
               <th>National ID</th>
               <th>Parent</th>
               <th>DOB</th>
+              <th>Payment Status</th>
               <th class="action-col">Actions</th>
             </tr>
           </thead>
@@ -1377,6 +1472,7 @@
                 <td>${highlightText((student.birthNumber ?? student.nationalId ?? 'N/A').toString(), searchTerm)}</td>
                 <td>${highlightText(student.parentName, searchTerm)}</td>
                 <td>${formatDate(student.dob)}</td>
+                <td>${getPaymentStatusBadge(calculatePaymentStatus(student))}</td>
                 <td class="action-buttons">
                   <button class="btn btn-primary" onclick="editStudent('${student.id}')">
                     <i class="fas fa-edit"></i> Edit
@@ -1450,25 +1546,138 @@
     // ========================
     // Search Functionality
     // ========================
+    // Load payments data for payment status calculation
+    let paymentsData = [];
+    let scholarshipsData = [];
+    let currentExchangeRate = 40; // Default fallback rate
+    
+    async function loadPaymentsData() {
+      try {
+        // Load exchange rate settings first
+        try {
+          const exchangeDoc = await getDoc(doc(db, "settings", "exchange"));
+          if (exchangeDoc.exists()) {
+            const exchangeData = exchangeDoc.data();
+            currentExchangeRate = exchangeData.usd_to_zwl_rate || 40;
+            console.log(`Loaded exchange rate: 1 USD = ${currentExchangeRate} ZWL`);
+          } else {
+            console.warn("Exchange rate settings not found, using default rate of 40");
+          }
+        } catch (exchangeErr) {
+          console.warn("Error loading exchange rate, using default:", exchangeErr);
+        }
+        
+        const paymentsSnapshot = await getDocs(collection(db, "payments"));
+        paymentsData = paymentsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })).filter(payment => !payment.deleted);
+        
+        const scholarshipsSnapshot = await getDocs(collection(db, "scholarships"));
+        scholarshipsData = scholarshipsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        console.log(`Loaded ${paymentsData.length} payments and ${scholarshipsData.length} scholarships`);
+      } catch (error) {
+        console.error("Error loading payments data:", error);
+        paymentsData = [];
+        scholarshipsData = [];
+      }
+    }
+    
+    // Calculate student payment status
+    function calculatePaymentStatus(student) {
+      if (!student || !student.id) return 'unpaid';
+      
+      const studentPayments = paymentsData.filter(payment => 
+        payment && payment.studentId === student.id && !payment.deleted
+      );
+      const studentScholarships = scholarshipsData.filter(scholarship => 
+        scholarship && scholarship.studentId === student.id && 
+        (scholarship.status === 'active' || scholarship.status === 'approved')
+      );
+      
+      // Calculate total fees for student based on form level
+      let totalFees = 140; // Default for Forms 3-6
+      if (student.form === 'FORM 1' || student.form === 'FORM 2') {
+        totalFees = 120;
+      }
+      
+      // Calculate total paid amount (convert ZWL to USD using current exchange rate)
+      const totalPaid = studentPayments.reduce((sum, payment) => {
+        if (!payment.amount || payment.amount <= 0) return sum;
+        const amount = payment.currency === 'USD' ? payment.amount : payment.amount / currentExchangeRate;
+        return sum + amount;
+      }, 0);
+      
+      // Calculate scholarship amount (convert ZWL to USD using current exchange rate)
+      const scholarshipAmount = studentScholarships.reduce((sum, scholarship) => {
+        if (!scholarship.amount || scholarship.amount <= 0) return sum;
+        const amount = scholarship.currency === 'USD' ? scholarship.amount : scholarship.amount / currentExchangeRate;
+        return sum + amount;
+      }, 0);
+      
+      const totalCovered = totalPaid + scholarshipAmount;
+      
+      // Handle scholarship cases
+      if (scholarshipAmount > 0) {
+        if (scholarshipAmount >= totalFees) {
+          return 'scholarship'; // Full scholarship covers all fees
+        } else if (totalCovered >= totalFees) {
+          return 'paid'; // Scholarship + payments cover full fees
+        } else {
+          return 'scholarship'; // Partial scholarship (whether or not there are additional payments)
+        }
+      }
+      
+      // Handle non-scholarship cases
+      if (totalPaid >= totalFees) {
+        return 'paid'; // Paid in full
+      } else if (totalPaid > 0) {
+        // Student has made some payments but hasn't paid in full
+        const remainingBalance = totalFees - totalPaid;
+        if (remainingBalance > 0) {
+          return 'balance'; // Has remaining balance to pay
+        } else {
+          return 'partial'; // Partial payment (this case might not occur given the logic above)
+        }
+      } else {
+        return 'unpaid'; // No payments at all
+      }
+    }
+    
     function searchStudents() {
       const searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
+      const formFilter = document.getElementById("formFilter")?.value || "";
+      const streamFilter = document.getElementById("streamFilter")?.value || "";
+      const paymentStatusFilter = document.getElementById("paymentStatusFilter")?.value || "";
       
-      if (!searchTerm) {
-        filteredData = studentsData;
-      } else {
-        filteredData = studentsData.filter(student => {
-          return (
-            (student.firstname && student.firstname.toLowerCase().includes(searchTerm)) ||
-            (student.surname && student.surname.toLowerCase().includes(searchTerm)) ||
-            (student.email && student.email.toLowerCase().includes(searchTerm)) ||
-            (student.phone && student.phone.includes(searchTerm)) ||
-            (student.birthNumber && (student.birthNumber ?? '').toString().toLowerCase().includes(searchTerm)) ||
-            (student.nationalId && (student.nationalId ?? '').toString().toLowerCase().includes(searchTerm)) ||
-            (student.form && student.form.toLowerCase().includes(searchTerm)) ||
-            (student.stream && student.stream.toLowerCase().includes(searchTerm))
-          );
-        });
-      }
+      filteredData = studentsData.filter(student => {
+        // Text search filter
+        const matchesSearch = !searchTerm || (
+          (student.firstname && student.firstname.toLowerCase().includes(searchTerm)) ||
+          (student.surname && student.surname.toLowerCase().includes(searchTerm)) ||
+          (student.email && student.email.toLowerCase().includes(searchTerm)) ||
+          (student.phone && student.phone.includes(searchTerm)) ||
+          (student.birthNumber && (student.birthNumber ?? '').toString().toLowerCase().includes(searchTerm)) ||
+          (student.nationalId && (student.nationalId ?? '').toString().toLowerCase().includes(searchTerm)) ||
+          (student.form && student.form.toLowerCase().includes(searchTerm)) ||
+          (student.stream && student.stream.toLowerCase().includes(searchTerm))
+        );
+        
+        // Form filter
+        const matchesForm = !formFilter || student.form === formFilter;
+        
+        // Stream filter
+        const matchesStream = !streamFilter || student.stream === streamFilter;
+        
+        // Payment status filter
+        const matchesPaymentStatus = !paymentStatusFilter || calculatePaymentStatus(student) === paymentStatusFilter;
+        
+        return matchesSearch && matchesForm && matchesStream && matchesPaymentStatus;
+      });
       
       currentPage = 1;
       renderStudents();
@@ -1603,6 +1812,18 @@
       } finally {
         showSpinner(false);
       }
+    }
+    
+    // Get payment status badge HTML
+    function getPaymentStatusBadge(status) {
+      const badges = {
+        'paid': '<span class="status-badge status-paid"><i class="fas fa-check-circle"></i> Paid in Full</span>',
+        'unpaid': '<span class="status-badge status-unpaid"><i class="fas fa-times-circle"></i> Unpaid</span>',
+        'partial': '<span class="status-badge status-partial"><i class="fas fa-clock"></i> Partial Payment</span>',
+        'balance': '<span class="status-badge status-balance"><i class="fas fa-exclamation-triangle"></i> With Balance</span>',
+        'scholarship': '<span class="status-badge status-scholarship"><i class="fas fa-graduation-cap"></i> Scholarship</span>'
+      };
+      return badges[status] || '<span class="status-badge status-notset"><i class="fas fa-question"></i> Unknown</span>';
     }
     
     // Clear cache
@@ -1942,8 +2163,38 @@
       // Theme toggle
       document.getElementById("themeToggle").addEventListener("click", toggleTheme);
       
+      // Filter event listeners - wait for DOM to be ready
+      setTimeout(() => {
+        const formFilter = document.getElementById("formFilter");
+        const streamFilter = document.getElementById("streamFilter");
+        const paymentStatusFilter = document.getElementById("paymentStatusFilter");
+        
+        if (formFilter) {
+          formFilter.addEventListener("change", searchStudents);
+          console.log("Form filter event listener attached");
+        } else {
+          console.warn("Form filter element not found");
+        }
+        
+        if (streamFilter) {
+          streamFilter.addEventListener("change", searchStudents);
+          console.log("Stream filter event listener attached");
+        } else {
+          console.warn("Stream filter element not found");
+        }
+        
+        if (paymentStatusFilter) {
+          paymentStatusFilter.addEventListener("change", searchStudents);
+          console.log("Payment status filter event listener attached");
+        } else {
+          console.warn("Payment status filter element not found");
+        }
+      }, 100);
+      
       // Load initial data
-      loadStudents();
+      Promise.all([loadStudents(), loadPaymentsData()]).then(() => {
+        console.log("All data loaded successfully");
+      });
     });
   </script>
 </body>

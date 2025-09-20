@@ -2532,12 +2532,12 @@
       showNotification(`Exchange rate updated to 1 USD = ${newRate} ZWL`, "success");
       
       // Update any displayed amounts
-      convertCurrency('usd');
+      convertToZWL();
       calculateZWLAmount();
       
     } catch (err) {
       console.error("Error saving exchange rate:", err);
-      showNotification("Error saving exchange rate. Please try again.", "error");
+      showNotification(`Error saving exchange rate: ${err.message}`, "error");
     } finally {
       showLoading(false);
     }
