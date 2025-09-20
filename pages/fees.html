@@ -2249,6 +2249,19 @@
     }
   }
 
+  // Consolidated function to populate all student tables
+  function populateAllStudentTables() {
+    try {
+      populateStudentsTable();
+      populatePaidStudentsTable();
+      populateUnpaidStudentsTable();
+      populatePartialStudentsTable();
+      populateBalanceStudentsTable();
+    } catch (err) {
+      console.warn("Error populating student tables:", err.message);
+    }
+  }
+
   // Initialize tabs
   function initTabs() {
     document.querySelectorAll('.tab').forEach(tab => {
@@ -2430,9 +2443,9 @@
           }
           
           try {
-            populateStudentsTable();
+            populateAllStudentTables();
           } catch (err) {
-            console.warn("Could not populate students table:", err.message);
+            console.warn("Could not populate students tables:", err.message);
           }
           
           try {
@@ -2476,7 +2489,7 @@
       try {
         updateDashboardStats();
         populateStudentDropdown();
-        populateStudentsTable();
+        populateAllStudentTables();
         populatePaymentsTable();
         populateRecentPayments();
         updateFeeStructureUI();
@@ -2861,20 +2874,8 @@ function showPaymentPlan(studentId, totalFees, paidAmount, balance) {
 // Refresh all students tables
 function refreshStudentsTables() {
   // Only update data, don't repopulate entire tables to avoid DataTables issues
-  if (studentsTable && $.fn.DataTable.isDataTable('#studentsTable')) {
-    populateStudentsTable();
-  }
-  if (paidStudentsTable && $.fn.DataTable.isDataTable('#paidStudentsTable')) {
-    populatePaidStudentsTable();
-  }
-  if (unpaidStudentsTable && $.fn.DataTable.isDataTable('#unpaidStudentsTable')) {
-    populateUnpaidStudentsTable();
-  }
-  if (partialStudentsTable && $.fn.DataTable.isDataTable('#partialStudentsTable')) {
-    populatePartialStudentsTable();
-  }
-  if (balanceStudentsTable && $.fn.DataTable.isDataTable('#balanceStudentsTable')) {
-    populateBalanceStudentsTable();
+  if (allStudents && allStudents.length > 0) {
+    populateAllStudentTables();
   }
 }
 
