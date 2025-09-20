@@ -1231,7 +1231,8 @@ button:active {
           initializeAutoTerm();
         }
         
-        // Now load the students data
+        // Load grading settings first, then students data
+        await loadGradingSettings();
         fetchStudents();
         
       } catch (error) {
@@ -2053,8 +2054,10 @@ async function loadGradingSettings() {
     const settingsDoc = await getDoc(doc(db, 'settings', 'gradingScales'));
     if (settingsDoc.exists()) {
       gradingScales = settingsDoc.data();
+      console.log('Loaded grading settings from database:', gradingScales);
       populateGradingForm();
     } else {
+      console.log('No grading settings found in database, using defaults');
       // Set default grading scales
       setDefaultGradingScales();
     }
@@ -2090,33 +2093,54 @@ function setDefaultGradingScales() {
       O: { min: 0, max: 34 }
     }
   };
+  console.log('Set default grading scales:', gradingScales);
   populateGradingForm();
 }
 
 // Populate grading form with current settings
 function populateGradingForm() {
+  console.log('Populating grading form with scales:', gradingScales);
+  
   // ZJC (Form 1 & 2)
   Object.entries(gradingScales.zjc || {}).forEach(([grade, range]) => {
     const minEl = document.getElementById(`zjc_${grade.toLowerCase()}_min`);
     const maxEl = document.getElementById(`zjc_${grade.toLowerCase()}_max`);
-    if (minEl) minEl.value = range.min;
-    if (maxEl) maxEl.value = range.max;
+    if (minEl) {
+      minEl.value = range.min;
+      console.log(`Set ZJC ${grade} min to ${range.min}`);
+    }
+    if (maxEl) {
+      maxEl.value = range.max;
+      console.log(`Set ZJC ${grade} max to ${range.max}`);
+    }
   });
   
   // O Level (Form 3 & 4)
   Object.entries(gradingScales.olevel || {}).forEach(([grade, range]) => {
     const minEl = document.getElementById(`olevel_${grade.toLowerCase()}_min`);
     const maxEl = document.getElementById(`olevel_${grade.toLowerCase()}_max`);
-    if (minEl) minEl.value = range.min;
-    if (maxEl) maxEl.value = range.max;
+    if (minEl) {
+      minEl.value = range.min;
+      console.log(`Set O Level ${grade} min to ${range.min}`);
+    }
+    if (maxEl) {
+      maxEl.value = range.max;
+      console.log(`Set O Level ${grade} max to ${range.max}`);
+    }
   });
   
   // A Level (Form 5 & 6)
   Object.entries(gradingScales.alevel || {}).forEach(([grade, range]) => {
     const minEl = document.getElementById(`alevel_${grade.toLowerCase()}_min`);
     const maxEl = document.getElementById(`alevel_${grade.toLowerCase()}_max`);
-    if (minEl) minEl.value = range.min;
-    if (maxEl) maxEl.value = range.max;
+    if (minEl) {
+      minEl.value = range.min;
+      console.log(`Set A Level ${grade} min to ${range.min}`);
+    }
+    if (maxEl) {
+      maxEl.value = range.max;
+      console.log(`Set A Level ${grade} max to ${range.max}`);
+    }
   });
 }
 
@@ -2165,9 +2189,18 @@ async function saveGradingSettings() {
 }
 
 // Reset to default grading settings
-function resetGradingSettings() {
+async function resetGradingSettings() {
   if (confirm('Are you sure you want to reset to default grading scales? This will overwrite your current settings.')) {
     setDefaultGradingScales();
+    
+    // Save the default settings to database
+    try {
+      await setDoc(doc(db, 'settings', 'gradingScales'), gradingScales);
+      alert('Grading settings reset to default successfully!');
+    } catch (error) {
+      console.error('Error saving default grading settings:', error);
+      alert('Error saving default settings. Please try again.');
+    }
   }
 }
 
@@ -2220,6 +2253,11 @@ setTimeout(() => {
     initializeGradingSettings();
   }
 }, 1000);
+
+// Also ensure grading settings are loaded on page load
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadGradingSettings();
+});
 
 // Theme toggle
 const themeToggleButton = document.getElementById("themeToggleButton");
