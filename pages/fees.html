@@ -2754,19 +2754,22 @@
     }
   }
 
-  // Get payment status for a student
+  // Get payment status for a student - use actual status from student data
   function getPaymentStatus(student) {
-    const totalFees = calculateTotalFees(student);
-    const paidAmount = calculatePaidAmount(student.id);
+    if (!student.status) {
+      return { status: 'notset', text: 'Not Set' };
+    }
     
-    if (totalFees <= 0) return { status: 'notset', text: 'Not Set' };
+    const status = student.status.toLowerCase();
     
-    if (paidAmount >= totalFees) {
+    if (status === 'paid' || status === 'paid in full') {
       return { status: 'paid', text: 'Paid in Full' };
-    } else if (paidAmount > 0) {
+    } else if (status === 'partial' || status === 'partial payment') {
       return { status: 'partial', text: 'Partial Payment' };
-    } else {
+    } else if (status === 'unpaid') {
       return { status: 'unpaid', text: 'Unpaid' };
+    } else {
+      return { status: 'notset', text: student.status };
     }
   }
 
@@ -3220,8 +3223,7 @@ function populateAllStudentTables(filteredStudents) {
     addStudentToTable('balanceStudentsBody', student, totalFees, paidAmount, balance, status);
   });
   
-  // Refresh DataTables
-  refreshStudentsTables();
+  // Tables are now populated with fresh data
 }
 
 // Helper function to add student to specific table
@@ -3500,11 +3502,79 @@ function populateRecentPayments() {
         <button class="btn btn-sm btn-secondary" onclick="printReceipt('${payment.id}')">
           <i class="fas fa-print"></i>
         </button>
+        <button class="btn btn-sm btn-danger" onclick="deletePayment('${payment.id}')" title="Delete Payment">
+          <i class="fas fa-trash"></i>
+        </button>
       </td>
     `;
     tbody.appendChild(tr);
   });
 }
+
+// Delete payment function
+window.deletePayment = async function(paymentId) {
+  if (!paymentId) {
+    showNotification("Invalid payment ID", "error");
+    return;
+  }
+  
+  // Find the payment to get student info for confirmation
+  const payment = allPayments.find(p => p.id === paymentId);
+  if (!payment) {
+    showNotification("Payment not found", "error");
+    return;
+  }
+  
+  const student = allStudents.find(s => s.id === payment.studentId);
+  const studentName = student ? `${student.firstname} ${student.surname}` : 'Unknown Student';
+  const paymentAmount = `${payment.currency === 'USD' ? '$' : 'ZWL$'}${payment.amount.toLocaleString()}`;
+  
+  // Confirm deletion
+  const confirmed = confirm(
+    `Are you sure you want to delete this payment?\n\n` +
+    `Student: ${studentName}\n` +
+    `Amount: ${paymentAmount}\n` +
+    `Method: ${payment.method}\n\n` +
+    `This action cannot be undone.`
+  );
+  
+  if (!confirmed) return;
+  
+  try {
+    showLoading(true);
+    
+    // Delete from Firebase
+    await db.collection('payments').doc(paymentId).delete();
+    
+    // Remove from local array
+    const paymentIndex = allPayments.findIndex(p => p.id === paymentId);
+    if (paymentIndex > -1) {
+      allPayments.splice(paymentIndex, 1);
+    }
+    
+    // Refresh all relevant displays
+    updateDashboardStats();
+    populateRecentPayments();
+    populatePaymentsTable();
+    populateAllStudentTables(allStudents || []);
+    
+    showNotification("Payment deleted successfully", "success");
+  } catch (error) {
+    console.error("Error deleting payment:", error);
+    showNotification("Failed to delete payment: " + error.message, "error");
+  } finally {
+    showLoading(false);
+  }
+};
+
+// Placeholder functions for edit and print (to be implemented)
+window.editPayment = function(paymentId) {
+  showNotification("Edit functionality coming soon", "info");
+};
+
+window.printReceipt = function(paymentId) {
+  showNotification("Print functionality coming soon", "info");
+};
 
 // Fee Structure Configuration Functions
 
