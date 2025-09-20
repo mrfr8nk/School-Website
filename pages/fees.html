@@ -4320,31 +4320,6 @@ window.editPayment = function(paymentId) {
   }
 };
 
-  // Calculate current term based on month
-  function getCurrentTerm() {
-    const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-indexed
-    
-    if (currentMonth >= 1 && currentMonth <= 4) {
-      return 'Term 1'; // Jan-Apr
-    } else if (currentMonth >= 5 && currentMonth <= 8) {
-      return 'Term 2'; // May-Aug  
-    } else {
-      return 'Term 3'; // Sept-Dec
-    }
-  }
-
-  // Get term for a specific date
-  function getTermForDate(date) {
-    const month = date.getMonth() + 1;
-    
-    if (month >= 1 && month <= 4) {
-      return 'Term 1';
-    } else if (month >= 5 && month <= 8) {
-      return 'Term 2';
-    } else {
-      return 'Term 3';
-    }
-  }
 
   // Get device information for logging
   function getDeviceInfo() {
