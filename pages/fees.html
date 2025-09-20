@@ -2249,18 +2249,6 @@
     }
   }
 
-  // Consolidated function to populate all student tables
-  function populateAllStudentTables() {
-    try {
-      populateStudentsTable();
-      populatePaidStudentsTable();
-      populateUnpaidStudentsTable();
-      populatePartialStudentsTable();
-      populateBalanceStudentsTable();
-    } catch (err) {
-      console.warn("Error populating student tables:", err.message);
-    }
-  }
 
   // Initialize tabs
   function initTabs() {
@@ -2443,7 +2431,7 @@
           }
           
           try {
-            populateAllStudentTables();
+            populateAllStudentTables(allStudents || []);
           } catch (err) {
             console.warn("Could not populate students tables:", err.message);
           }
@@ -2489,7 +2477,7 @@
       try {
         updateDashboardStats();
         populateStudentDropdown();
-        populateAllStudentTables();
+        populateAllStudentTables(allStudents || []);
         populatePaymentsTable();
         populateRecentPayments();
         updateFeeStructureUI();
@@ -2875,7 +2863,7 @@ function showPaymentPlan(studentId, totalFees, paidAmount, balance) {
 function refreshStudentsTables() {
   // Only update data, don't repopulate entire tables to avoid DataTables issues
   if (allStudents && allStudents.length > 0) {
-    populateAllStudentTables();
+    populateAllStudentTables(allStudents);
   }
 }
 
