@@ -49,7 +49,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 // Demo Firebase configuration - Use this incase u want to test my web
-/*const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyAR9J2Wz7Eu8dXRzDG8JNHcymLCUQUPJRo",
   authDomain: "deee-9ab53.firebaseapp.com",
   projectId: "deee-9ab53",
@@ -58,8 +58,8 @@ import {
   appId: "1:399732664479:web:b84ac30e8266cc51761aaa",
   measurementId: "G-524ZPBX42B"
 };
-*/
 
+/*
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional Dont use this one
 const firebaseConfig = {
   apiKey: "AIzaSyCZHoYBIZIdJyatQD6XJrsKaiawa3pJlT8",
@@ -70,7 +70,7 @@ const firebaseConfig = {
   appId: "1:771130921198:web:0b9dceb76ddcbaeb4c63ff",
   measurementId: "G-2LN724WCJC"
 };
-
+*/
 // Initialize Firebase (idempotent - safe for incremental migration)
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
