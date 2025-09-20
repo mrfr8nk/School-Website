@@ -850,12 +850,15 @@ button:active {
   <script type="module">
     // Import Firebase services and functions from centralized config
     import {
+      auth,
       db,
       collection,
       getDocs,
       getDoc,
       doc,
-      setDoc
+      setDoc,
+      onAuthStateChanged,
+      signOut
     } from "/db/firebase.js";
 
     // Global variables
@@ -867,6 +870,55 @@ button:active {
     const reportCard = document.getElementById("reportCard");
     const reportCardBody = document.getElementById("reportCardBody");
     let performanceChart;
+
+    // Authentication state management
+    let isAuthenticated = false;
+    let userRole = null;
+
+    // Authentication check - ensure user is logged in and has proper role
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // No user logged in - redirect to teacher login
+        console.log('No user logged in, redirecting to teacher login');
+        window.location.href = '/teacherslogin';
+        return;
+      }
+
+      try {
+        // Get user document to check role
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        
+        if (!userDoc.exists()) {
+          console.log('User document not found');
+          await signOut(auth);
+          window.location.href = '/teacherslogin';
+          return;
+        }
+
+        const userData = userDoc.data();
+        userRole = userData.role ? userData.role.toLowerCase() : null;
+        
+        // Check if user is authorized (admin or teacher)
+        if (!userRole || !['admin', 'teacher'].includes(userRole)) {
+          console.log('User role not authorized:', userRole);
+          await signOut(auth);
+          window.location.href = '/teacherslogin';
+          return;
+        }
+
+        // User is authenticated and authorized
+        isAuthenticated = true;
+        console.log('Authentication successful for role:', userRole);
+        
+        // Now load the students data
+        fetchStudents();
+        
+      } catch (error) {
+        console.error('Error checking user authorization:', error);
+        await signOut(auth);
+        window.location.href = '/teacherslogin';
+      }
+    });
 
     // Load teacher information and assigned classes
     async function loadTeacherInfo() {
@@ -917,6 +969,16 @@ button:active {
 
     // Fetch students with improved debugging
     async function fetchStudents() {
+      // Check authentication first
+      if (!isAuthenticated) {
+        console.log("User not authenticated, cannot fetch students");
+        studentList.innerHTML = `<div class="notification" style="padding: 1rem; background: rgba(255,0,0,0.2); border-radius: 8px; text-align: center; border-left: 4px solid red;">
+          <i class="fas fa-exclamation-circle"></i> <strong>Authentication Required</strong><br>
+          Please log in as a teacher or admin to access student data.
+        </div>`;
+        return;
+      }
+
       console.log("Starting to fetch students from Firebase...");
       
       // Show loading indicator
@@ -1608,8 +1670,8 @@ function extractNameSurname(email) {
   };
 }
 
-// Load
-fetchStudents();
+// Authentication will automatically trigger fetchStudents() when user is verified
+// Don't call fetchStudents() directly here - let authentication handle it
 </script>
 
   <!-- Theme Toggle Button -->

@@ -1622,11 +1622,11 @@
         }
         
         try {
-          // Get user document from Firestore to check role with timeout
+          // Get user document from Firestore to check role with increased timeout
           const userDoc = await Promise.race([
             getDoc(doc(db, 'users', user.uid)),
             new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Database connection timeout')), 8000)
+              setTimeout(() => reject(new Error('Database connection timeout')), 20000)
             )
           ]);
           
@@ -1679,33 +1679,98 @@
         } catch (error) {
           console.error('Error checking user authorization:', error);
           
-          // Handle specific Firebase connection errors with deny-by-default security
+          // Handle specific Firebase connection errors with retry logic (maintain security)
           if (error.code === 'unavailable' || error.message === 'Database connection timeout') {
-            console.warn('Database connection issue - denying access for security');
+            console.warn('Database connection issue - implementing retry with deny-by-default security');
             
-            // Show error message and redirect to login for security
-            setTimeout(() => {
-              if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Connection Issue',
-                  text: 'Cannot verify your permissions due to database connection issues. Please try logging in again.',
-                  confirmButtonColor: '#d69e2e'
-                }).then(() => {
+            // Show loading message while retrying
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'info',
+                title: 'Connection Issue',
+                text: 'Retrying database connection to verify your permissions...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                  Swal.showLoading();
+                }
+              });
+            }
+            
+            // Implement retry logic with exponential backoff (3 attempts)
+            let retryCount = 0;
+            const maxRetries = 3;
+            
+            while (retryCount < maxRetries) {
+              try {
+                await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000)); // Exponential backoff
+                
+                const retryUserDoc = await Promise.race([
+                  getDoc(doc(db, 'users', user.uid)),
+                  new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Retry timeout')), 15000)
+                  )
+                ]);
+                
+                if (retryUserDoc.exists()) {
+                  const userData = retryUserDoc.data();
+                  const userRole = userData.role ? userData.role.toLowerCase() : null;
+                  
+                  // Verify role again after retry
+                  if (userRole && ['admin', 'teacher'].includes(userRole)) {
+                    console.log('Retry successful - access granted for role:', userRole);
+                    
+                    if (typeof Swal !== 'undefined') {
+                      Swal.close();
+                    }
+                    
+                    // Load dashboard content after successful retry and authorization
+                    loadTeacherStats();
+                    loadTeacherProfile();
+                    return;
+                  } else {
+                    // Role check failed on retry - deny access
+                    await signOut(auth);
+                    window.location.href = '/teacherslogin';
+                    return;
+                  }
+                } else {
+                  // User document doesn't exist on retry - deny access
+                  await signOut(auth);
                   window.location.href = '/teacherslogin';
-                });
-              } else {
-                alert('Connection Issue: Cannot verify permissions. Please try logging in again.');
-                window.location.href = '/teacherslogin';
+                  return;
+                }
+              } catch (retryError) {
+                retryCount++;
+                console.warn(`Retry attempt ${retryCount} failed:`, retryError.message);
+                
+                if (retryCount >= maxRetries) {
+                  // All retries failed - deny access for security
+                  console.error('All retry attempts failed - denying access for security');
+                  
+                  if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Connection Failed',
+                      text: 'Cannot verify your permissions after multiple attempts. Please try logging in again.',
+                      confirmButtonColor: '#d69e2e'
+                    }).then(() => {
+                      window.location.href = '/teacherslogin';
+                    });
+                  } else {
+                    alert('Connection Failed: Cannot verify permissions. Please try logging in again.');
+                    window.location.href = '/teacherslogin';
+                  }
+                  
+                  await signOut(auth);
+                  return;
+                }
               }
-            }, 1000);
-            
-            // Sign out user for security
-            await signOut(auth);
+            }
             return;
           }
           
-          // For other errors, log out for security
+          // For other critical errors (not connection issues), log out for security
+          console.error('Critical authentication error - signing out user');
           await signOut(auth);
           window.location.href = '/teacherslogin';
         }
