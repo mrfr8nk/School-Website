@@ -854,6 +854,46 @@ button:active {
       <p><strong>Overall:</strong> <span id="overallTotal">0</span></p>
       <ul id="formTotals"></ul>
     </div>
+    
+    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(214, 158, 46, 0.3);">
+      <h2><i class="fas fa-cog"></i> Admin Settings</h2>
+      <div id="adminMenuItems">
+        <button id="gradingScalesBtn" class="menu-item-btn" style="
+          width: 100%; 
+          padding: 0.8rem 1rem; 
+          background: var(--accent); 
+          color: white; 
+          border: none; 
+          border-radius: 8px; 
+          margin-bottom: 0.8rem; 
+          cursor: pointer; 
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: all 0.3s ease;
+        ">
+          <i class="fas fa-chart-bar"></i> Configure Grading Scales
+        </button>
+        <button id="toggleReportsBtn" class="menu-item-btn" style="
+          width: 100%; 
+          padding: 0.8rem 1rem; 
+          background: var(--secondary); 
+          color: white; 
+          border: none; 
+          border-radius: 8px; 
+          margin-bottom: 0.8rem; 
+          cursor: pointer; 
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: all 0.3s ease;
+        ">
+          <i class="fas fa-toggle-on"></i> Toggle Reports
+        </button>
+      </div>
+    </div>
   </aside>
 
   <!-- Main Content -->
@@ -1937,14 +1977,58 @@ hamburgerBtn.addEventListener("click", () => {
   sideMenu.classList.toggle("shown");
 });
 
+// Connect hamburger menu grading scales button
+document.addEventListener('DOMContentLoaded', () => {
+  const gradingScalesBtn = document.getElementById('gradingScalesBtn');
+  if (gradingScalesBtn) {
+    gradingScalesBtn.addEventListener('click', () => {
+      // Add null checks before accessing elements
+      const gradingSettings = document.getElementById('gradingSettings');
+      const gradingSettingsPanel = document.getElementById('gradingSettingsPanel');
+      
+      if (gradingSettings && gradingSettingsPanel) {
+        // Show the grading settings section
+        gradingSettings.style.display = 'block';
+        gradingSettingsPanel.style.display = 'block';
+        // Close the hamburger menu
+        if (sideMenu) {
+          sideMenu.classList.remove("shown");
+        }
+        // Scroll to the grading settings section
+        gradingSettings.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+});
+
 // Grading Settings Functionality
 let gradingScales = {};
 
 // Initialize grading settings
 async function initializeGradingSettings() {
-  // Show grading settings only for admin users
+  // Ensure userRole is defined before proceeding
+  if (typeof userRole === 'undefined') {
+    console.warn('userRole not defined, skipping grading settings initialization');
+    return;
+  }
+  
+  // Show grading settings and admin menu only for admin users
   if (userRole === 'admin') {
-    document.getElementById('gradingSettings').style.display = 'block';
+    const gradingSettings = document.getElementById('gradingSettings');
+    const adminMenuItems = document.getElementById('adminMenuItems');
+    
+    if (gradingSettings) {
+      gradingSettings.style.display = 'block';
+    }
+    if (adminMenuItems) {
+      adminMenuItems.parentElement.style.display = 'block';
+    }
+  } else {
+    // Hide admin menu items for non-admin users
+    const adminMenuItems = document.getElementById('adminMenuItems');
+    if (adminMenuItems) {
+      adminMenuItems.parentElement.style.display = 'none';
+    }
   }
   
   // Load existing grading settings
