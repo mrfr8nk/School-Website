@@ -429,6 +429,62 @@
       margin-bottom: 15px;
     }
     
+    /* Pass Rate Trends Section */
+    .pass-rate-trends {
+      padding: 80px 0;
+      background-color: var(--light-color);
+    }
+    
+    .trends-table {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: var(--light-color);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .trends-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .trends-table th {
+      background-color: var(--primary-color);
+      color: var(--light-color);
+      padding: 15px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    
+    .trends-table td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      font-weight: 500;
+    }
+    
+    .trends-table tbody tr:hover {
+      background-color: var(--light-gray);
+    }
+    
+    .trends-table .year-column {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    
+    .o-level-score {
+      color: #e74c3c;
+      font-weight: 600;
+    }
+    
+    .a-level-score {
+      color: #27ae60;
+      font-weight: 600;
+    }
+
     /* CTA Section */
     .academics-cta {
       padding: 80px 0;
@@ -744,7 +800,7 @@
           </div>
           <div class="program-content">
             <h3>College Prep</h3>
-            <p>With 100% college acceptance rate, our college prep program includes personalized counseling, test prep, and college application support to help students achieve their goals.</p>
+            <p>Our college prep program includes personalized counseling, test prep, and college application support to help students achieve their academic goals and university admissions.</p>
             <a href="#" class="btn">Learn More</a>
           </div>
         </div>
@@ -937,6 +993,63 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pass Rate Trends Section -->
+  <section class="pass-rate-trends">
+    <div class="container">
+      <div class="section-title">
+        <h2>Pass Rate Trends</h2>
+      </div>
+      <div class="trends-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>'O' Level</th>
+              <th>'A' Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="year-column">2018</td>
+              <td class="o-level-score">76.52%</td>
+              <td class="a-level-score">91.76%</td>
+            </tr>
+            <tr>
+              <td class="year-column">2019</td>
+              <td class="o-level-score">72.2%</td>
+              <td class="a-level-score">96.46%</td>
+            </tr>
+            <tr>
+              <td class="year-column">2020</td>
+              <td class="o-level-score">75%</td>
+              <td class="a-level-score">86%</td>
+            </tr>
+            <tr>
+              <td class="year-column">2021</td>
+              <td class="o-level-score">61.04%</td>
+              <td class="a-level-score">95.5%</td>
+            </tr>
+            <tr>
+              <td class="year-column">2022</td>
+              <td class="o-level-score">64.7%</td>
+              <td class="a-level-score">95.9%</td>
+            </tr>
+            <tr>
+              <td class="year-column">2023</td>
+              <td class="o-level-score">65.7%</td>
+              <td class="a-level-score">98.3%</td>
+            </tr>
+            <tr>
+              <td class="year-column">2024</td>
+              <td class="o-level-score">85%</td>
+              <td class="a-level-score">95.2%</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
