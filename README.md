@@ -1,142 +1,394 @@
 
----
+# St. Mary's High School Website - User Documentation
 
-# St. Mary's High School Website
-
-Welcome to the **St. Mary's High School Website**! This project is a comprehensive web platform designed to showcase the school's activities, staff, and achievements. It includes features like a staff directory, teacher account creation, and a credits page highlighting the developer, Darrell Mucheri.
-
----
-
-## Features
-
-1. **Home Page**:
-   - Overview of the school.
-   - Links to other sections.
-
-2. **About Page**:
-   - Information about the school's history, mission, and values.
-
-3. **Gallery Page**:
-   - Showcases photos and videos of school events.
-
-4. **Contact Page**:
-   - A form for visitors to contact the school.
-
-5. **Staff Page**:
-   - Displays a list of teachers with their subjects.
-   - Interactive modal for detailed teacher information.
-
-6. **Create Teacher Account Page**:
-   - Allows users to contact the developer on WhatsApp to create a teacher account.
-
-7. **Credits Page**:
-   - Highlights Darrell Mucheri, the developer, with animations and contact buttons.
-
-8. **Light/Dark Mode**:
-   - Users can toggle between light and dark themes.
-
-9. **Responsive Design**:
-   - The website is fully responsive and works on all devices.
+## Table of Contents
+1. [System Overview](#system-overview)
+2. [Getting Started](#getting-started)
+3. [Student Portal](#student-portal)
+4. [Teacher Portal](#teacher-portal)
+5. [Admin Portal](#admin-portal)
+6. [Public Website Features](#public-website-features)
+7. [Authentication System](#authentication-system)
+8. [Report & Application Systems](#report--application-systems)
+9. [Troubleshooting](#troubleshooting)
+10. [Technical Support](#technical-support)
 
 ---
 
-## Repository Structure
+## System Overview
 
-Here’s the structure of the repository:
+The St. Mary's High School website is a comprehensive school management system that serves multiple user types:
 
-```
-st-marys-high-website/
-├── index.html                  # Home page
-├── about.html                  # About page
-├── gallery.html                # Gallery page
-├── contact.html                # Contact page
-├── staff.html                  # Staff page
-├── create-teacher-account.html # Create Teacher Account page
-├── credits.html                # Credits page
-├── assets/                     # Static assets
-│   ├── css/                    # CSS files
-│   │   └── styles.css          # Main stylesheet
-│   ├── js/                     # JavaScript files
-│   │   └── main.js             # Main JavaScript file
-│   ├── images/                 # Images used in the website
-│   │   ├── logo.png            # School logo
-│   │   ├── teacher1.jpg        # Teacher profile images
-│   │   └── ...                 # Other images
-│   └── fonts/                  # Custom fonts (if any)
-├── README.md                   # Project documentation
-└── LICENSE                     # License file (if applicable)
-```
+- **Public Visitors**: Access general school information
+- **Students**: Personal dashboards, report cards, applications
+- **Teachers**: Class management, grade entry, student reports
+- **Administrators**: Full system management and oversight
+
+### Key Features
+- Multi-user authentication system
+- Real-time data management with Firebase
+- PDF generation for reports and documents
+- Responsive design for all devices
+- Dark/Light theme support
+- AI-powered school assistant
 
 ---
 
-## Technologies Used
+## Getting Started
 
-- **HTML5**: For structuring the website.
-- **CSS3**: For styling and animations.
-- **JavaScript**: For interactivity and dynamic content.
-- **Font Awesome**: For icons.
-- **Google Fonts**: For typography.
-- **WhatsApp API**: For the "Create Teacher Account" feature.
+### System Requirements
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+- Internet connection
+- JavaScript enabled
 
----
-
-## How to Run the Project
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/your-username/st-marys-high-website.git
-   ```
-
-2. **Navigate to the Project Directory**:
-   ```bash
-   cd st-marys-high-website
-   ```
-
-3. **Open the Website**:
-   - Open the `index.html` file in your browser to view the home page.
-   - Alternatively, use a local server (e.g., VS Code Live Server) for better functionality.
+### First-Time Setup
+1. **Visit the Website**: Navigate to the school's website
+2. **Choose Your Portal**: Select from Student, Teacher, or Admin login
+3. **Create Account**: Register using the appropriate signup form
+4. **Email Verification**: Check your email for verification (if required)
+5. **Complete Profile**: Fill in required profile information
 
 ---
 
-## Contributing
+## Student Portal
 
-We welcome contributions! If you'd like to contribute to this project, please follow these steps:
+### Accessing the Student Portal
+- **Login URL**: `/login`
+- **Signup URL**: `/signup`
+- **Dashboard URL**: `/dashboard`
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Make your changes and commit them with clear messages.
-4. Push your changes to your forked repository.
-5. Submit a pull request to the main repository.
+### Student Features
+
+#### 1. Student Dashboard
+- **Personal Information**: View and update profile
+- **Academic Overview**: Current grades and performance
+- **Announcements**: School news and updates
+- **Quick Actions**: Access frequently used features
+
+#### 2. Report Cards
+- **Access**: Click "My Report Card" from dashboard
+- **Features**:
+  - View current grades by subject
+  - Download PDF reports
+  - Track academic progress
+  - View attendance records
+
+#### 3. Applications
+- **Student Applications**: Submit various school applications
+- **Form Fields**:
+  - Personal information
+  - Academic background
+  - Supporting documents upload
+  - Parent/guardian information
+
+#### 4. Incident Reporting
+- **Access**: `/report`
+- **Features**:
+  - Anonymous reporting option
+  - Incident description
+  - Evidence upload (photos/documents)
+  - Status tracking
+
+#### 5. School Information
+- **News & Events**: Latest school updates
+- **Academic Calendar**: Important dates
+- **Faculty Directory**: Teacher information
+- **School Policies**: Rules and regulations
+
+### Student Account Management
+1. **Profile Updates**: Change personal information
+2. **Password Reset**: Use forgot password feature
+3. **Theme Settings**: Switch between light/dark modes
+4. **Logout**: Secure session termination
 
 ---
 
-## Credits
+## Teacher Portal
 
-This project was developed by **Darrell Mucheri**, a Form 5 Science student at St. Mary's High School, Zimbabwe. Darrell is passionate about innovation and creating a better future through technology.
+### Accessing the Teacher Portal
+- **Login URL**: `/teacherslogin`
+- **Signup URL**: `/teacherssignup`
+- **Dashboard URL**: `/teachersdashboard`
 
-- **Email**: [darrelmucheri@gmail.com](mailto:darrelmucheri@gmail.com)
-- **Phone**: [+263 719 647 303](tel:+263719647303)
-- **Portfolio**: [mrfrankinc.vercel.app](https://mrfrankinc.vercel.app)
+### Teacher Features
+
+#### 1. Teacher Dashboard
+- **Class Overview**: Assigned classes and students
+- **Quick Stats**: Student counts, performance metrics
+- **Recent Activity**: Latest grade entries and reports
+- **Administrative Tools**: Access to teacher functions
+
+#### 2. Grade Management (`/setreportcard`)
+- **Student Selection**: Choose from assigned classes
+- **Grade Entry**: Input marks by subject
+- **Grade Scales**: 
+  - O-Level: A (70-100), B (60-69), C (50-59), D (40-49), U (0-39)
+  - A-Level: A (76-98), B (67-74), C (55-64), D (45-54), F (35-44), O (0-34)
+  - ZJC: A (75-100), B (65-74), C (50-64), D (40-49), U (0-39)
+- **Comments**: Add teacher remarks
+- **Report Generation**: Create PDF report cards
+
+#### 3. Class Management (`/myclass`)
+- **Student Lists**: View all assigned students
+- **Attendance Tracking**: Mark present/absent
+- **Performance Analytics**: Class-wide statistics
+- **Individual Reports**: Student-specific information
+
+#### 4. Report Card Generation
+- **Process**:
+  1. Select student from class list
+  2. Enter grades for all subjects
+  3. Add comments and remarks
+  4. Generate PDF report
+  5. Download or print
+
+#### 5. Student Applications Review
+- **Access**: Review student-submitted applications
+- **Actions**: Approve, reject, or request modifications
+- **Comments**: Add feedback for applications
+
+### Teacher Account Features
+- **Profile Management**: Update teaching information
+- **Class Assignments**: View assigned classes
+- **Password Security**: Change login credentials
+- **System Preferences**: Configure dashboard settings
 
 ---
 
-## License
+## Admin Portal
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+### Accessing the Admin Portal
+- **Login URL**: `/teacherslogin` (with admin credentials)
+- **Admin Panel**: `/admin`
+- **User Management**: `/teacherusers`, `/studentusers`
+
+### Admin Features
+
+#### 1. User Management
+- **Teacher Accounts** (`/teacherusers`):
+  - Create new teacher accounts
+  - Assign classes to teachers
+  - Manage teacher permissions
+  - View teacher activity logs
+
+- **Student Accounts** (`/studentusers`):
+  - Bulk student registration
+  - Class assignment management
+  - Student data import/export
+  - Profile verification
+
+#### 2. System Configuration
+- **Grading Scales**: Configure grade boundaries
+- **Academic Terms**: Set current term/semester
+- **School Information**: Update school details
+- **System Settings**: Global configuration options
+
+#### 3. Application Management (`/adminapplication`)
+- **Student Applications**: Review and process
+- **Application Status**: Track application workflow
+- **Document Management**: Handle supporting documents
+- **Communication**: Send updates to applicants
+
+#### 4. Reports Management (`/viewreports`)
+- **Incident Reports**: Review student reports
+- **Status Updates**: Mark reports as resolved
+- **Analytics**: Report trends and statistics
+- **Response Management**: Administrative actions
+
+#### 5. Academic Management
+- **Grade Settings**: Configure grading systems
+- **Class Structure**: Manage forms and streams
+- **Subject Management**: Add/remove subjects
+- **Academic Calendar**: Set important dates
+
+### Admin Tools
+- **Data Export**: Generate system reports
+- **Backup Management**: Data security measures
+- **User Analytics**: System usage statistics
+- **Security Settings**: Access control management
 
 ---
 
-## Acknowledgments
+## Public Website Features
 
-- **St. Mary's High School**: For providing the opportunity to work on this project.
-- **Teachers and Staff**: For their support and guidance.
-- **Open Source Community**: For the tools and resources that made this project possible.
+### Main Website (`/`)
+- **School Information**: About, history, mission
+- **Academic Programs**: Curriculum details
+- **Admissions**: Requirements and processes
+- **News & Events**: Latest updates
+- **Contact Information**: How to reach the school
+
+### Academic Sections
+- **STEM Program** (`/stem`): Science, Technology, Engineering, Math
+- **Arts & Humanities** (`/arts`): Creative and cultural studies
+- **Commercial Sciences** (`/commercial`): Business and economics
+
+### Information Pages
+- **About Us** (`/about`): School history and achievements
+- **Faculty** (`/staff`): Teaching staff directory
+- **Campus** (`/schoolview`): Facilities and environment
+- **Calendar** (`/calendar`): Academic calendar and events
+- **News** (`/news`, `/allnews`): School news and updates
+- **Contact** (`/contact`): Contact forms and information
+
+### Interactive Features
+- **AI Assistant** (`/ai`): School chatbot for queries
+- **Virtual Tours**: Campus exploration
+- **Application Forms**: Online application submission
+- **Fee Information** (`/fees`): Payment details and schedules
 
 ---
 
-Thank you for visiting the St. Mary's High School Website repository! If you have any questions or feedback, feel free to reach out to Darrell Mucheri.
+## Authentication System
+
+### Account Types
+1. **Student Accounts**
+   - Email/password authentication
+   - Google Sign-in integration
+   - Profile verification required
+
+2. **Teacher Accounts**
+   - Admin-created accounts
+   - Email verification
+   - Class assignment required
+
+3. **Admin Accounts**
+   - Super-admin privileges
+   - Full system access
+   - Security audit trails
+
+### Security Features
+- **Password Requirements**: Strong password enforcement
+- **Two-Factor Authentication**: Optional 2FA setup
+- **Session Management**: Automatic logout
+- **Password Recovery**: Email-based reset system
+
+### Account Recovery
+1. **Forgot Password**: Use email reset option
+2. **Account Lockout**: Contact admin for assistance
+3. **Email Changes**: Verify new email addresses
+4. **Profile Issues**: Submit support request
 
 ---
 
-# School-Website
-# School-Website
+## Report & Application Systems
+
+### Student Report System
+- **Incident Reporting**: Anonymous or identified reports
+- **Evidence Upload**: Photo and document support
+- **Status Tracking**: Monitor report progress
+- **Resolution Updates**: Receive feedback
+
+### Application System
+- **Online Forms**: Digital application submission
+- **Document Upload**: Supporting materials
+- **Status Tracking**: Application progress
+- **Communication**: Updates and notifications
+
+### Report Card System
+- **Grade Entry**: Teacher input interface
+- **PDF Generation**: Automated report creation
+- **Grade Calculations**: Automatic GPA/average calculation
+- **Print Options**: Various format options
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+#### Login Problems
+- **Forgot Password**: Use password reset feature
+- **Account Not Found**: Check email spelling
+- **Access Denied**: Verify account type/permissions
+- **Session Expired**: Login again
+
+#### Technical Issues
+- **Page Not Loading**: Clear browser cache
+- **Features Not Working**: Enable JavaScript
+- **PDF Not Downloading**: Check popup blockers
+- **Upload Failures**: Check file size limits
+
+#### Data Issues
+- **Missing Grades**: Contact teacher/admin
+- **Incorrect Information**: Submit correction request
+- **Report Not Available**: Check term/date settings
+- **Application Status**: Contact admissions
+
+### Browser Compatibility
+- **Recommended**: Chrome, Firefox, Safari, Edge (latest versions)
+- **JavaScript**: Must be enabled
+- **Cookies**: Allow for proper functionality
+- **Pop-ups**: Allow for PDF downloads
+
+### Mobile Usage
+- **Responsive Design**: Works on all screen sizes
+- **Touch Navigation**: Optimized for touch devices
+- **Performance**: Optimized for mobile data
+- **App-like Experience**: Progressive web app features
+
+---
+
+## Technical Support
+
+### Getting Help
+
+#### Student Support
+- **Technical Issues**: Contact IT support
+- **Academic Questions**: Contact teachers directly
+- **Account Problems**: Contact school administration
+- **General Inquiries**: Use school contact form
+
+#### Teacher Support
+- **System Training**: Request training sessions
+- **Grade Entry Help**: Contact admin
+- **Technical Problems**: IT support available
+- **Feature Requests**: Submit through admin
+
+#### Contact Information
+- **Email**: admin@stmaryshigh.edu.zw
+- **Phone**: School main number
+- **Office Hours**: Monday-Friday, 8:00 AM - 4:00 PM
+- **Emergency**: Principal's direct line
+
+### System Maintenance
+- **Scheduled Downtime**: Announced in advance
+- **Updates**: Regular system improvements
+- **Backup Schedule**: Daily data backups
+- **Security Updates**: Applied automatically
+
+### Data Privacy
+- **GDPR Compliance**: Data protection standards
+- **Student Privacy**: Protected academic records
+- **Secure Storage**: Encrypted data storage
+- **Access Logs**: Monitored system access
+
+---
+
+## Additional Resources
+
+### Training Materials
+- **Video Tutorials**: Available on school website
+- **User Guides**: Downloadable PDF guides
+- **Quick Start Cards**: Printed reference materials
+- **Workshop Sessions**: Scheduled training events
+
+### System Updates
+- **Release Notes**: Feature updates and changes
+- **Bug Fixes**: Issue resolution updates
+- **New Features**: Enhancement announcements
+- **Maintenance Schedule**: Planned system work
+
+### Best Practices
+- **Regular Backups**: Save important work
+- **Strong Passwords**: Use secure credentials
+- **Regular Updates**: Keep browsers updated
+- **Safe Computing**: Follow security guidelines
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: January 2025  
+**Next Review**: June 2025
+
+For the most current information and updates, please visit the school website or contact the IT department directly.
