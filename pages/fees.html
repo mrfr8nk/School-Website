@@ -693,6 +693,121 @@
     .btn-edit:hover {
       background-color: rgba(66, 153, 225, 0.3);
     }
+    /* Term Badge Styles */
+    .term-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      background: rgba(159, 122, 234, 0.2);
+      color: #9f7aea;
+      border: 1px solid rgba(159, 122, 234, 0.3);
+    }
+    
+    .term-badge:before {
+      content: '\f274';
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+      margin-right: 4px;
+    }
+
+    /* Enhanced Payment History Styles */
+    .student-payment-history {
+      max-width: 100%;
+      padding: 1rem;
+    }
+
+    .student-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .summary-card {
+      background: var(--glass);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .summary-card h4 {
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .summary-card .amount {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    .payment-details, .transaction-metadata {
+      background: rgba(255,255,255,0.03);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .payment-details h3, .transaction-metadata h3 {
+      color: var(--secondary);
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.1);
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      font-weight: 500;
+      color: var(--secondary);
+      min-width: 140px;
+    }
+
+    .detail-value {
+      color: var(--text-color);
+      font-weight: 600;
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
     /* Navigation Controls */
     .nav-controls {
       display: flex;
@@ -2701,8 +2816,8 @@
     }
   }
 
-  // Calculate total fees for a student based on their level
-  function calculateTotalFees(student) {
+  // Enhanced fee calculation with term-based and scholarship integration
+  function calculateTotalFees(student, termSpecific = false, targetTerm = null) {
     if (!student || !student.form) return 0;
     
     // Use configurable fee structure with safe defaults
@@ -2710,66 +2825,433 @@
     const aLevelTotal = (settings.feeStructure?.aLevel?.total) || 140;
     
     const form = student.form.toLowerCase();
+    let baseFees = 0;
     
     // O Level: Forms 1-4
     if (form.includes('form 1') || form.includes('form 2') || 
         form.includes('form 3') || form.includes('form 4') ||
         form === 'form 1' || form === 'form 2' || 
         form === 'form 3' || form === 'form 4') {
-      return oLevelTotal;
+      baseFees = oLevelTotal;
     }
-    
     // A Level: Forms 5-6
-    if (form.includes('form 5') || form.includes('form 6') ||
+    else if (form.includes('form 5') || form.includes('form 6') ||
         form === 'form 5' || form === 'form 6') {
-      return aLevelTotal;
+      baseFees = aLevelTotal;
+    }
+    // Default for any other forms (fallback)
+    else {
+      baseFees = oLevelTotal;
     }
     
-    // Default for any other forms (fallback)
-    return oLevelTotal;
+    // If term-specific calculation is requested
+    if (termSpecific && targetTerm) {
+      // Return term-specific fees (assuming annual fees are divided by 3 terms)
+      return baseFees / 3;
+    }
+    
+    return baseFees;
   }
 
-  // Calculate paid amount for a student
-  function calculatePaidAmount(studentId) {
-    if (!studentId) return 0;
+  // Enhanced payment amount calculation with term filtering and proper null guards
+  function calculatePaidAmount(studentId, termSpecific = false, targetTerm = null) {
+    if (!studentId || !allPayments) return 0;
     
     try {
-      return allPayments
-        .filter(payment => payment.studentId === studentId && !payment.deleted)
-        .reduce((sum, payment) => {
-          // Use stored USD equivalent if available, otherwise calculate with stored exchange rate
-          if (payment.amountUSD) {
-            return sum + payment.amountUSD;
-          } else if (payment.currency === 'USD') {
-            return sum + payment.amount;
-          } else {
-            // Fallback for legacy payments without stored amountUSD
-            const rate = payment.exchangeRateAtPayment || settings.exchangeRate;
-            return sum + (payment.amount / rate);
+      let relevantPayments = allPayments.filter(payment => 
+        payment && payment.studentId === studentId && !payment.deleted
+      );
+      
+      // Filter by term if specified
+      if (termSpecific && targetTerm) {
+        relevantPayments = relevantPayments.filter(payment => {
+          if (payment.term) {
+            return payment.term === targetTerm;
+          } else if (payment.date?.toDate) {
+            return getTermForDate(payment.date.toDate()) === targetTerm;
+          } else if (payment.createdAt?.toDate) {
+            return getTermForDate(payment.createdAt.toDate()) === targetTerm;
           }
-        }, 0);
+          return false;
+        });
+      }
+      
+      // Calculate total paid in USD with proper currency handling
+      return relevantPayments.reduce((total, payment) => {
+        if (!payment.amount || payment.amount <= 0) return total;
+        
+        // Use stored USD equivalent if available
+        if (payment.amountUSD && payment.amountUSD > 0) {
+          return total + payment.amountUSD;
+        } 
+        
+        // Handle USD payments directly
+        if (payment.currency === 'USD') {
+          return total + payment.amount;
+        } 
+        
+        // Handle ZWL payments with proper rate fallback
+        if (payment.currency === 'ZWL') {
+          let exchangeRate = payment.exchangeRateAtPayment;
+          
+          // Fallback to settings rate or default
+          if (!exchangeRate || exchangeRate <= 0) {
+            exchangeRate = (settings && settings.exchangeRate) ? settings.exchangeRate : 4500;
+          }
+          
+          return total + (payment.amount / exchangeRate);
+        }
+        
+        // Default case - assume USD if currency not specified
+        return total + payment.amount;
+      }, 0);
     } catch (err) {
       console.error("Error calculating paid amount:", err);
       return 0;
     }
   }
 
-  // Get payment status for a student - use actual status from student data
+  // Get current term based on date
+  function getCurrentTerm(date = new Date()) {
+    const month = date.getMonth() + 1; // JavaScript months are 0-indexed
+    
+    if (month >= 1 && month <= 4) {
+      return 'Term 1';
+    } else if (month >= 5 && month <= 8) {
+      return 'Term 2';
+    } else {
+      return 'Term 3';
+    }
+  }
+
+  // Get term for a specific date
+  function getTermForDate(date) {
+    return getCurrentTerm(date);
+  }
+
+  // Enhanced scholarship amount calculation with proper null guards
+  function calculateScholarshipAmount(studentId, termSpecific = false, targetTerm = null) {
+    if (!studentId || !allScholarships) return 0;
+    
+    try {
+      let relevantScholarships = allScholarships.filter(scholarship => 
+        scholarship && scholarship.studentId === studentId && 
+        (scholarship.status === 'active' || scholarship.status === 'Active')
+      );
+      
+      // If term-specific, filter by current term or target term
+      if (termSpecific && targetTerm) {
+        const currentDate = new Date();
+        relevantScholarships = relevantScholarships.filter(scholarship => {
+          if (scholarship.startDate && scholarship.endDate) {
+            const startDate = scholarship.startDate.toDate ? scholarship.startDate.toDate() : new Date(scholarship.startDate);
+            const endDate = scholarship.endDate.toDate ? scholarship.endDate.toDate() : new Date(scholarship.endDate);
+            return currentDate >= startDate && currentDate <= endDate;
+          }
+          return true; // Include if dates not specified
+        });
+      }
+      
+      let totalScholarship = relevantScholarships.reduce((total, scholarship) => {
+        if (!scholarship.amount || scholarship.amount <= 0) return total;
+        
+        let amountInUSD = scholarship.amount;
+        if (scholarship.currency === 'ZWL') {
+          // Use safe exchange rate with fallback
+          const exchangeRate = (settings && settings.exchangeRate) ? settings.exchangeRate : 4500; // Default ZWL rate
+          amountInUSD = scholarship.amount / exchangeRate;
+        }
+        
+        return total + amountInUSD;
+      }, 0);
+      
+      // For term-specific calculation, divide annual scholarship by 3
+      if (termSpecific && totalScholarship > 0) {
+        totalScholarship = totalScholarship / 3;
+      }
+      
+      return totalScholarship;
+    } catch (err) {
+      console.error("Error calculating scholarship amount:", err);
+      return 0;
+    }
+  }
+
+  // Enhanced payment status calculation with scholarship integration
   function getPaymentStatus(student) {
-    if (!student.status) {
-      return { status: 'notset', text: 'Not Set' };
+    if (!student || !student.id) {
+      return { status: 'unknown', text: 'Unknown', class: 'status-notset' };
     }
     
-    const status = student.status.toLowerCase();
+    const totalFees = calculateTotalFees(student);
+    const paidAmount = calculatePaidAmount(student.id);
+    const scholarshipAmount = calculateScholarshipAmount(student.id);
+    const totalCovered = paidAmount + scholarshipAmount;
     
-    if (status === 'paid' || status === 'paid in full') {
-      return { status: 'paid', text: 'Paid in Full' };
-    } else if (status === 'partial' || status === 'partial payment') {
-      return { status: 'partial', text: 'Partial Payment' };
-    } else if (status === 'unpaid') {
-      return { status: 'unpaid', text: 'Unpaid' };
-    } else {
-      return { status: 'notset', text: student.status };
+    // Full scholarship coverage
+    if (scholarshipAmount >= totalFees) {
+      return { 
+        status: 'scholarship', 
+        text: 'Full Scholarship', 
+        class: 'status-scholarship',
+        details: `Scholarship covers full fees ($${scholarshipAmount.toFixed(2)})`
+      };
+    }
+    
+    // Full payment (with or without partial scholarship)
+    if (totalCovered >= totalFees) {
+      return { 
+        status: 'paid', 
+        text: 'Paid in Full', 
+        class: 'status-paid',
+        details: scholarshipAmount > 0 ? 
+          `Paid: $${paidAmount.toFixed(2)}, Scholarship: $${scholarshipAmount.toFixed(2)}` : 
+          `Total paid: $${paidAmount.toFixed(2)}`
+      };
+    }
+    
+    // Partial scholarship with some payments
+    if (scholarshipAmount > 0 && paidAmount > 0) {
+      return { 
+        status: 'partial', 
+        text: 'Partial Payment + Scholarship', 
+        class: 'status-partial',
+        details: `Paid: $${paidAmount.toFixed(2)}, Scholarship: $${scholarshipAmount.toFixed(2)}, Balance: $${(totalFees - totalCovered).toFixed(2)}`
+      };
+    }
+    
+    // Partial scholarship only
+    if (scholarshipAmount > 0) {
+      return { 
+        status: 'scholarship', 
+        text: 'Partial Scholarship', 
+        class: 'status-scholarship',
+        details: `Scholarship: $${scholarshipAmount.toFixed(2)}, Balance: $${(totalFees - scholarshipAmount).toFixed(2)}`
+      };
+    }
+    
+    // Some payments but not full
+    if (paidAmount > 0) {
+      return { 
+        status: 'balance', 
+        text: 'Has Balance', 
+        class: 'status-balance',
+        details: `Paid: $${paidAmount.toFixed(2)}, Balance: $${(totalFees - paidAmount).toFixed(2)}`
+      };
+    }
+    
+    // No payments
+    return { 
+      status: 'unpaid', 
+      text: 'Unpaid', 
+      class: 'status-unpaid',
+      details: `Total fees: $${totalFees.toFixed(2)}`
+    };
+  }
+
+  // Check if student can view results without balance restrictions
+  function canViewResults(student) {
+    if (!student || !student.id) return false;
+    
+    const totalFees = calculateTotalFees(student);
+    const scholarshipAmount = calculateScholarshipAmount(student.id);
+    
+    // Full scholarship students can always view results
+    if (scholarshipAmount >= totalFees) {
+      return true;
+    }
+    
+    // Otherwise check if fees are paid
+    const paidAmount = calculatePaidAmount(student.id);
+    return (paidAmount + scholarshipAmount) >= totalFees;
+  }
+
+  // Account activity tracking functions
+  function trackAccountActivity(action, details = {}) {
+    try {
+      const deviceInfo = getDeviceInfo();
+      const timestamp = new Date();
+      
+      const activityData = {
+        studentId: details.studentId || null,
+        action: action, // 'login', 'logout', 'payment_view', 'result_view', etc.
+        timestamp: timestamp.toISOString(),
+        timestampUTC: timestamp.getTime(),
+        timezone: deviceInfo.timezone,
+        deviceInfo: {
+          type: deviceInfo.deviceType,
+          browser: deviceInfo.browser,
+          os: deviceInfo.os,
+          screen: deviceInfo.screen,
+          userAgent: deviceInfo.userAgent
+        },
+        sessionId: generateSessionId(),
+        ipAddress: null, // Would require external service
+        location: null, // Would require geolocation API
+        additionalDetails: details,
+        createdAt: serverTimestamp()
+      };
+      
+      // Store activity in Firebase
+      addDoc(collection(db, "accountActivity"), activityData).catch(err => {
+        console.error("Error tracking account activity:", err);
+      });
+      
+      // Also store in session storage for immediate access
+      const activities = JSON.parse(sessionStorage.getItem('accountActivities') || '[]');
+      activities.push(activityData);
+      
+      // Keep only last 50 activities in session storage
+      if (activities.length > 50) {
+        activities.shift();
+      }
+      
+      sessionStorage.setItem('accountActivities', JSON.stringify(activities));
+      
+    } catch (err) {
+      console.error("Error in account activity tracking:", err);
+    }
+  }
+
+  // Generate session ID
+  function generateSessionId() {
+    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  // Get account activity for a student
+  async function getAccountActivity(studentId, limit = 20) {
+    try {
+      const activitiesQuery = query(
+        collection(db, "accountActivity"),
+        where("studentId", "==", studentId),
+        orderBy("timestamp", "desc"),
+        limit(limit)
+      );
+      
+      const activitiesSnapshot = await getDocs(activitiesQuery);
+      return activitiesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (err) {
+      console.error("Error loading account activity:", err);
+      return [];
+    }
+  }
+
+  // Show account activity modal
+  window.showAccountActivity = async function(studentId) {
+    showLoading(true, "Loading account activity...");
+    
+    try {
+      const student = allStudents.find(s => s.id === studentId);
+      if (!student) {
+        showNotification("Student not found", "error");
+        return;
+      }
+      
+      const activities = await getAccountActivity(studentId);
+      
+      // Get account creation date from student record
+      const accountCreated = student.createdAt?.toDate ? 
+        student.createdAt.toDate() : 
+        new Date(student.createdAt || Date.now());
+      
+      let activityHtml = `
+        <div class="account-activity-container">
+          <div class="student-info">
+            <h3>${student.firstname} ${student.surname}</h3>
+            <p><strong>Admission No.:</strong> ${student.admissionNumber || 'N/A'}</p>
+            <p><strong>Class:</strong> ${student.form} ${student.stream || ''}</p>
+            <p><strong>Account Created:</strong> ${accountCreated.toLocaleDateString()} at ${accountCreated.toLocaleTimeString()}</p>
+          </div>
+          
+          <div class="activity-summary">
+            <h4><i class="fas fa-chart-line"></i> Activity Summary</h4>
+            <div class="summary-stats">
+              <div class="stat-item">
+                <span class="stat-label">Total Activities:</span>
+                <span class="stat-value">${activities.length}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Account Age:</span>
+                <span class="stat-value">${Math.floor((Date.now() - accountCreated.getTime()) / (1000 * 60 * 60 * 24))} days</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="activity-list">
+            <h4><i class="fas fa-history"></i> Recent Activity</h4>
+      `;
+      
+      if (activities.length > 0) {
+        activities.forEach(activity => {
+          const activityDate = new Date(activity.timestamp);
+          const deviceInfo = activity.deviceInfo || {};
+          
+          activityHtml += `
+            <div class="activity-item">
+              <div class="activity-header">
+                <span class="activity-action">${activity.action.replace('_', ' ').toUpperCase()}</span>
+                <span class="activity-time">${activityDate.toLocaleDateString()} ${activityDate.toLocaleTimeString()}</span>
+              </div>
+              <div class="activity-details">
+                <span><i class="fas fa-${getDeviceIcon(deviceInfo.type)}"></i> ${deviceInfo.type || 'Unknown'}</span>
+                <span><i class="fas fa-globe"></i> ${deviceInfo.browser || 'Unknown'}</span>
+                <span><i class="fas fa-desktop"></i> ${deviceInfo.os || 'Unknown'}</span>
+                ${deviceInfo.screen ? `<span><i class="fas fa-tv"></i> ${deviceInfo.screen.width}x${deviceInfo.screen.height}</span>` : ''}
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        activityHtml += '<p class="no-activity">No recent activity recorded</p>';
+      }
+      
+      activityHtml += `
+          </div>
+        </div>
+      `;
+      
+      // Create and show modal
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.style.display = 'block';
+      modal.innerHTML = `
+        <div class="modal-content" style="max-width: 700px;">
+          <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+          <h2><i class="fas fa-user-clock"></i> Account Activity</h2>
+          ${activityHtml}
+          <div style="margin-top: 20px; text-align: center;">
+            <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      // Track this view action
+      trackAccountActivity('account_activity_view', { 
+        targetStudentId: studentId,
+        viewedBy: currentUser.name 
+      });
+      
+    } catch (err) {
+      console.error("Error showing account activity:", err);
+      showNotification("Error loading account activity", "error");
+    } finally {
+      showLoading(false);
+    }
+  };
+
+  // Helper function to get device icon
+  function getDeviceIcon(deviceType) {
+    switch (deviceType?.toLowerCase()) {
+      case 'mobile': return 'mobile-alt';
+      case 'tablet': return 'tablet-alt';
+      case 'desktop': return 'desktop';
+      default: return 'question-circle';
     }
   }
 
@@ -2807,9 +3289,18 @@
     
     const student = allStudents.find(s => s.id === studentId);
     if (student) {
+      // Track student record access
+      trackAccountActivity('student_record_viewed', {
+        studentId: studentId,
+        studentName: `${student.firstname} ${student.surname}`,
+        form: student.form,
+        stream: student.stream
+      });
+      
       const totalFees = calculateTotalFees(student);
       const paidAmount = calculatePaidAmount(student.id);
-      const balance = totalFees - paidAmount;
+      const scholarshipAmount = calculateScholarshipAmount(student.id);
+      const balance = totalFees - paidAmount - scholarshipAmount;
       const status = getPaymentStatus(student);
       
       document.getElementById('studentClassDisplay').textContent = `${student.form} ${student.stream || ''}`;
@@ -3719,7 +4210,95 @@ window.editPayment = function(paymentId) {
   }
 };
 
-// Record payment
+  // Calculate current term based on month
+  function getCurrentTerm() {
+    const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-indexed
+    
+    if (currentMonth >= 1 && currentMonth <= 4) {
+      return 'Term 1'; // Jan-Apr
+    } else if (currentMonth >= 5 && currentMonth <= 8) {
+      return 'Term 2'; // May-Aug  
+    } else {
+      return 'Term 3'; // Sept-Dec
+    }
+  }
+
+  // Get term for a specific date
+  function getTermForDate(date) {
+    const month = date.getMonth() + 1;
+    
+    if (month >= 1 && month <= 4) {
+      return 'Term 1';
+    } else if (month >= 5 && month <= 8) {
+      return 'Term 2';
+    } else {
+      return 'Term 3';
+    }
+  }
+
+  // Get device information for logging
+  function getDeviceInfo() {
+    const userAgent = navigator.userAgent;
+    let deviceType = 'Unknown';
+    let browser = 'Unknown';
+    let os = 'Unknown';
+
+    // Detect device type
+    if (/Mobile|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(userAgent)) {
+      deviceType = 'Mobile';
+    } else if (/Tablet|iPad/i.test(userAgent)) {
+      deviceType = 'Tablet';
+    } else {
+      deviceType = 'Desktop';
+    }
+
+    // Detect browser
+    if (userAgent.indexOf('Chrome') > -1) {
+      browser = 'Chrome';
+    } else if (userAgent.indexOf('Firefox') > -1) {
+      browser = 'Firefox';
+    } else if (userAgent.indexOf('Safari') > -1) {
+      browser = 'Safari';
+    } else if (userAgent.indexOf('Edge') > -1) {
+      browser = 'Edge';
+    }
+
+    // Detect OS
+    if (userAgent.indexOf('Windows') > -1) {
+      os = 'Windows';
+    } else if (userAgent.indexOf('Mac') > -1) {
+      os = 'macOS';
+    } else if (userAgent.indexOf('Linux') > -1) {
+      os = 'Linux';
+    } else if (userAgent.indexOf('Android') > -1) {
+      os = 'Android';
+    } else if (userAgent.indexOf('iOS') > -1) {
+      os = 'iOS';
+    }
+
+    return {
+      deviceType,
+      browser,
+      os,
+      userAgent: userAgent.substring(0, 100), // Truncate for storage
+      screen: {
+        width: screen.width,
+        height: screen.height
+      },
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+  }
+
+  // Generate receipt number with term info
+  function generateReceiptNumber() {
+    const currentTerm = getCurrentTerm();
+    const termNumber = currentTerm.split(' ')[1];
+    const year = new Date().getFullYear().toString().slice(-2);
+    const timestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+    return `T${termNumber}${year}${timestamp}`;
+  }
+
+// Record payment with enhanced tracking
 window.recordPayment = async function() {
   const studentId = document.getElementById('paymentStudent').value;
   const amount = parseFloat(document.getElementById('paymentAmount').value);
@@ -3748,6 +4327,14 @@ window.recordPayment = async function() {
     if (currency === 'ZWL') {
       amountUSD = amount / settings.exchangeRate;
     }
+
+    // Get current term and device info
+    const currentTerm = getCurrentTerm();
+    const deviceInfo = getDeviceInfo();
+    const now = new Date();
+    
+    // Generate receipt number with term info if not provided
+    const receiptNumber = reference || generateReceiptNumber();
     
     const paymentData = {
       studentId,
@@ -3756,27 +4343,74 @@ window.recordPayment = async function() {
       amountUSD, // Store USD equivalent for consistent calculations
       exchangeRateAtPayment: settings.exchangeRate, // Store rate at time of payment
       method,
-      receiptNumber: reference || `REC-${Date.now()}`,
+      receiptNumber,
       notes,
       date: editId ? undefined : serverTimestamp(),
       updatedAt: serverTimestamp(),
       recordedBy: currentUser.name,
       status: 'completed',
       deleted: false, // For soft delete functionality
-      createdAt: editId ? undefined : serverTimestamp()
+      createdAt: editId ? undefined : serverTimestamp(),
+      
+      // Enhanced tracking information
+      term: currentTerm,
+      academicYear: `${now.getFullYear()}-${now.getFullYear() + 1}`,
+      
+      // Transaction details with precise timestamp
+      transactionDetails: {
+        timestamp: now.toISOString(),
+        timestampUTC: now.getTime(),
+        timezone: deviceInfo.timezone,
+        dateFormatted: now.toLocaleDateString(),
+        timeFormatted: now.toLocaleTimeString(),
+        dayOfWeek: now.toLocaleDateString('en-US', { weekday: 'long' }),
+        
+        // Device and session information
+        deviceInfo: {
+          type: deviceInfo.deviceType,
+          browser: deviceInfo.browser,
+          os: deviceInfo.os,
+          screen: deviceInfo.screen,
+          userAgent: deviceInfo.userAgent
+        },
+        
+        // IP and location would require external service
+        sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        
+        // Additional metadata
+        paymentSequence: `${currentTerm.replace(' ', '')}_${now.getTime()}`,
+        quarterOfYear: Math.ceil((now.getMonth() + 1) / 3)
+      }
     };
     
     if (editId) {
       // Update existing payment
+      paymentData.lastModified = {
+        timestamp: now.toISOString(),
+        by: currentUser.name,
+        deviceInfo: deviceInfo
+      };
+      
       await updateDoc(doc(db, "payments", editId), paymentData);
       showNotification("Payment updated successfully!", "success");
     } else {
       // Create new payment
       await addDoc(collection(db, "payments"), paymentData);
-      showNotification("Payment recorded successfully!", "success");
+      
+      // Track payment creation activity
+      trackAccountActivity('payment_created', {
+        studentId: studentId,
+        amount: amount,
+        currency: currency,
+        method: method,
+        receiptNumber: receiptNumber,
+        term: currentTerm
+      });
+      
+      showNotification(`Payment recorded successfully! Receipt: ${receiptNumber}`, "success");
     }
     
-    // Update student balance
+    // Update student balance with enhanced tracking
     const student = allStudents.find(s => s.id === studentId);
     const totalFees = calculateTotalFees(student);
     const paidAmount = calculatePaidAmount(studentId);
@@ -3784,7 +4418,16 @@ window.recordPayment = async function() {
     
     await updateDoc(doc(db, "students", studentId), {
       feesBalance: balance,
-      feesPaid: balance <= 0
+      feesPaid: balance <= 0,
+      lastPaymentDate: serverTimestamp(),
+      lastPaymentAmount: amountUSD,
+      lastPaymentTerm: currentTerm,
+      paymentHistory: arrayUnion({
+        date: now.toISOString(),
+        amount: amountUSD,
+        term: currentTerm,
+        receiptNumber
+      })
     });
     
     closeModal('paymentModal');
@@ -4585,12 +5228,17 @@ window.showPaymentHistory = async function(studentId) {
   }
 };
 
-// Display payment history for a specific index
+// Display payment history for a specific index with enhanced details
 function displayPaymentHistory(student, index) {
   if (index < 0 || index >= paymentHistoryData.length) return;
   
   const payment = paymentHistoryData[index];
   const paymentDate = payment.date?.toDate ? payment.date.toDate() : new Date();
+  
+  // Extract enhanced transaction details if available
+  const transactionDetails = payment.transactionDetails || {};
+  const deviceInfo = transactionDetails.deviceInfo || {};
+  const paymentTerm = payment.term || getTermForDate(paymentDate);
   
   document.getElementById('paymentHistoryTitle').textContent = 
     `Payment History for ${student.firstname} ${student.surname}`;
@@ -4600,6 +5248,8 @@ function displayPaymentHistory(student, index) {
       <div class="student-header">
         <p><strong>Admission No.:</strong> ${student.admissionNumber || 'N/A'}</p>
         <p><strong>Class:</strong> ${student.form} ${student.stream || ''}</p>
+        <p><strong>Academic Year:</strong> ${payment.academicYear || 'N/A'}</p>
+        <p><strong>Term:</strong> <span class="term-badge">${paymentTerm}</span></p>
       </div>
       
       <div class="summary-cards">
@@ -4618,10 +5268,34 @@ function displayPaymentHistory(student, index) {
       </div>
       
       <div class="payment-details">
-        <h3>Payment Details</h3>
+        <h3><i class="fas fa-receipt"></i> Payment Details</h3>
         <div class="detail-row">
           <span class="detail-label">Receipt No.:</span>
           <span class="detail-value">${payment.receiptNumber || 'N/A'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Payment Date:</span>
+          <span class="detail-value">${transactionDetails.dateFormatted || paymentDate.toLocaleDateString()}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Payment Time:</span>
+          <span class="detail-value">${transactionDetails.timeFormatted || paymentDate.toLocaleTimeString()}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Day of Week:</span>
+          <span class="detail-value">${transactionDetails.dayOfWeek || paymentDate.toLocaleDateString('en-US', { weekday: 'long' })}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Timezone:</span>
+          <span class="detail-value">${transactionDetails.timezone || 'N/A'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Term:</span>
+          <span class="detail-value term-badge">${paymentTerm}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Quarter:</span>
+          <span class="detail-value">Q${transactionDetails.quarterOfYear || Math.ceil((paymentDate.getMonth() + 1) / 3)}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Date:</span>
@@ -4646,11 +5320,52 @@ function displayPaymentHistory(student, index) {
         </div>
         ` : ''}
       </div>
+
+      ${deviceInfo.type ? `
+      <div class="transaction-metadata">
+        <h3><i class="fas fa-desktop"></i> Transaction Details</h3>
+        <div class="detail-row">
+          <span class="detail-label">Device Type:</span>
+          <span class="detail-value">${deviceInfo.type}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Browser:</span>
+          <span class="detail-value">${deviceInfo.browser}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Operating System:</span>
+          <span class="detail-value">${deviceInfo.os}</span>
+        </div>
+        ${deviceInfo.screen ? `
+        <div class="detail-row">
+          <span class="detail-label">Screen Resolution:</span>
+          <span class="detail-value">${deviceInfo.screen.width} x ${deviceInfo.screen.height}</span>
+        </div>
+        ` : ''}
+        ${transactionDetails.sessionId ? `
+        <div class="detail-row">
+          <span class="detail-label">Session ID:</span>
+          <span class="detail-value">${transactionDetails.sessionId.substring(0, 20)}...</span>
+        </div>
+        ` : ''}
+        ${transactionDetails.paymentSequence ? `
+        <div class="detail-row">
+          <span class="detail-label">Payment Sequence:</span>
+          <span class="detail-value">${transactionDetails.paymentSequence}</span>
+        </div>
+        ` : ''}
+      </div>
+      ` : ''}
       
       <div class="action-buttons">
         <button class="btn btn-primary" onclick="printReceipt('${payment.id}')">
           <i class="fas fa-print"></i> Print Receipt
         </button>
+        ${payment.transactionDetails ? `
+        <button class="btn btn-secondary" onclick="showDetailedTransactionInfo('${payment.id}')">
+          <i class="fas fa-info-circle"></i> Technical Details
+        </button>
+        ` : ''}
       </div>
     </div>
   `;
@@ -4668,6 +5383,72 @@ window.navigatePaymentHistory = function(direction) {
   currentPaymentHistoryIndex += direction;
   const student = allStudents.find(s => s.id === paymentHistoryData[currentPaymentHistoryIndex].studentId);
   displayPaymentHistory(student, currentPaymentHistoryIndex);
+};
+
+// Show detailed transaction information
+window.showDetailedTransactionInfo = function(paymentId) {
+  const payment = allPayments.find(p => p.id === paymentId);
+  if (!payment || !payment.transactionDetails) {
+    showNotification("No detailed transaction information available", "error");
+    return;
+  }
+
+  const details = payment.transactionDetails;
+  const deviceInfo = details.deviceInfo || {};
+
+  const detailsHtml = `
+    <div style="max-height: 400px; overflow-y: auto;">
+      <h4><i class="fas fa-server"></i> Technical Information</h4>
+      
+      <div class="tech-detail-group">
+        <h5>Timestamp Details</h5>
+        <p><strong>ISO Timestamp:</strong> ${details.timestamp}</p>
+        <p><strong>UTC Milliseconds:</strong> ${details.timestampUTC}</p>
+        <p><strong>Timezone:</strong> ${details.timezone}</p>
+        <p><strong>Payment Sequence:</strong> ${details.paymentSequence}</p>
+      </div>
+
+      <div class="tech-detail-group">
+        <h5>Device Information</h5>
+        <p><strong>Device Type:</strong> ${deviceInfo.type}</p>
+        <p><strong>Browser:</strong> ${deviceInfo.browser}</p>
+        <p><strong>Operating System:</strong> ${deviceInfo.os}</p>
+        <p><strong>Screen Resolution:</strong> ${deviceInfo.screen ? `${deviceInfo.screen.width} x ${deviceInfo.screen.height}` : 'N/A'}</p>
+        <p><strong>User Agent:</strong> <small>${deviceInfo.userAgent}</small></p>
+      </div>
+
+      <div class="tech-detail-group">
+        <h5>Session Information</h5>
+        <p><strong>Session ID:</strong> <small>${details.sessionId}</small></p>
+        <p><strong>Quarter of Year:</strong> Q${details.quarterOfYear}</p>
+      </div>
+
+      <div class="tech-detail-group">
+        <h5>Payment Context</h5>
+        <p><strong>Term:</strong> ${payment.term}</p>
+        <p><strong>Academic Year:</strong> ${payment.academicYear}</p>
+        <p><strong>Exchange Rate at Payment:</strong> 1 USD = ${payment.exchangeRateAtPayment} ZWL</p>
+      </div>
+    </div>
+  `;
+
+  // Create and show modal
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'block';
+  modal.innerHTML = `
+    <div class="modal-content" style="max-width: 600px;">
+      <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+      <h2><i class="fas fa-code"></i> Technical Transaction Details</h2>
+      ${detailsHtml}
+      <div style="margin-top: 20px; text-align: center;">
+        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+          <i class="fas fa-times"></i> Close
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
 };
 
 // Print receipt function
