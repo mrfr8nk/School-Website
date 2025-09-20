@@ -1916,12 +1916,12 @@
         const resultsMessage = document.getElementById('resultsMessage');
         const reportCardContainer = document.getElementById('reportCardContainer');
         
-        // Check if fees are paid
-        if (studentData.feesPaid !== true && studentData.feesBalance > 0) {
+        // Enhanced scholarship-aware results access check
+        const canAccessResults = await checkResultsAccess(user.email, studentData);
+        if (!canAccessResults.allowed) {
           resultsMessage.innerHTML = `
-            <strong>Notice:</strong> You cannot view your results as you have a pending fees balance of 
-            $${studentData.feesBalance} for ${studentData.year || 'N/A'} ${studentData.term || 'N/A'}. 
-            Please settle the outstanding amount to access your results.
+            <strong>Notice:</strong> ${canAccessResults.reason}
+            ${!canAccessResults.isScholarship ? '' : '<br><small><i class="fas fa-graduation-cap"></i> Scholarship student status verified.</small>'}
           `;
           resultsMessage.style.display = 'block';
           reportCardContainer.style.display = 'none';
@@ -2810,9 +2810,19 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         }
       });
 
-      // Logout
+      // Logout with session tracking
       document.getElementById('logoutBtn').addEventListener('click', async () => {
         try {
+          // Track logout activity with current session
+          await trackAccountActivity('logout', { 
+            logoutTime: new Date().toISOString(),
+            sessionDuration: getSessionDuration() 
+          });
+          
+          // Clear session data
+          clearSession();
+          
+          // Sign out from Firebase
           await signOut(auth);
           window.location.href = '/login';
         } catch (error) {
@@ -2820,6 +2830,16 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           showMessage('Error signing out', 'error');
         }
       });
+      
+      // Get session duration helper
+      function getSessionDuration() {
+        const startTime = sessionStorage.getItem('sessionStartTime');
+        if (startTime) {
+          const duration = Date.now() - new Date(startTime).getTime();
+          return Math.round(duration / 1000); // Duration in seconds
+        }
+        return 0;
+      }
 
       // ========== FEES SECTION FUNCTIONALITY ==========
       
@@ -2829,6 +2849,343 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         2: { name: 'Term 2', months: [5, 6, 7, 8], label: 'May - Aug' },
         3: { name: 'Term 3', months: [9, 10, 11, 12], label: 'Sept - Dec' }
       };
+      
+      // Helper Functions for Account Activity and Device Info
+      function getDeviceInfo() {
+        const userAgent = navigator.userAgent;
+        const platform = navigator.platform;
+        const screen = window.screen;
+        
+        return {
+          userAgent: userAgent,
+          deviceType: /Mobile|Android|iPhone|iPad/.test(userAgent) ? 'Mobile' : 'Desktop',
+          browser: getBrowserName(userAgent),
+          os: getOSName(userAgent, platform),
+          screen: {
+            width: screen.width,
+            height: screen.height,
+            colorDepth: screen.colorDepth
+          },
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          language: navigator.language
+        };
+      }
+      
+      function getBrowserName(userAgent) {
+        if (userAgent.includes('Chrome')) return 'Chrome';
+        if (userAgent.includes('Firefox')) return 'Firefox';
+        if (userAgent.includes('Safari')) return 'Safari';
+        if (userAgent.includes('Edge')) return 'Edge';
+        return 'Unknown';
+      }
+      
+      function getOSName(userAgent, platform) {
+        if (userAgent.includes('Windows')) return 'Windows';
+        if (userAgent.includes('Mac')) return 'macOS';
+        if (userAgent.includes('Linux')) return 'Linux';
+        if (userAgent.includes('Android')) return 'Android';
+        if (userAgent.includes('iOS')) return 'iOS';
+        return platform || 'Unknown';
+      }
+      
+      // Session Management - Persistent Session ID
+      function getOrCreateSessionId() {
+        let sessionId = sessionStorage.getItem('studentSessionId');
+        if (!sessionId) {
+          sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          sessionStorage.setItem('studentSessionId', sessionId);
+          sessionStorage.setItem('sessionStartTime', new Date().toISOString());
+        }
+        return sessionId;
+      }
+      
+      // Clear session on logout
+      function clearSession() {
+        sessionStorage.removeItem('studentSessionId');
+        sessionStorage.removeItem('sessionStartTime');
+      }
+      
+      // Generate session ID (legacy support)
+      function generateSessionId() {
+        return getOrCreateSessionId();
+      }
+      
+      // Track account activity
+      async function trackAccountActivity(action, details = {}) {
+        try {
+          const user = auth.currentUser;
+          if (!user) return;
+          
+          const deviceInfo = getDeviceInfo();
+          const timestamp = new Date();
+          
+          const activityData = {
+            studentEmail: user.email,
+            action: action,
+            timestamp: timestamp.toISOString(),
+            timestampUTC: timestamp.getTime(),
+            timezone: deviceInfo.timezone,
+            deviceInfo: {
+              type: deviceInfo.deviceType,
+              browser: deviceInfo.browser,
+              os: deviceInfo.os,
+              screen: deviceInfo.screen,
+              userAgent: deviceInfo.userAgent
+            },
+            sessionId: getOrCreateSessionId(),
+            additionalDetails: details,
+            createdAt: serverTimestamp()
+          };
+          
+          // Store activity in Firebase
+          await addDoc(collection(db, "accountActivity"), activityData);
+          
+          // Also update student fees record with latest activity
+          const feesRef = doc(db, 'fees', user.email);
+          const feesDoc = await getDoc(feesRef);
+          
+          if (feesDoc.exists()) {
+            const currentData = feesDoc.data();
+            const accountActivity = currentData.accountActivity || [];
+            
+            // Add new activity and keep last 20 activities
+            accountActivity.unshift(activityData);
+            if (accountActivity.length > 20) {
+              accountActivity.splice(20);
+            }
+            
+            await updateDoc(feesRef, {
+              accountActivity: accountActivity,
+              lastActivity: activityData,
+              lastLoginAt: timestamp.toISOString()
+            });
+          }
+          
+        } catch (err) {
+          console.error("Error tracking account activity:", err);
+        }
+      }
+      
+      // Get device icon
+      function getDeviceIcon(deviceType) {
+        const icons = {
+          'Mobile': 'mobile-alt',
+          'Desktop': 'desktop',
+          'Tablet': 'tablet-alt'
+        };
+        return icons[deviceType] || 'question-circle';
+      }
+      
+      // Get payment method icon
+      function getPaymentMethodIcon(method) {
+        const icons = {
+          'Cash': 'money-bill',
+          'Bank Transfer': 'university',
+          'Mobile Money': 'mobile-alt',
+          'Credit Card': 'credit-card',
+          'Cheque': 'file-invoice-dollar'
+        };
+        return icons[method] || 'money-bill';
+      }
+      
+      // Display enhanced payment history with term info
+      function displayEnhancedPaymentHistory(payments, termInfo) {
+        const tbody = document.getElementById('paymentHistoryBody');
+        
+        if (payments.length > 0) {
+          tbody.innerHTML = '';
+          
+          payments.sort((a, b) => new Date(b.date) - new Date(a.date));
+          
+          payments.forEach(payment => {
+            const row = document.createElement('tr');
+            const termLabel = termInfo ? `${termInfo.name} (${termInfo.label})` : `Term ${payment.term || 'N/A'}`;
+            row.innerHTML = `
+              <td>${formatDateTime(payment.date)}</td>
+              <td>${payment.academicYear || 'N/A'} / ${termLabel}</td>
+              <td>$${payment.amount.toFixed(2)}</td>
+              <td>$${payment.remainingBalance.toFixed(2)}</td>
+              <td>
+                <i class="fas fa-${getPaymentMethodIcon(payment.method)}"></i>
+                ${payment.method || 'Cash'}
+              </td>
+              <td><span class="status-badge status-paid">Paid</span></td>
+              <td>
+                <button class="receipt-btn" onclick="downloadReceipt('${payment.id}')">
+                  <i class="fas fa-download"></i> Receipt
+                </button>
+                ${payment.transactionId ? `<br><small>ID: ${payment.transactionId}</small>` : ''}
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } else {
+          const termName = termInfo ? termInfo.name : 'this selection';
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="text-center">
+                <i class="fas fa-info-circle"></i> No payment history for ${termName}
+              </td>
+            </tr>
+          `;
+        }
+      }
+      
+      // Load account activity - Enhanced
+      async function loadAccountActivity(email) {
+        try {
+          const feesDoc = await getDoc(doc(db, 'fees', email));
+          
+          if (feesDoc.exists()) {
+            const data = feesDoc.data();
+            const accountActivity = data.accountActivity || [];
+            
+            const logContainer = document.getElementById('activityLog');
+            if (!logContainer) {
+              console.warn('Activity log container not found');
+              return;
+            }
+            
+            if (accountActivity.length > 0) {
+              logContainer.innerHTML = accountActivity
+                .sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date))
+                .slice(0, 15) // Show last 15 activities
+                .map(activity => {
+                  const icon = getActivityIcon(activity.action || activity.type);
+                  const description = getActivityDescription(activity.action || activity.type);
+                  const deviceInfo = activity.deviceInfo || {};
+                  
+                  return `
+                    <div class="activity-item">
+                      <div class="activity-icon">
+                        <i class="${icon}"></i>
+                      </div>
+                      <div class="activity-content">
+                        <div class="activity-description">${description}</div>
+                        <div class="activity-details">
+                          <span><i class="fas fa-${getDeviceIcon(deviceInfo.type)}"></i> ${deviceInfo.type || 'Unknown'}</span>
+                          <span><i class="fas fa-globe"></i> ${deviceInfo.browser || 'Unknown'}</span>
+                          <span><i class="fas fa-clock"></i> ${formatDateTime(activity.timestamp || activity.date)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('');
+            } else {
+              logContainer.innerHTML = '<p class="text-center">No activity recorded</p>';
+            }
+          }
+        } catch (error) {
+          console.error('Error loading account activity:', error);
+        }
+      }
+      
+      // Get activity icon based on action type
+      function getActivityIcon(action) {
+        const icons = {
+          'account_created': 'fas fa-user-plus',
+          'fees_section_viewed': 'fas fa-eye',
+          'term_viewed': 'fas fa-calendar-check',
+          'payment_made': 'fas fa-credit-card',
+          'result_viewed': 'fas fa-chart-line',
+          'login': 'fas fa-sign-in-alt',
+          'logout': 'fas fa-sign-out-alt',
+          'profile_updated': 'fas fa-user-edit',
+          'scholarship_awarded': 'fas fa-graduation-cap',
+          'balance_updated': 'fas fa-coins',
+          'form_updated': 'fas fa-edit',
+          'default': 'fas fa-info-circle'
+        };
+        return icons[action] || icons['default'];
+      }
+      
+      // Get activity description based on action type
+      function getActivityDescription(action) {
+        const descriptions = {
+          'account_created': 'Account Created',
+          'fees_section_viewed': 'Viewed Fees Section',
+          'term_viewed': 'Viewed Term Information',
+          'payment_made': 'Payment Made',
+          'result_viewed': 'Viewed Results',
+          'login': 'Logged In',
+          'logout': 'Logged Out',
+          'profile_updated': 'Profile Updated',
+          'scholarship_awarded': 'Scholarship Awarded',
+          'balance_updated': 'Balance Updated',
+          'form_updated': 'Profile Updated',
+          'default': 'Activity Recorded'
+        };
+        return descriptions[action] || descriptions['default'];
+      }
+      
+      // Enhanced scholarship-aware results access check
+      async function checkResultsAccess(email, studentData) {
+        try {
+          // Check scholarship status from fees record
+          const feesDoc = await getDoc(doc(db, 'fees', email));
+          
+          if (feesDoc.exists()) {
+            const feesData = feesDoc.data();
+            const scholarshipInfo = window.studentScholarshipInfo || {};
+            
+            // Full scholarship students can always access results
+            if (scholarshipInfo.hasScholarship && scholarshipInfo.canAccessResultsWithoutPayment) {
+              return {
+                allowed: true,
+                reason: 'Access granted - Full scholarship student',
+                isScholarship: true
+              };
+            }
+            
+            // Check if scholarship covers the current term fees
+            const currentTerm = getCurrentTerm();
+            const currentYear = new Date().getFullYear();
+            const scholarshipAmount = scholarshipInfo.scholarshipAmount || 0;
+            
+            if (feesData.academicYears && feesData.academicYears[currentYear]) {
+              const yearData = feesData.academicYears[currentYear];
+              const termData = yearData.terms[currentTerm.number];
+              
+              if (termData) {
+                const termBalance = termData.balance - termData.paid;
+                
+                // If scholarship covers this term's fees
+                if (scholarshipAmount >= termBalance) {
+                  return {
+                    allowed: true,
+                    reason: 'Access granted - Scholarship covers current term fees',
+                    isScholarship: true
+                  };
+                }
+              }
+            }
+          }
+          
+          // Check traditional fee payment status
+          if (studentData.feesPaid === true || (studentData.feesBalance && studentData.feesBalance <= 0)) {
+            return {
+              allowed: true,
+              reason: 'Access granted - Fees paid in full',
+              isScholarship: false
+            };
+          }
+          
+          // Access denied - outstanding balance
+          return {
+            allowed: false,
+            reason: `You cannot view your results as you have a pending fees balance of $${studentData.feesBalance || 0} for ${studentData.year || 'N/A'} ${studentData.term || 'N/A'}. Please settle the outstanding amount to access your results.`,
+            isScholarship: false
+          };
+          
+        } catch (error) {
+          console.error('Error checking results access:', error);
+          return {
+            allowed: false,
+            reason: 'Unable to verify payment status. Please contact administration.',
+            isScholarship: false
+          };
+        }
+      }
       
       // Auto-detect current term based on system date
       function getCurrentTerm() {
@@ -3329,27 +3686,6 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       }
       
-      function getActivityIcon(type) {
-        const icons = {
-          'account_created': 'fas fa-user-plus',
-          'payment_made': 'fas fa-credit-card',
-          'scholarship_awarded': 'fas fa-graduation-cap',
-          'balance_updated': 'fas fa-coins',
-          'form_updated': 'fas fa-edit'
-        };
-        return icons[type] || 'fas fa-info-circle';
-      }
-      
-      function formatActivityTitle(type) {
-        const titles = {
-          'account_created': 'Account Created',
-          'payment_made': 'Payment Made',
-          'scholarship_awarded': 'Scholarship Awarded',
-          'balance_updated': 'Balance Updated',
-          'form_updated': 'Profile Updated'
-        };
-        return titles[type] || 'Activity';
-      }
       
       // Export payment history function
       window.exportPaymentHistory = function() {
