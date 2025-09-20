@@ -1,0 +1,82 @@
+
+🔧 *Feature Upgrade: Student Fees & Account Activity System*
+
+🎯 *Goal:*
+Enhance the student dashboard to fully reflect their *fees, payment history, account status, and activity logs*, and implement *term-aware* calculations & scholarship logic.
+
+
+
+✅ 1. *Sync Student Fees with Admin Records*
+
+*Task:*
+* Pull student-specific fees, balances, and payment data from the *admin fees page* or database.
+* Reuse or adapt code from the *student records page* to get accurate fee entries.
+* Show:
+  - *Amount paid*
+  - *Balance remaining*
+  - *Current status* (`Paid`, `Partially Paid`, `Not Paid`)
+  - *Term* (see below)
+  - *Scholarship flag*
+
+---
+
+✅ 2. *Implement Term System Logic*
+
+*Terms Definition:*
+* *Term 1:* Jan – April  
+* *Term 2:* May – Aug  
+* *Term 3:* Sept – Dec
+
+*Implementation:*
+* Auto-detect current term using system date.
+* Show fee records *categorized by term*.
+* Allow students to *view previous terms' balances and payments*.
+
+---
+
+✅ 3. *Payment History Section*
+
+* Display:
+  - *All past payments*
+  - *Date & time*
+  - *Amount paid*
+  - *Payment method (if tracked)*
+  - *Reference/transaction ID*
+* Group payments by term for clarity.
+
+✅ 4. *Scholarship-Aware Access to Results*
+
+* If student is under a *full scholarship*:
+  - Allow them to *access results even with zero personal payment*.
+  -  admin to *tag student as scholarship-sponsored*
+    - e.g., `scholarship: true`, `scholarship_type: full`
+* For partial scholarships, apply normal rules.
+
+---
+
+✅ 5. *Account Activity Section*
+
+*New Section: “Account Activity”*
+
+Show:
+* *Account creation date*
+* *Login & logout history*
+  - Date & time
+  - Device type (browser/OS via User-Agent)
+  - (Optional) Location (if using IP geolocation)
+* Log patterns for auditing:
+  - Frequent logins
+  - Suspicious times (optional future feature)
+
+*Backend Requirements:*
+* Capture and log:
+  - Timestamp
+  - Device info (User-Agent)
+  - IP address (for possible geolocation)
+
+---
+
+🔄 Notes:
+* Ensure *performance is optimized* for real-time data sync.
+* Keep student interface *simple and mobile-friendly*.
+
