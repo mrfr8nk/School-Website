@@ -1978,9 +1978,11 @@ hamburgerBtn.addEventListener("click", () => {
   sideMenu.classList.toggle("shown");
 });
 
-// Connect hamburger menu grading scales button
+// Connect hamburger menu buttons
 document.addEventListener('DOMContentLoaded', () => {
   const gradingScalesBtn = document.getElementById('gradingScalesBtn');
+  const toggleReportsBtn = document.getElementById('toggleReportsBtn');
+  
   if (gradingScalesBtn) {
     gradingScalesBtn.addEventListener('click', () => {
       // Add null checks before accessing elements
@@ -1997,6 +1999,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Scroll to the grading settings section
         gradingSettings.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+  
+  if (toggleReportsBtn) {
+    toggleReportsBtn.addEventListener('click', () => {
+      const reportCard = document.getElementById('reportCard');
+      
+      if (reportCard) {
+        if (reportCard.style.display === 'none' || reportCard.style.display === '') {
+          reportCard.style.display = 'block';
+          toggleReportsBtn.innerHTML = '<i class="fas fa-toggle-off"></i> Hide Reports';
+        } else {
+          reportCard.style.display = 'none';
+          toggleReportsBtn.innerHTML = '<i class="fas fa-toggle-on"></i> Show Reports';
+        }
+        
+        // Close the hamburger menu
+        if (sideMenu) {
+          sideMenu.classList.remove("shown");
+        }
       }
     });
   }
@@ -2144,10 +2167,19 @@ function populateGradingForm() {
   });
 }
 
-// Save grading settings to database
+// Save grading settings to database with retry logic
 async function saveGradingSettings() {
+  let saveBtn = document.getElementById('saveGradingSettings');
+  let originalText = saveBtn ? saveBtn.innerHTML : '';
+  
   try {
     console.log('Starting to save grading settings...');
+    
+    // Show loading state
+    if (saveBtn) {
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+      saveBtn.disabled = true;
+    }
     
     // Collect data from form with validation
     const newGradingScales = {
@@ -2218,11 +2250,29 @@ async function saveGradingSettings() {
     
     console.log('New grading scales to save:', newGradingScales);
     
-    // Save to database
-    await setDoc(doc(db, 'settings', 'gradingScales'), newGradingScales);
-    gradingScales = newGradingScales;
+    // Save to database with retry logic
+    let retryCount = 0;
+    const maxRetries = 3;
     
-    console.log('Grading settings saved successfully to database');
+    while (retryCount < maxRetries) {
+      try {
+        await setDoc(doc(db, 'settings', 'gradingScales'), newGradingScales);
+        gradingScales = newGradingScales;
+        console.log('Grading settings saved successfully to database');
+        break;
+      } catch (saveError) {
+        retryCount++;
+        console.warn(`Save attempt ${retryCount} failed:`, saveError);
+        
+        if (retryCount >= maxRetries) {
+          throw saveError;
+        }
+        
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+      }
+    }
+    
     alert('Grading settings saved successfully!');
     
     // Close the panel
@@ -2233,22 +2283,69 @@ async function saveGradingSettings() {
     
   } catch (error) {
     console.error('Error saving grading settings:', error);
-    alert(`Error saving grading settings: ${error.message}. Please check your input values and try again.`);
+    
+    if (error.code === 'unavailable') {
+      alert('Network connection issue. Please check your internet connection and try again.');
+    } else {
+      alert(`Error saving grading settings: ${error.message}. Please check your input values and try again.`);
+    }
+  } finally {
+    // Always restore button state
+    if (saveBtn) {
+      saveBtn.innerHTML = originalText;
+      saveBtn.disabled = false;
+    }
   }
 }
 
 // Reset to default grading settings
 async function resetGradingSettings() {
   if (confirm('Are you sure you want to reset to default grading scales? This will overwrite your current settings.')) {
-    setDefaultGradingScales();
+    let resetBtn = document.getElementById('resetGradingSettings');
+    let originalText = resetBtn ? resetBtn.innerHTML : '';
     
-    // Save the default settings to database
     try {
-      await setDoc(doc(db, 'settings', 'gradingScales'), gradingScales);
+      if (resetBtn) {
+        resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+        resetBtn.disabled = true;
+      }
+    
+      setDefaultGradingScales();
+      populateGradingForm();
+      
+      // Save the default settings to database with retry logic
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries) {
+        try {
+          await setDoc(doc(db, 'settings', 'gradingScales'), gradingScales);
+          break;
+        } catch (saveError) {
+          retryCount++;
+          console.warn(`Reset save attempt ${retryCount} failed:`, saveError);
+          
+          if (retryCount >= maxRetries) {
+            throw saveError;
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        }
+      }
+      
       alert('Grading settings reset to default successfully!');
     } catch (error) {
       console.error('Error saving default grading settings:', error);
-      alert('Error saving default settings. Please try again.');
+      if (error.code === 'unavailable') {
+        alert('Network connection issue. Please check your internet connection and try again.');
+      } else {
+        alert('Error saving default settings. Please try again.');
+      }
+    } finally {
+      if (resetBtn) {
+        resetBtn.innerHTML = originalText;
+        resetBtn.disabled = false;
+      }
     }
   }
 }
