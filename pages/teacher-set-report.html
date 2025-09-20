@@ -987,8 +987,12 @@ button:active {
         isAuthenticated = true;
         console.log('Authentication successful for role:', userRole);
         
-        // Initialize auto term functionality
-        initializeAutoTerm();
+        // Ensure DOM is ready before initializing auto term
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initializeAutoTerm);
+        } else {
+          initializeAutoTerm();
+        }
         
         // Now load the students data
         fetchStudents();
