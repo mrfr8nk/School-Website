@@ -2050,7 +2050,10 @@
 <script type="module">
   // Import Firebase services and functions from centralized config
   import {
+    auth,
     db,
+    onAuthStateChanged,
+    signOut,
     collection,
     getDocs,
     getDoc,
@@ -2065,6 +2068,108 @@
     serverTimestamp,
     onSnapshot
   } from "/db/firebase.js";
+
+  /* --------------------- AUTHENTICATION CHECK --------------------- */
+  // Check if user is authenticated and has proper role before allowing access
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // No user logged in - redirect to admin login
+      window.location.href = '/teacherslogin';
+      return;
+    }
+    
+    try {
+      // Get user document from Firestore to check role with timeout
+      const userDoc = await Promise.race([
+        getDoc(doc(db, 'users', user.uid)),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Database connection timeout')), 8000)
+        )
+      ]);
+      
+      if (!userDoc.exists()) {
+        // User document doesn't exist - sign out and redirect
+        await signOut(auth);
+        console.log('User document not found in database');
+        window.location.href = '/teacherslogin';
+        return;
+      }
+      
+      const userData = userDoc.data();
+      console.log('User authentication verified for fees page:', userData.role, userData.email);
+      
+      // Only allow admin and teacher roles to access fees page
+      const userRole = userData.role ? userData.role.toLowerCase() : null;
+      if (!userRole || !['admin', 'teacher'].includes(userRole)) {
+        console.log('Unauthorized access attempt to fees page by role:', userRole);
+        await signOut(auth);
+        
+        // Show unauthorized access message based on user role
+        const message = userRole === 'student' 
+          ? 'Students cannot access the fees management system.' 
+          : 'Access Denied: Only administrators and teachers can access the fees management system.';
+        alert(message);
+        
+        const redirectUrl = userRole === 'student' ? '/dashboard' : '/teacherslogin';
+        window.location.href = redirectUrl;
+        return;
+      }
+      
+      // User is authorized - continue loading the page
+      console.log('Fees page access granted to:', userRole, userData.email);
+      initializePage();
+      
+    } catch (error) {
+      console.error('Error checking user authorization for fees page:', error);
+      
+      // Handle specific Firebase connection errors with deny-by-default security
+      if (error.code === 'unavailable' || error.message === 'Database connection timeout') {
+        console.warn('Database connection issue - denying access to fees page for security');
+        
+        // Show error message and redirect to login for security
+        setTimeout(() => {
+          try {
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'error',
+                title: 'Connection Issue',
+                text: 'Cannot verify your permissions due to database connection issues. Please try logging in again.',
+                confirmButtonColor: '#d69e2e'
+              }).then(() => {
+                window.location.href = '/teacherslogin';
+              });
+            } else {
+              alert('Connection Issue: Cannot verify permissions. Please try logging in again.');
+              window.location.href = '/teacherslogin';
+            }
+          } catch (swalError) {
+            console.warn('Error showing notification, redirecting directly');
+            window.location.href = '/teacherslogin';
+          }
+        }, 1000);
+        
+        // Sign out user for security
+        await signOut(auth);
+        return;
+      }
+      
+      // For other errors, redirect to login for security
+      await signOut(auth);
+      window.location.href = '/teacherslogin';
+    }
+  });
+
+  async function initializePage() {
+    // Initialize the fees management system
+    setupEventListeners();
+    
+    // Load all data
+    await loadInitialData();
+    await loadPettyCashData();
+    
+    // Set up real-time listeners
+    setupRealTimeListeners();
+  }
 
   // Global variables
   let allStudents = [];
@@ -2100,18 +2205,28 @@
   let currentPaymentHistoryIndex = 0;
   let paymentHistoryData = [];
 
-  // DOM Ready
-  document.addEventListener('DOMContentLoaded', async function() {
+  function setupEventListeners() {
     // Initialize UI components
     initNavigation();
     initTabs();
     initThemeToggle();
-    
-    // Load all data
-    await loadInitialData();
-    
+  }
+
+  async function loadInitialData() {
+    // Load all main data
+    await loadStudents();
+    await loadPayments();
+  }
+
+  async function loadPettyCashData() {
     // Load petty cash data
-    await loadPettyCashData();
+    await loadPettyCash();
+  }
+
+  // DOM Ready - Authentication will handle page initialization
+  document.addEventListener('DOMContentLoaded', async function() {
+    // Authentication check will handle calling initializePage()
+    // Don't initialize data here - wait for authentication to complete
     
     // Set up real-time listeners
     setupRealTimeListeners();

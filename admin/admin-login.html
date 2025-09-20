@@ -654,23 +654,32 @@
             return getDoc(doc(db, "users", user.uid));
           })
           .then((docSnap) => {
-            if (docSnap.exists() && docSnap.data().role === "admin") {
-              if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Login Successful',
-                  text: 'Welcome to the Admin Dashboard',
-                  confirmButtonColor: '#d69e2e'
-                }).then(() => {
+            if (docSnap.exists()) {
+              const userData = docSnap.data();
+              const userRole = userData.role ? userData.role.toLowerCase() : null;
+              
+              // Allow both admin and teacher roles access
+              if (userRole === "admin" || userRole === "teacher") {
+                if (typeof Swal !== 'undefined') {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Login Successful',
+                    text: 'Welcome to the Teacher Portal',
+                    confirmButtonColor: '#d69e2e'
+                  }).then(() => {
+                    window.location.href = '/teachersdashboard';
+                  });
+                } else {
+                  alert('Login Successful: Welcome to the Teacher Portal');
                   window.location.href = '/teachersdashboard';
-                });
+                }
               } else {
-                alert('Login Successful: Welcome to the Admin Dashboard');
-                window.location.href = '/teachersdashboard';
+                auth.signOut();
+                throw new Error('You do not have admin or teacher privileges');
               }
             } else {
               auth.signOut();
-              throw new Error('You do not have admin privileges');
+              throw new Error('User account not found in database');
             }
           })
           .catch((error) => {
@@ -696,23 +705,32 @@
             return getDoc(doc(db, "users", user.uid));
           })
           .then((docSnap) => {
-            if (docSnap.exists() && docSnap.data().role === "admin") {
-              if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Login Successful',
-                  text: 'Welcome to the Admin Dashboard',
-                  confirmButtonColor: '#d69e2e'
-                }).then(() => {
+            if (docSnap.exists()) {
+              const userData = docSnap.data();
+              const userRole = userData.role ? userData.role.toLowerCase() : null;
+              
+              // Allow both admin and teacher roles access
+              if (userRole === "admin" || userRole === "teacher") {
+                if (typeof Swal !== 'undefined') {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Login Successful',
+                    text: 'Welcome to the Teacher Portal',
+                    confirmButtonColor: '#d69e2e'
+                  }).then(() => {
+                    window.location.href = '/teachersdashboard';
+                  });
+                } else {
+                  alert('Login Successful: Welcome to the Teacher Portal');
                   window.location.href = '/teachersdashboard';
-                });
+                }
               } else {
-                alert('Login Successful: Welcome to the Admin Dashboard');
-                window.location.href = '/teachersdashboard';
+                auth.signOut();
+                throw new Error('You do not have admin or teacher privileges');
               }
             } else {
               auth.signOut();
-              throw new Error('You do not have admin privileges');
+              throw new Error('User account not found in database');
             }
           })
           .catch((error) => {
@@ -789,13 +807,13 @@
                 Swal.fire({
                   icon: 'success',
                   title: 'Login Successful',
-                  text: 'Welcome to the Admin Dashboard',
+                  text: 'Welcome to the Teacher Portal',
                   confirmButtonColor: '#d69e2e'
                 }).then(() => {
                   window.location.href = '/teachersdashboard';
                 });
               } else {
-                alert('Login Successful: Welcome to the Admin Dashboard');
+                alert('Login Successful: Welcome to the Teacher Portal');
                 window.location.href = '/teachersdashboard';
               }
             } else {

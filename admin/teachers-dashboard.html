@@ -1622,17 +1622,24 @@
         }
         
         try {
-          // Get user document from Firestore to check role
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          // Get user document from Firestore to check role with timeout
+          const userDoc = await Promise.race([
+            getDoc(doc(db, 'users', user.uid)),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Database connection timeout')), 8000)
+            )
+          ]);
           
           if (!userDoc.exists()) {
             // User document doesn't exist - sign out and redirect
             await signOut(auth);
+            console.log('User document not found in database');
             window.location.href = '/teacherslogin';
             return;
           }
           
           const userData = userDoc.data();
+          console.log('User authentication verified:', userData.role, userData.email);
           
           // CRITICAL: Block students from accessing admin dashboard
           if (userData.role && userData.role.toLowerCase() === 'student') {
@@ -1652,14 +1659,17 @@
             return;
           }
           
-          // Check if user is authorized (admin or teacher)
-          if (!userData.role || !['admin', 'teacher'].includes(userData.role.toLowerCase())) {
+          // Check if user is authorized (admin or teacher) - more flexible checking
+          const userRole = userData.role ? userData.role.toLowerCase() : null;
+          if (!userRole || !['admin', 'teacher'].includes(userRole)) {
+            console.log('User role not authorized:', userRole);
             await signOut(auth);
             window.location.href = '/teacherslogin';
             return;
           }
           
           // User is authorized - allow dashboard to load
+          console.log('Access granted to dashboard for role:', userRole);
           console.log('Admin dashboard access granted for:', userData.role, userData.email);
           
           // Load dashboard content after authorization
@@ -1668,6 +1678,34 @@
           
         } catch (error) {
           console.error('Error checking user authorization:', error);
+          
+          // Handle specific Firebase connection errors with deny-by-default security
+          if (error.code === 'unavailable' || error.message === 'Database connection timeout') {
+            console.warn('Database connection issue - denying access for security');
+            
+            // Show error message and redirect to login for security
+            setTimeout(() => {
+              if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Connection Issue',
+                  text: 'Cannot verify your permissions due to database connection issues. Please try logging in again.',
+                  confirmButtonColor: '#d69e2e'
+                }).then(() => {
+                  window.location.href = '/teacherslogin';
+                });
+              } else {
+                alert('Connection Issue: Cannot verify permissions. Please try logging in again.');
+                window.location.href = '/teacherslogin';
+              }
+            }, 1000);
+            
+            // Sign out user for security
+            await signOut(auth);
+            return;
+          }
+          
+          // For other errors, log out for security
           await signOut(auth);
           window.location.href = '/teacherslogin';
         }
@@ -2212,22 +2250,7 @@
 
 // Auth state checker function removed - using single onAuthStateChanged listener above to prevent race conditions
 
-// Add this to your logout button handler
-document.getElementById("logoutBtn").addEventListener("click", async (e) => {
-  e.preventDefault();
-  try {
-    await signOut(auth);
-    window.location.href = "/teacherslogin";
-  } catch (error) {
-    console.error("Logout error:", error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Logout Failed',
-      text: error.message,
-      confirmButtonColor: '#d69e2e'
-    });
-  }
-});
+// Logout button handler already added above, removing duplicate
      /* --------------------- Enhanced Teacher Profile Settings --------------------- */
       async function loadTeacherProfile() {
         try {
@@ -2463,7 +2486,9 @@ document.getElementById("settingsForm").addEventListener("submit", async (e) => 
     showError(errorMessage);
   }
 });    /* --------------------- Initialize Grades Form --------------------- */
-      document.getElementById("gradeForm")?.addEventListener("submit", async (e) => {
+      const gradeForm = document.getElementById("gradeForm");
+      if (gradeForm) {
+        gradeForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const studentEmail = document.getElementById("gradeStudent").value;
         const studentClass = document.getElementById("studentClass").value;
@@ -2504,6 +2529,7 @@ document.getElementById("settingsForm").addEventListener("submit", async (e) => 
           `;
         }
       });
+      }
 
      // Initialize dashboard stats
 loadTeacherStats(); 
@@ -2606,7 +2632,9 @@ loadTeacherStats();
       }
 
       // Search functionality for My Class
-      document.getElementById("myClassSearchInput").addEventListener("input", (e) => {
+      const myClassSearchInput = document.getElementById("myClassSearchInput");
+      if (myClassSearchInput) {
+        myClassSearchInput.addEventListener("input", (e) => {
         const searchTerm = e.target.value.toLowerCase().trim();
         
         if (!searchTerm) {
@@ -2629,13 +2657,17 @@ loadTeacherStats();
         sortMyClassStudents(currentSort);
         renderMyClassStudents();
       });
+      }
 
       // Sort functionality for My Class
-      document.getElementById("sortBy").addEventListener("change", (e) => {
+      const sortByElement = document.getElementById("sortBy");
+      if (sortByElement) {
+        sortByElement.addEventListener("change", (e) => {
         currentSort = e.target.value;
         sortMyClassStudents(currentSort);
         renderMyClassStudents();
       });
+      }
 
       function sortMyClassStudents(sortBy) {
         filteredMyClassData.sort((a, b) => {
