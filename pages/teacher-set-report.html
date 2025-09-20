@@ -396,6 +396,37 @@
       gap: 20px;
       margin-bottom: 2rem;
     }
+    
+    .student-section {
+      margin-bottom: 3rem;
+    }
+    
+    .section-header {
+      background: var(--glass);
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid var(--secondary);
+    }
+    
+    .section-header h3 {
+      color: var(--secondary);
+      margin: 0;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section-header .count {
+      background: var(--secondary);
+      color: #1a365d;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
     .student-card {
       background: var(--glass);
       padding: 1.5rem;
@@ -405,21 +436,69 @@
       transition: all 0.3s ease;
       cursor: pointer;
       box-shadow: var(--card-shadow);
+      position: relative;
     }
+    
+    .student-card.my-class {
+      border: 2px solid var(--secondary);
+      background: rgba(214, 158, 46, 0.1);
+    }
+    
+    .student-card.has-report {
+      border-left: 4px solid var(--success);
+    }
+    
+    .student-card.no-report {
+      border-left: 4px solid var(--danger);
+    }
+    
     .student-card:hover {
       transform: translateY(-5px);
-      background: rgba(214, 158, 46, 0.1);
+      background: rgba(214, 158, 46, 0.15);
       box-shadow: 0 10px 20px rgba(0,0,0,0.15);
     }
+    
     .student-card h3 {
       color: var(--secondary);
       margin-bottom: 0.5rem;
       font-size: 1.2rem;
     }
+    
     .student-card p {
       color: white;
       font-size: 0.9rem;
       opacity: 0.8;
+    }
+    
+    .status-indicator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-indicator.has-report {
+      background: var(--success);
+      color: white;
+    }
+    
+    .status-indicator.no-report {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .class-badge {
+      background: var(--secondary);
+      color: #1a365d;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 5px;
     }
     /* Footer */
     footer {
@@ -781,11 +860,60 @@ button:active {
 
     // Global variables
     let allStudents = [];
+    let teacherClasses = [];
+    let currentTeacher = null;
     const studentList = document.getElementById("studentList");
     const marksForm = document.getElementById("marksForm");
     const reportCard = document.getElementById("reportCard");
     const reportCardBody = document.getElementById("reportCardBody");
     let performanceChart;
+
+    // Load teacher information and assigned classes
+    async function loadTeacherInfo() {
+      try {
+        const teacherEmail = localStorage.getItem('teacherEmail');
+        if (!teacherEmail) {
+          console.log('No teacher email found in localStorage');
+          return;
+        }
+
+        const teacherDoc = await getDoc(doc(db, 'teachers', teacherEmail));
+        if (teacherDoc.exists()) {
+          currentTeacher = teacherDoc.data();
+          teacherClasses = currentTeacher.assignedClasses || [];
+          console.log('Teacher classes loaded:', teacherClasses);
+        } else {
+          console.log('Teacher document not found');
+        }
+      } catch (error) {
+        console.error('Error loading teacher info:', error);
+      }
+    }
+
+    // Check if student belongs to teacher's classes
+    function isStudentInTeacherClass(student) {
+      if (!teacherClasses.length || !student.form) return false;
+      
+      return teacherClasses.some(teacherClass => {
+        // Simple form matching
+        if (typeof teacherClass === 'string') {
+          return student.form === teacherClass;
+        }
+        
+        // More complex matching if needed
+        const studentForm = student.form;
+        const studentStream = student.stream || '';
+        
+        return studentForm === teacherClass || 
+               `${studentForm}${studentStream}` === teacherClass ||
+               `${studentForm} ${studentStream}` === teacherClass;
+      });
+    }
+
+    // Check if student has report card marks set
+    function hasReportCardSet(student) {
+      return student.marks && Object.keys(student.marks).length > 0;
+    }
 
     // Fetch students with improved debugging
     async function fetchStudents() {
@@ -797,6 +925,9 @@ button:active {
       </div>`;
       
       try {
+        // Load teacher info first
+        await loadTeacherInfo();
+        
         console.log("Attempting to get students collection...");
         const querySnapshot = await getDocs(collection(db, "students"));
         console.log("Query executed successfully. Processing results...");
@@ -828,6 +959,9 @@ button:active {
         updateSideMenu();
         console.log("Students loaded and displayed successfully!");
         
+        // Check for pre-selected student from shortcut
+        checkForSelectedStudent();
+        
       } catch (err) {
         console.error("Error fetching students:", err);
         console.error("Error details:", err.code, err.message);
@@ -855,7 +989,29 @@ button:active {
       }
     }
 
-    // Display students as cards
+    // Check for pre-selected student from my-class shortcut
+    function checkForSelectedStudent() {
+      const selectedStudent = localStorage.getItem('selectedStudentForReport');
+      if (selectedStudent) {
+        try {
+          const studentData = JSON.parse(selectedStudent);
+          const student = allStudents.find(s => s.id === studentData.id);
+          if (student) {
+            // Automatically open the marks form for this student
+            setTimeout(() => {
+              openMarksForm(student);
+              // Clear the selection
+              localStorage.removeItem('selectedStudentForReport');
+            }, 500);
+          }
+        } catch (error) {
+          console.error('Error parsing selected student data:', error);
+          localStorage.removeItem('selectedStudentForReport');
+        }
+      }
+    }
+
+    // Display students as cards with priority sections
     function displayStudents(students) {
       studentList.innerHTML = "";
       if (!students.length) {
@@ -864,27 +1020,139 @@ button:active {
         </div>`;
         return;
       }
-      students.forEach((s) => {
-        const card = document.createElement("div");
-        card.className = "student-card";
-        // Create elements safely to prevent XSS
-        const nameEl = document.createElement('h3');
-        nameEl.textContent = `${s.firstname || ""} ${s.surname || ""}`;
-        
-        const emailEl = document.createElement('p');
-        emailEl.textContent = s.email || "";
-        
-        const formEl = document.createElement('p');
-        const smallEl = document.createElement('small');
-        smallEl.textContent = `${s.form || "No form"}${s.stream ? " • " + s.stream : ""}`;
-        formEl.appendChild(smallEl);
-        
-        card.appendChild(nameEl);
-        card.appendChild(emailEl);
-        card.appendChild(formEl);
-        card.addEventListener("click", () => openMarksForm(s));
-        studentList.appendChild(card);
+
+      // Separate students into teacher's classes and others
+      const myClassStudents = [];
+      const otherStudents = [];
+
+      students.forEach(student => {
+        if (isStudentInTeacherClass(student)) {
+          myClassStudents.push(student);
+        } else {
+          otherStudents.push(student);
+        }
       });
+
+      // Display teacher's class students first (if any)
+      if (myClassStudents.length > 0) {
+        const myClassSection = document.createElement('div');
+        myClassSection.className = 'student-section';
+        
+        // Section header
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        header.innerHTML = `
+          <h3>
+            <i class="fas fa-star"></i> 
+            My Class Students 
+            <span class="count">${myClassStudents.length}</span>
+          </h3>
+        `;
+        
+        // Student cards container
+        const cardsContainer = document.createElement('div');
+        cardsContainer.className = 'student-list';
+        
+        myClassStudents.forEach(student => {
+          cardsContainer.appendChild(createStudentCard(student, true));
+        });
+        
+        myClassSection.appendChild(header);
+        myClassSection.appendChild(cardsContainer);
+        studentList.appendChild(myClassSection);
+      }
+
+      // Display other students
+      if (otherStudents.length > 0) {
+        const otherSection = document.createElement('div');
+        otherSection.className = 'student-section';
+        
+        // Section header
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        header.innerHTML = `
+          <h3>
+            <i class="fas fa-users"></i> 
+            All Students 
+            <span class="count">${otherStudents.length}</span>
+          </h3>
+        `;
+        
+        // Student cards container
+        const cardsContainer = document.createElement('div');
+        cardsContainer.className = 'student-list';
+        
+        otherStudents.forEach(student => {
+          cardsContainer.appendChild(createStudentCard(student, false));
+        });
+        
+        otherSection.appendChild(header);
+        otherSection.appendChild(cardsContainer);
+        studentList.appendChild(otherSection);
+      }
+    }
+
+    // Create individual student card with status indicators
+    function createStudentCard(student, isMyClass) {
+      const card = document.createElement("div");
+      card.className = "student-card";
+      
+      // Add class-specific styling
+      if (isMyClass) {
+        card.classList.add('my-class');
+      }
+      
+      // Add report status styling
+      const hasReport = hasReportCardSet(student);
+      if (hasReport) {
+        card.classList.add('has-report');
+      } else {
+        card.classList.add('no-report');
+      }
+      
+      // Status indicator
+      const statusIndicator = document.createElement('div');
+      statusIndicator.className = `status-indicator ${hasReport ? 'has-report' : 'no-report'}`;
+      statusIndicator.textContent = hasReport ? 'Report Set' : 'No Report';
+      
+      // Create elements safely to prevent XSS
+      const nameEl = document.createElement('h3');
+      nameEl.textContent = `${student.firstname || ""} ${student.surname || ""}`;
+      
+      const emailEl = document.createElement('p');
+      emailEl.textContent = student.email || "";
+      
+      const formEl = document.createElement('p');
+      const formText = `${student.form || "No form"}${student.stream ? " • " + student.stream : ""}`;
+      formEl.innerHTML = formText;
+      
+      // Add class badge for teacher's class students
+      if (isMyClass) {
+        const classBadge = document.createElement('span');
+        classBadge.className = 'class-badge';
+        classBadge.textContent = 'My Class';
+        formEl.appendChild(classBadge);
+      }
+      
+      // Report status info
+      const statusInfo = document.createElement('p');
+      statusInfo.style.fontSize = '0.8rem';
+      statusInfo.style.opacity = '0.8';
+      if (hasReport) {
+        const subjectCount = Object.keys(student.marks || {}).length;
+        statusInfo.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success);"></i> ${subjectCount} subjects recorded`;
+      } else {
+        statusInfo.innerHTML = `<i class="fas fa-exclamation-circle" style="color: var(--danger);"></i> No marks recorded`;
+      }
+      
+      card.appendChild(statusIndicator);
+      card.appendChild(nameEl);
+      card.appendChild(emailEl);
+      card.appendChild(formEl);
+      card.appendChild(statusInfo);
+      card.addEventListener("click", () => openMarksForm(student));
+      
+      return card;
     }
 
     // Update side menu totals

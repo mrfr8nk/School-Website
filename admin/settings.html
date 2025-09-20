@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Settings - Teacher Dashboard</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary: #1a365d;
+      --secondary: #d69e2e;
+      --accent: #9f7aea;
+      --danger: #e53e3e;
+      --success: #38a169;
+      --info: #3182ce;
+      --glass: rgba(26, 54, 93, 0.15);
+      --bg-gradient: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+      --text-color: #ffffff;
+      --table-text: #ffffff;
+      --overlay: rgba(0, 0, 0, 0.5);
+      --modal-bg: #2d3748;
+      --modal-text: #ffffff;
+      --input-bg: #4a5568;
+      --input-border: #718096;
+      --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+      --border-radius: 12px;
+      --header-height: 80px;
+    }
+    
+    [data-theme="light"] {
+      --primary: #3182ce;
+      --secondary: #dd6b20;
+      --accent: #805ad5;
+      --glass: rgba(237, 242, 247, 0.9);
+      --bg-gradient: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+      --text-color: #2d3748;
+      --table-text: #2d3748;
+      --overlay: rgba(255, 255, 255, 0.4);
+      --modal-bg: #ffffff;
+      --modal-text: #2d3748;
+      --input-bg: #f9f9f9;
+      --input-border: #cbd5e0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: "Poppins", sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-color);
+      min-height: 100vh;
+      line-height: 1.6;
+      transition: var(--transition);
+      padding: 0;
+    }
+
+    header {
+      background: rgba(26, 54, 93, 0.9);
+      backdrop-filter: blur(12px);
+      padding: 0 5%;
+      height: var(--header-height);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--card-shadow);
+      border-bottom: 2px solid var(--secondary);
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      color: white;
+    }
+    
+    .logo span {
+      color: var(--secondary);
+    }
+    
+    .header-logo {
+      height: 50px;
+      margin-right: 15px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+    
+    .menu-btn {
+      font-size: 1.8rem;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      color: white;
+      transition: var(--transition);
+    }
+    
+    .menu-btn:hover {
+      transform: scale(1.1);
+      color: var(--secondary);
+    }
+
+    .side-menu {
+      position: fixed;
+      top: 0;
+      right: -350px;
+      width: 350px;
+      height: 100%;
+      background: rgba(26, 54, 93, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 2000;
+      box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+      border-left: 1px solid rgba(214, 158, 46, 0.3);
+    }
+    
+    .side-menu.active {
+      right: 0;
+    }
+    
+    .menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .menu-header h3 {
+      font-size: 1.5rem;
+      color: var(--secondary);
+    }
+    
+    .close-btn {
+      font-size: 1.8rem;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      color: white;
+      transition: var(--transition);
+    }
+    
+    .close-btn:hover {
+      transform: rotate(90deg);
+      color: var(--secondary);
+    }
+    
+    .menu-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .menu-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.1rem;
+      padding: 12px 15px;
+      border-radius: 8px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .menu-links a i {
+      width: 25px;
+      text-align: center;
+    }
+    
+    .menu-links a:hover {
+      background: rgba(214, 158, 46, 0.2);
+      transform: translateX(5px);
+    }
+    
+    .menu-links a.active {
+      background: var(--secondary);
+      color: #1a365d;
+      font-weight: 600;
+    }
+
+    .container {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      max-width: 1400px;
+      margin: var(--header-height) auto 100px;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    h1 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: var(--secondary);
+    }
+
+    .settings-section {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius);
+      padding: 25px;
+      margin-bottom: 25px;
+      border: 1px solid rgba(214, 158, 46, 0.3);
+    }
+
+    .settings-section h2 {
+      color: var(--secondary);
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-item label {
+      color: var(--text-color);
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    .setting-item .description {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      box-shadow: var(--card-shadow);
+    }
+    
+    .btn i {
+      font-size: 0.9rem;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    
+    .btn-primary:hover {
+      background: #1e3a8a;
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background: var(--secondary);
+      color: #fff;
+    }
+    
+    .btn-secondary:hover {
+      background: #b7791f;
+      transform: translateY(-2px);
+    }
+    
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    
+    .btn-danger:hover {
+      background: #c53030;
+      transform: translateY(-2px);
+    }
+    
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+    
+    .btn-success:hover {
+      background: #2f855a;
+      transform: translateY(-2px);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 25px;
+      background: #ccc;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .toggle-switch.active {
+      background: var(--success);
+    }
+    
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 21px;
+      height: 21px;
+      background: white;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+    
+    .toggle-switch.active::before {
+      transform: translateX(25px);
+    }
+
+    .bulk-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .class-assignment {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .class-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .class-checkbox:hover {
+      background: rgba(214, 158, 46, 0.2);
+    }
+
+    .class-checkbox input[type="checkbox"] {
+      margin: 0;
+    }
+
+    .class-checkbox label {
+      margin: 0;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--secondary);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--input-border);
+      border-radius: var(--border-radius);
+      background-color: var(--input-bg);
+      color: var(--modal-text);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--secondary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(214, 158, 46, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: calc(var(--header-height) + 20px) 10px 100px;
+        padding: 15px;
+      }
+      
+      .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .bulk-actions {
+        flex-direction: column;
+      }
+      
+      .side-menu {
+        width: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <img src="https://i.postimg.cc/mZ81jqGW/In-Shot-20250227-051117557.jpg" alt="Logo" class="header-logo" />
+      Admin <span>Settings</span>
+    </div>
+    <button class="menu-btn" id="menuBtn">
+      <i class="fas fa-user-cog"></i>
+    </button>
+  </header>
+
+  <!-- Side Menu -->
+  <div class="side-menu" id="sideMenu">
+    <div class="menu-header">
+      <h3>Teacher Controls</h3>
+      <button class="close-btn" id="closeBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="menu-links">
+      <a href="/teachersdashboard">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+      <a href="/myclass">
+        <i class="fas fa-users"></i> My Class
+      </a>
+      <a href="/teacherusers">
+        <i class="fas fa-chalkboard-teacher"></i> Manage Teachers
+      </a>
+      <a href="/studentusers">
+        <i class="fas fa-user-graduate"></i> All Students
+      </a>
+      <a href="/admin/settings" class="active">
+        <i class="fas fa-cog"></i> Settings
+      </a>
+      <a href="/teacherslogin" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1><i class="fas fa-cog"></i> Admin Settings</h1>
+    
+    <!-- Report Card Management Section -->
+    <div class="settings-section">
+      <h2><i class="fas fa-file-alt"></i> Report Card Management</h2>
+      
+      <div class="setting-item">
+        <div>
+          <label>Global Report Card Status</label>
+          <div class="description">Control whether students can view their report cards</div>
+        </div>
+        <div class="toggle-switch" id="globalReportToggle">
+        </div>
+      </div>
+
+      <div class="bulk-actions">
+        <button class="btn btn-success" onclick="activateAllReports()">
+          <i class="fas fa-check-circle"></i> Activate All Reports
+        </button>
+        <button class="btn btn-danger" onclick="deactivateAllReports()">
+          <i class="fas fa-times-circle"></i> Deactivate All Reports
+        </button>
+        <button class="btn btn-primary" onclick="viewReportStatus()">
+          <i class="fas fa-eye"></i> View Report Status
+        </button>
+      </div>
+    </div>
+
+    <!-- Class Assignment Section -->
+    <div class="settings-section">
+      <h2><i class="fas fa-users"></i> My Class Assignment</h2>
+      
+      <div class="setting-item">
+        <div>
+          <label>Assigned Classes</label>
+          <div class="description">Select the classes you are responsible for</div>
+        </div>
+      </div>
+
+      <div class="class-assignment" id="classAssignment">
+        <div class="class-checkbox">
+          <input type="checkbox" id="form1a" value="Form 1A">
+          <label for="form1a">Form 1A</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form1b" value="Form 1B">
+          <label for="form1b">Form 1B</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form2a" value="Form 2A">
+          <label for="form2a">Form 2A</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form2b" value="Form 2B">
+          <label for="form2b">Form 2B</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form3a" value="Form 3A">
+          <label for="form3a">Form 3A</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form3b" value="Form 3B">
+          <label for="form3b">Form 3B</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form4a" value="Form 4A">
+          <label for="form4a">Form 4A</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form4b" value="Form 4B">
+          <label for="form4b">Form 4B</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form5a" value="Form 5A">
+          <label for="form5a">Form 5A</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form5b" value="Form 5B">
+          <label for="form5b">Form 5B</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form6a" value="Form 6A">
+          <label for="form6a">Form 6A</label>
+        </div>
+        <div class="class-checkbox">
+          <input type="checkbox" id="form6b" value="Form 6B">
+          <label for="form6b">Form 6B</label>
+        </div>
+      </div>
+
+      <div class="bulk-actions">
+        <button class="btn btn-secondary" onclick="saveClassAssignments()">
+          <i class="fas fa-save"></i> Save Class Assignments
+        </button>
+      </div>
+    </div>
+
+    <!-- Teacher Profile Section -->
+    <div class="settings-section">
+      <h2><i class="fas fa-user"></i> Teacher Profile</h2>
+      
+      <div class="form-group">
+        <label for="teacherName">Full Name</label>
+        <input type="text" id="teacherName" placeholder="Enter your full name">
+      </div>
+
+      <div class="form-group">
+        <label for="teacherEmail">Email Address</label>
+        <input type="email" id="teacherEmail" placeholder="Enter your email">
+      </div>
+
+      <div class="form-group">
+        <label for="teacherSubjects">Subjects Taught</label>
+        <input type="text" id="teacherSubjects" placeholder="e.g., Mathematics, Physics, Chemistry">
+      </div>
+
+      <div class="bulk-actions">
+        <button class="btn btn-secondary" onclick="saveTeacherProfile()">
+          <i class="fas fa-save"></i> Save Profile
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase and App Script -->
+  <script type="module">
+    // Import Firebase services and functions from centralized config
+    import {
+      db,
+      collection,
+      getDocs,
+      getDoc,
+      doc,
+      setDoc,
+      updateDoc
+    } from "/db/firebase.js";
+
+    // Global variables
+    let currentTeacher = null;
+
+    // Initialize page
+    window.addEventListener('DOMContentLoaded', async function() {
+      await loadTeacherSettings();
+      setupEventListeners();
+    });
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Menu toggle
+      const menuBtn = document.getElementById('menuBtn');
+      const closeBtn = document.getElementById('closeBtn');
+      const sideMenu = document.getElementById('sideMenu');
+
+      menuBtn.addEventListener('click', () => {
+        sideMenu.classList.add('active');
+      });
+
+      closeBtn.addEventListener('click', () => {
+        sideMenu.classList.remove('active');
+      });
+
+      // Global report toggle
+      const globalReportToggle = document.getElementById('globalReportToggle');
+      globalReportToggle.addEventListener('click', toggleGlobalReports);
+    }
+
+    // Load teacher settings from Firebase
+    async function loadTeacherSettings() {
+      try {
+        const teacherEmail = localStorage.getItem('teacherEmail');
+        if (!teacherEmail) {
+          console.log('No teacher email found in localStorage');
+          return;
+        }
+
+        const teacherDoc = await getDoc(doc(db, 'teachers', teacherEmail));
+        if (teacherDoc.exists()) {
+          currentTeacher = teacherDoc.data();
+          populateSettingsForm();
+        } else {
+          console.log('Teacher document not found');
+        }
+
+        // Load global report status
+        const settingsDoc = await getDoc(doc(db, 'settings', 'global'));
+        if (settingsDoc.exists()) {
+          const settings = settingsDoc.data();
+          const toggle = document.getElementById('globalReportToggle');
+          if (settings.reportsActive) {
+            toggle.classList.add('active');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading teacher settings:', error);
+      }
+    }
+
+    // Populate settings form with teacher data
+    function populateSettingsForm() {
+      if (!currentTeacher) return;
+
+      document.getElementById('teacherName').value = currentTeacher.name || '';
+      document.getElementById('teacherEmail').value = currentTeacher.email || '';
+      document.getElementById('teacherSubjects').value = currentTeacher.subjects || '';
+
+      // Populate class assignments
+      if (currentTeacher.assignedClasses) {
+        currentTeacher.assignedClasses.forEach(className => {
+          const checkbox = document.querySelector(`input[value="${className}"]`);
+          if (checkbox) {
+            checkbox.checked = true;
+          }
+        });
+      }
+    }
+
+    // Toggle global report status
+    async function toggleGlobalReports() {
+      try {
+        const toggle = document.getElementById('globalReportToggle');
+        const isActive = toggle.classList.contains('active');
+        
+        const newStatus = !isActive;
+        
+        await setDoc(doc(db, 'settings', 'global'), {
+          reportsActive: newStatus,
+          lastUpdated: new Date().toISOString(),
+          updatedBy: localStorage.getItem('teacherEmail') || 'admin'
+        }, { merge: true });
+
+        if (newStatus) {
+          toggle.classList.add('active');
+        } else {
+          toggle.classList.remove('active');
+        }
+
+        Swal.fire({
+          title: 'Success!',
+          text: `Reports have been ${newStatus ? 'activated' : 'deactivated'} globally`,
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error) {
+        console.error('Error toggling global reports:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to update global report status',
+          icon: 'error'
+        });
+      }
+    }
+
+    // Activate all reports
+    window.activateAllReports = async function() {
+      try {
+        const result = await Swal.fire({
+          title: 'Activate All Reports?',
+          text: 'This will make all report cards visible to students',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#38a169',
+          cancelButtonColor: '#e53e3e',
+          confirmButtonText: 'Yes, activate all!'
+        });
+
+        if (result.isConfirmed) {
+          // Get all students and activate their reports
+          const studentsSnapshot = await getDocs(collection(db, 'students'));
+          const updates = [];
+
+          studentsSnapshot.forEach((studentDoc) => {
+            updates.push(
+              updateDoc(doc(db, 'students', studentDoc.id), {
+                reportCardActive: true
+              })
+            );
+          });
+
+          await Promise.all(updates);
+
+          Swal.fire({
+            title: 'Success!',
+            text: 'All report cards have been activated',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      } catch (error) {
+        console.error('Error activating all reports:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to activate all reports',
+          icon: 'error'
+        });
+      }
+    };
+
+    // Deactivate all reports
+    window.deactivateAllReports = async function() {
+      try {
+        const result = await Swal.fire({
+          title: 'Deactivate All Reports?',
+          text: 'This will hide all report cards from students',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#e53e3e',
+          cancelButtonColor: '#718096',
+          confirmButtonText: 'Yes, deactivate all!'
+        });
+
+        if (result.isConfirmed) {
+          // Get all students and deactivate their reports
+          const studentsSnapshot = await getDocs(collection(db, 'students'));
+          const updates = [];
+
+          studentsSnapshot.forEach((studentDoc) => {
+            updates.push(
+              updateDoc(doc(db, 'students', studentDoc.id), {
+                reportCardActive: false
+              })
+            );
+          });
+
+          await Promise.all(updates);
+
+          Swal.fire({
+            title: 'Success!',
+            text: 'All report cards have been deactivated',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      } catch (error) {
+        console.error('Error deactivating all reports:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to deactivate all reports',
+          icon: 'error'
+        });
+      }
+    };
+
+    // View report status
+    window.viewReportStatus = async function() {
+      try {
+        const studentsSnapshot = await getDocs(collection(db, 'students'));
+        let activeCount = 0;
+        let inactiveCount = 0;
+
+        studentsSnapshot.forEach((studentDoc) => {
+          const studentData = studentDoc.data();
+          if (studentData.reportCardActive) {
+            activeCount++;
+          } else {
+            inactiveCount++;
+          }
+        });
+
+        const total = activeCount + inactiveCount;
+
+        Swal.fire({
+          title: 'Report Card Status',
+          html: `
+            <div style="text-align: left; margin: 20px 0;">
+              <p><strong>Total Students:</strong> ${total}</p>
+              <p><strong>Active Reports:</strong> <span style="color: #38a169;">${activeCount}</span></p>
+              <p><strong>Inactive Reports:</strong> <span style="color: #e53e3e;">${inactiveCount}</span></p>
+            </div>
+          `,
+          icon: 'info',
+          confirmButtonText: 'OK'
+        });
+      } catch (error) {
+        console.error('Error viewing report status:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to load report status',
+          icon: 'error'
+        });
+      }
+    };
+
+    // Save class assignments
+    window.saveClassAssignments = async function() {
+      try {
+        const checkboxes = document.querySelectorAll('#classAssignment input[type="checkbox"]');
+        const assignedClasses = [];
+
+        checkboxes.forEach(checkbox => {
+          if (checkbox.checked) {
+            assignedClasses.push(checkbox.value);
+          }
+        });
+
+        const teacherEmail = localStorage.getItem('teacherEmail');
+        if (!teacherEmail) {
+          throw new Error('No teacher email found');
+        }
+
+        await updateDoc(doc(db, 'teachers', teacherEmail), {
+          assignedClasses: assignedClasses,
+          lastUpdated: new Date().toISOString()
+        });
+
+        Swal.fire({
+          title: 'Success!',
+          text: 'Class assignments have been saved',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error) {
+        console.error('Error saving class assignments:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to save class assignments',
+          icon: 'error'
+        });
+      }
+    };
+
+    // Save teacher profile
+    window.saveTeacherProfile = async function() {
+      try {
+        const teacherName = document.getElementById('teacherName').value;
+        const teacherEmail = document.getElementById('teacherEmail').value;
+        const teacherSubjects = document.getElementById('teacherSubjects').value;
+
+        const storedEmail = localStorage.getItem('teacherEmail');
+        if (!storedEmail) {
+          throw new Error('No teacher email found');
+        }
+
+        await updateDoc(doc(db, 'teachers', storedEmail), {
+          name: teacherName,
+          email: teacherEmail,
+          subjects: teacherSubjects,
+          lastUpdated: new Date().toISOString()
+        });
+
+        Swal.fire({
+          title: 'Success!',
+          text: 'Teacher profile has been saved',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error) {
+        console.error('Error saving teacher profile:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to save teacher profile',
+          icon: 'error'
+        });
+      }
+    };
+  </script>
+</body>
+</html>

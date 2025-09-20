@@ -1736,6 +1736,9 @@
                   <button class="btn btn-info" onclick="viewStudent('${student.id}')">
                     <i class="fas fa-eye"></i> View
                   </button>
+                  <button class="btn btn-secondary" onclick="setReportCard('${student.id}')" title="Set Report Card for ${student.firstname} ${student.surname}">
+                    <i class="fas fa-clipboard-list"></i> Set Report
+                  </button>
                   <button class="btn btn-danger" onclick="deleteStudent('${student.id}')">
                     <i class="fas fa-trash"></i> Delete
                   </button>
@@ -2042,6 +2045,30 @@
     }
     
     window.deleteStudent = deleteStudent;
+
+    // ========================
+    // Set Report Card Function
+    // ========================
+    
+    function setReportCard(studentId) {
+      const student = studentsData.find(s => s.id === studentId);
+      if (!student) return;
+      
+      // Store the selected student information in localStorage for the set report card page
+      localStorage.setItem('selectedStudentForReport', JSON.stringify({
+        id: student.id,
+        name: student.firstname,
+        surname: student.surname,
+        email: student.email,
+        form: student.form,
+        stream: student.stream
+      }));
+      
+      // Redirect to the set report card page
+      window.location.href = '/setreportcard';
+    }
+    
+    window.setReportCard = setReportCard;
 
     // ========================
     // Export Functions
