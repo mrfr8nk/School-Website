@@ -54,7 +54,11 @@ const routes = [
   { path: '/dashboard', file: '/pages/student-dashboard.html' },
   { path: '/teacherusers', file: '/admin/teacher-users.html' },
   { path: '/studentusers', file: '/pages/student-users.html' },
-  { path: '/myclass', file: '/admin/my-class.html' }
+  { path: '/myclass', file: '/admin/my-class.html' },
+  { path: '/stem', file: '/pages/stem.html' },
+  { path: '/arts', file: '/pages/arts.html' },
+  { path: '/commercial', file: '/pages/commercial.html' },
+  { path: '/allnews', file: '/pages/allnews.html' }
 ];
 
 // Health check endpoint for Render
