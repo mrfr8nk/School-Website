@@ -764,6 +764,69 @@ button:active {
     text-align: center;
   }
 }
+
+/* Grading Settings Styles */
+.grading-level-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid var(--secondary);
+}
+
+.grade-ranges {
+  display: grid;
+  gap: 1rem;
+}
+
+.grade-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+}
+
+.grade-row label {
+  min-width: 80px;
+  color: var(--secondary);
+  font-weight: 600;
+  margin-bottom: 0 !important;
+}
+
+.grade-row input[type="number"] {
+  width: 70px;
+  padding: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: var(--glass);
+  color: var(--text-color);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.grade-row input[type="number"]:focus {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 2px rgba(214, 158, 46, 0.3);
+  outline: none;
+}
+
+@media (max-width: 767px) {
+  .grade-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .grade-row label {
+    min-width: auto;
+  }
+  
+  .grade-row input[type="number"] {
+    width: 100%;
+  }
+}
  </style>
 </head>
 <body>
@@ -825,6 +888,140 @@ button:active {
       <select id="streamSelect" onchange="filterByStream()" style="display: none;">
         <option value="">Select Stream/Class</option>
       </select>
+    </div>
+
+    <!-- Grading Settings Section -->
+    <div id="gradingSettings" style="display: none;">
+      <div class="form-group">
+        <button type="button" id="showGradingSettings" class="btn" style="background: var(--accent); color: white; margin-bottom: 1.5rem;">
+          <i class="fas fa-cog"></i> Configure Grading Scales
+        </button>
+      </div>
+      
+      <div id="gradingSettingsPanel" style="display: none; background: var(--glass); padding: 2rem; border-radius: 12px; backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 2rem; box-shadow: var(--card-shadow);">
+        <h2 style="color: var(--secondary); margin-bottom: 1.5rem; font-size: 1.5rem;">
+          <i class="fas fa-chart-bar"></i> Grading Scale Configuration
+        </h2>
+        
+        <!-- ZJC (Form 1 & 2) -->
+        <div class="grading-level-section">
+          <h3 style="color: var(--secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-graduation-cap"></i> ZJC (Form 1 & 2)
+          </h3>
+          <div class="grade-ranges">
+            <div class="grade-row">
+              <label>Grade A:</label>
+              <input type="number" id="zjc_a_min" value="75" min="0" max="100" /> -
+              <input type="number" id="zjc_a_max" value="100" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade B:</label>
+              <input type="number" id="zjc_b_min" value="65" min="0" max="100" /> -
+              <input type="number" id="zjc_b_max" value="74" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade C:</label>
+              <input type="number" id="zjc_c_min" value="50" min="0" max="100" /> -
+              <input type="number" id="zjc_c_max" value="64" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade D:</label>
+              <input type="number" id="zjc_d_min" value="40" min="0" max="100" /> -
+              <input type="number" id="zjc_d_max" value="49" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade U:</label>
+              <input type="number" id="zjc_u_min" value="0" min="0" max="100" /> -
+              <input type="number" id="zjc_u_max" value="39" min="0" max="100" />
+            </div>
+          </div>
+        </div>
+
+        <!-- O Level (Form 3 & 4) -->
+        <div class="grading-level-section">
+          <h3 style="color: var(--secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-medal"></i> O Level (Form 3 & 4)
+          </h3>
+          <div class="grade-ranges">
+            <div class="grade-row">
+              <label>Grade A:</label>
+              <input type="number" id="olevel_a_min" value="70" min="0" max="100" /> -
+              <input type="number" id="olevel_a_max" value="100" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade B:</label>
+              <input type="number" id="olevel_b_min" value="60" min="0" max="100" /> -
+              <input type="number" id="olevel_b_max" value="69" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade C:</label>
+              <input type="number" id="olevel_c_min" value="50" min="0" max="100" /> -
+              <input type="number" id="olevel_c_max" value="59" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade D:</label>
+              <input type="number" id="olevel_d_min" value="40" min="0" max="100" /> -
+              <input type="number" id="olevel_d_max" value="49" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade U:</label>
+              <input type="number" id="olevel_u_min" value="0" min="0" max="100" /> -
+              <input type="number" id="olevel_u_max" value="39" min="0" max="100" />
+            </div>
+          </div>
+        </div>
+
+        <!-- A Level (Form 5 & 6) -->
+        <div class="grading-level-section">
+          <h3 style="color: var(--secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-trophy"></i> A Level (Form 5 & 6)
+          </h3>
+          <div class="grade-ranges">
+            <div class="grade-row">
+              <label>Grade A:</label>
+              <input type="number" id="alevel_a_min" value="75" min="0" max="100" /> -
+              <input type="number" id="alevel_a_max" value="100" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade B:</label>
+              <input type="number" id="alevel_b_min" value="65" min="0" max="100" /> -
+              <input type="number" id="alevel_b_max" value="74" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade C:</label>
+              <input type="number" id="alevel_c_min" value="55" min="0" max="100" /> -
+              <input type="number" id="alevel_c_max" value="64" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade D:</label>
+              <input type="number" id="alevel_d_min" value="45" min="0" max="100" /> -
+              <input type="number" id="alevel_d_max" value="54" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade F:</label>
+              <input type="number" id="alevel_f_min" value="35" min="0" max="100" /> -
+              <input type="number" id="alevel_f_max" value="44" min="0" max="100" />
+            </div>
+            <div class="grade-row">
+              <label>Grade O:</label>
+              <input type="number" id="alevel_o_min" value="0" min="0" max="100" /> -
+              <input type="number" id="alevel_o_max" value="34" min="0" max="100" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions" style="margin-top: 2rem;">
+          <button type="button" id="saveGradingSettings" class="btn" style="background: var(--secondary); color: #1a365d;">
+            <i class="fas fa-save"></i> Save Grading Settings
+          </button>
+          <button type="button" id="resetGradingSettings" class="btn" style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3);">
+            <i class="fas fa-undo"></i> Reset to Default
+          </button>
+          <button type="button" id="closeGradingSettings" class="btn" style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3);">
+            <i class="fas fa-times"></i> Close
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Marks Entry Form -->
@@ -1404,6 +1601,7 @@ button:active {
       document.getElementById("selectedStudent").textContent = `${student.firstname || ""} ${student.surname || ""}`;
       marksForm.style.display = "block";
       marksForm.dataset.studentId = student.id;
+      marksForm.dataset.studentForm = student.form || ""; // Store student form for grading reference
       document.getElementById("feesPaid").checked = (student.feesPaid !== undefined) ? student.feesPaid : true;
       document.getElementById("feesBalance").value = student.feesBalance || "";
       if(student.feesPaid === false) {
@@ -1419,21 +1617,30 @@ button:active {
       subjectFields.innerHTML = "";
       const subs = student.marks || {};
       const keys = Object.keys(subs);
+      
+      // Get grade options for this student's form level
+      const gradeOptions = getGradeOptions(student.form);
+      
       for (let i = 0; i < 10; i++) {
         const subName = keys[i] || "";
         const marksVal = keys[i] ? subs[keys[i]].marks : "";
         const gradeVal = keys[i] ? subs[keys[i]].grade : "";
+        
+        // Build grade options with current value selected
+        let gradeOptionsHtml = '';
+        const scale = getGradingScale(student.form);
+        Object.entries(scale).forEach(([grade, range]) => {
+          const selected = gradeVal === grade ? 'selected' : '';
+          gradeOptionsHtml += `<option value="${grade}" ${selected}>${grade} (${range.min}-${range.max})</option>`;
+        });
+        
         subjectFields.innerHTML += `
           <div class="form-group">
             <label>Subject ${i + 1}</label>
             <input type="text" id="subject${i}" value="${subName}" placeholder="Enter subject name" />
             <input type="number" id="marks${i}" value="${marksVal}" placeholder="Enter marks" oninput="updateGrade(${i})"/>
             <select id="grade${i}">
-              <option value="A" ${gradeVal === "A" ? "selected" : ""}>A (90-100)</option>
-              <option value="B" ${gradeVal === "B" ? "selected" : ""}>B (80-89)</option>
-              <option value="C" ${gradeVal === "C" ? "selected" : ""}>C (70-79)</option>
-              <option value="D" ${gradeVal === "D" ? "selected" : ""}>D (60-69)</option>
-              <option value="F" ${gradeVal === "F" ? "selected" : ""}>F (Below 60)</option>
+              ${gradeOptionsHtml}
             </select>
           </div>
         `;
@@ -1449,19 +1656,24 @@ button:active {
       }
     });
 
-    // Auto-grade
+    // Auto-grade using dynamic grading scales
     window.updateGrade = (i) => {
       const marksInput = document.getElementById(`marks${i}`);
       const gradeSelect = document.getElementById(`grade${i}`);
       const val = Number(marksInput.value);
-      let grade = "F";
-      if (!isNaN(val)) {
-        if (val >= 90) grade = "A";
-        else if (val >= 80) grade = "B";
-        else if (val >= 70) grade = "C";
-        else if (val >= 60) grade = "D";
+      
+      // Get student form from the form dataset
+      const studentForm = marksForm.dataset.studentForm || "";
+      
+      if (!isNaN(val) && val >= 0) {
+        const calculatedGrade = calculateGradeForStudent(val, studentForm);
+        gradeSelect.value = calculatedGrade;
+      } else {
+        // Default to lowest grade if invalid input
+        const scale = getGradingScale(studentForm);
+        const grades = Object.keys(scale);
+        gradeSelect.value = grades[grades.length - 1] || 'U';
       }
-      gradeSelect.value = grade;
     };
 
     // Save marks
@@ -1724,6 +1936,206 @@ const sideMenu = document.getElementById("sideMenu");
 hamburgerBtn.addEventListener("click", () => {
   sideMenu.classList.toggle("shown");
 });
+
+// Grading Settings Functionality
+let gradingScales = {};
+
+// Initialize grading settings
+async function initializeGradingSettings() {
+  // Show grading settings only for admin users
+  if (userRole === 'admin') {
+    document.getElementById('gradingSettings').style.display = 'block';
+  }
+  
+  // Load existing grading settings
+  await loadGradingSettings();
+  
+  // Set up event listeners
+  document.getElementById('showGradingSettings').addEventListener('click', () => {
+    document.getElementById('gradingSettingsPanel').style.display = 'block';
+  });
+  
+  document.getElementById('closeGradingSettings').addEventListener('click', () => {
+    document.getElementById('gradingSettingsPanel').style.display = 'none';
+  });
+  
+  document.getElementById('saveGradingSettings').addEventListener('click', saveGradingSettings);
+  document.getElementById('resetGradingSettings').addEventListener('click', resetGradingSettings);
+}
+
+// Load grading settings from database
+async function loadGradingSettings() {
+  try {
+    const settingsDoc = await getDoc(doc(db, 'settings', 'gradingScales'));
+    if (settingsDoc.exists()) {
+      gradingScales = settingsDoc.data();
+      populateGradingForm();
+    } else {
+      // Set default grading scales
+      setDefaultGradingScales();
+    }
+  } catch (error) {
+    console.error('Error loading grading settings:', error);
+    setDefaultGradingScales();
+  }
+}
+
+// Set default grading scales
+function setDefaultGradingScales() {
+  gradingScales = {
+    zjc: {
+      A: { min: 75, max: 100 },
+      B: { min: 65, max: 74 },
+      C: { min: 50, max: 64 },
+      D: { min: 40, max: 49 },
+      U: { min: 0, max: 39 }
+    },
+    olevel: {
+      A: { min: 70, max: 100 },
+      B: { min: 60, max: 69 },
+      C: { min: 50, max: 59 },
+      D: { min: 40, max: 49 },
+      U: { min: 0, max: 39 }
+    },
+    alevel: {
+      A: { min: 75, max: 100 },
+      B: { min: 65, max: 74 },
+      C: { min: 55, max: 64 },
+      D: { min: 45, max: 54 },
+      F: { min: 35, max: 44 },
+      O: { min: 0, max: 34 }
+    }
+  };
+  populateGradingForm();
+}
+
+// Populate grading form with current settings
+function populateGradingForm() {
+  // ZJC (Form 1 & 2)
+  Object.entries(gradingScales.zjc || {}).forEach(([grade, range]) => {
+    const minEl = document.getElementById(`zjc_${grade.toLowerCase()}_min`);
+    const maxEl = document.getElementById(`zjc_${grade.toLowerCase()}_max`);
+    if (minEl) minEl.value = range.min;
+    if (maxEl) maxEl.value = range.max;
+  });
+  
+  // O Level (Form 3 & 4)
+  Object.entries(gradingScales.olevel || {}).forEach(([grade, range]) => {
+    const minEl = document.getElementById(`olevel_${grade.toLowerCase()}_min`);
+    const maxEl = document.getElementById(`olevel_${grade.toLowerCase()}_max`);
+    if (minEl) minEl.value = range.min;
+    if (maxEl) maxEl.value = range.max;
+  });
+  
+  // A Level (Form 5 & 6)
+  Object.entries(gradingScales.alevel || {}).forEach(([grade, range]) => {
+    const minEl = document.getElementById(`alevel_${grade.toLowerCase()}_min`);
+    const maxEl = document.getElementById(`alevel_${grade.toLowerCase()}_max`);
+    if (minEl) minEl.value = range.min;
+    if (maxEl) maxEl.value = range.max;
+  });
+}
+
+// Save grading settings to database
+async function saveGradingSettings() {
+  try {
+    // Collect data from form
+    const newGradingScales = {
+      zjc: {},
+      olevel: {},
+      alevel: {}
+    };
+    
+    // ZJC grades
+    ['a', 'b', 'c', 'd', 'u'].forEach(grade => {
+      const min = parseInt(document.getElementById(`zjc_${grade}_min`).value);
+      const max = parseInt(document.getElementById(`zjc_${grade}_max`).value);
+      newGradingScales.zjc[grade.toUpperCase()] = { min, max };
+    });
+    
+    // O Level grades
+    ['a', 'b', 'c', 'd', 'u'].forEach(grade => {
+      const min = parseInt(document.getElementById(`olevel_${grade}_min`).value);
+      const max = parseInt(document.getElementById(`olevel_${grade}_max`).value);
+      newGradingScales.olevel[grade.toUpperCase()] = { min, max };
+    });
+    
+    // A Level grades
+    ['a', 'b', 'c', 'd', 'f', 'o'].forEach(grade => {
+      const min = parseInt(document.getElementById(`alevel_${grade}_min`).value);
+      const max = parseInt(document.getElementById(`alevel_${grade}_max`).value);
+      newGradingScales.alevel[grade.toUpperCase()] = { min, max };
+    });
+    
+    // Save to database
+    await setDoc(doc(db, 'settings', 'gradingScales'), newGradingScales);
+    gradingScales = newGradingScales;
+    
+    alert('Grading settings saved successfully!');
+    document.getElementById('gradingSettingsPanel').style.display = 'none';
+    
+  } catch (error) {
+    console.error('Error saving grading settings:', error);
+    alert('Error saving grading settings. Please try again.');
+  }
+}
+
+// Reset to default grading settings
+function resetGradingSettings() {
+  if (confirm('Are you sure you want to reset to default grading scales? This will overwrite your current settings.')) {
+    setDefaultGradingScales();
+  }
+}
+
+// Get appropriate grading scale based on student form
+function getGradingScale(studentForm) {
+  if (!studentForm) return gradingScales.zjc || {};
+  
+  const form = studentForm.toLowerCase();
+  if (form.includes('form 1') || form.includes('form 2')) {
+    return gradingScales.zjc || {};
+  } else if (form.includes('form 3') || form.includes('form 4')) {
+    return gradingScales.olevel || {};
+  } else if (form.includes('form 5') || form.includes('form 6')) {
+    return gradingScales.alevel || {};
+  }
+  
+  // Default to ZJC
+  return gradingScales.zjc || {};
+}
+
+// Calculate grade based on marks and student form
+function calculateGradeForStudent(marks, studentForm) {
+  const scale = getGradingScale(studentForm);
+  
+  for (const [grade, range] of Object.entries(scale)) {
+    if (marks >= range.min && marks <= range.max) {
+      return grade;
+    }
+  }
+  
+  return 'U'; // Default grade if no match found
+}
+
+// Get grade options for dropdown based on student form
+function getGradeOptions(studentForm) {
+  const scale = getGradingScale(studentForm);
+  let options = '';
+  
+  Object.entries(scale).forEach(([grade, range]) => {
+    options += `<option value="${grade}">${grade} (${range.min}-${range.max})</option>`;
+  });
+  
+  return options;
+}
+
+// Initialize grading settings when user is authenticated
+// This will be called after user authentication is confirmed
+setTimeout(() => {
+  if (isAuthenticated) {
+    initializeGradingSettings();
+  }
+}, 1000);
 
 // Theme toggle
 const themeToggleButton = document.getElementById("themeToggleButton");

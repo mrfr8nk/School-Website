@@ -213,7 +213,9 @@
     .grade-b { color: #4299e1; font-weight: 600; }
     .grade-c { color: #ed8936; font-weight: 600; }
     .grade-d { color: #f56565; font-weight: 600; }
+    .grade-u { color: #e53e3e; font-weight: 600; }
     .grade-f { color: #e53e3e; font-weight: 600; }
+    .grade-o { color: #f56565; font-weight: 600; }
 
     .summary-section {
       display: grid;
@@ -466,11 +468,74 @@
     let studentData = null;
     let reportData = null;
     let performanceChart = null;
+    let gradingScales = {};
 
     // Initialize page
     window.addEventListener('DOMContentLoaded', async function() {
+      await loadGradingSettings();
       await checkReportAvailability();
     });
+
+    // Load grading settings from database
+    async function loadGradingSettings() {
+      try {
+        const settingsDoc = await getDoc(doc(db, 'settings', 'gradingScales'));
+        if (settingsDoc.exists()) {
+          gradingScales = settingsDoc.data();
+        } else {
+          // Set default grading scales
+          setDefaultGradingScales();
+        }
+      } catch (error) {
+        console.error('Error loading grading settings:', error);
+        setDefaultGradingScales();
+      }
+    }
+
+    // Set default grading scales
+    function setDefaultGradingScales() {
+      gradingScales = {
+        zjc: {
+          A: { min: 75, max: 100 },
+          B: { min: 65, max: 74 },
+          C: { min: 50, max: 64 },
+          D: { min: 40, max: 49 },
+          U: { min: 0, max: 39 }
+        },
+        olevel: {
+          A: { min: 70, max: 100 },
+          B: { min: 60, max: 69 },
+          C: { min: 50, max: 59 },
+          D: { min: 40, max: 49 },
+          U: { min: 0, max: 39 }
+        },
+        alevel: {
+          A: { min: 75, max: 100 },
+          B: { min: 65, max: 74 },
+          C: { min: 55, max: 64 },
+          D: { min: 45, max: 54 },
+          F: { min: 35, max: 44 },
+          O: { min: 0, max: 34 }
+        }
+      };
+    }
+
+    // Get appropriate grading scale based on student form
+    function getGradingScale(studentForm) {
+      if (!studentForm) return gradingScales.zjc || {};
+      
+      const form = studentForm.toLowerCase();
+      if (form.includes('form 1') || form.includes('form 2')) {
+        return gradingScales.zjc || {};
+      } else if (form.includes('form 3') || form.includes('form 4')) {
+        return gradingScales.olevel || {};
+      } else if (form.includes('form 5') || form.includes('form 6')) {
+        return gradingScales.alevel || {};
+      }
+      
+      // Default to ZJC
+      return gradingScales.zjc || {};
+    }
 
     // Check if reports are available for viewing
     async function checkReportAvailability() {
@@ -625,13 +690,28 @@
       };
     }
 
-    // Calculate grade based on marks
+    // Calculate grade based on marks using dynamic grading scales
     function calculateGrade(marks) {
-      if (marks >= 80) return 'A';
-      if (marks >= 70) return 'B';
-      if (marks >= 60) return 'C';
-      if (marks >= 50) return 'D';
-      return 'F';
+      if (!studentData || !studentData.form) {
+        // Fallback to default grading if no student form available
+        const scale = gradingScales.zjc || {};
+        for (const [grade, range] of Object.entries(scale)) {
+          if (marks >= range.min && marks <= range.max) {
+            return grade;
+          }
+        }
+        return 'U';
+      }
+      
+      const scale = getGradingScale(studentData.form);
+      
+      for (const [grade, range] of Object.entries(scale)) {
+        if (marks >= range.min && marks <= range.max) {
+          return grade;
+        }
+      }
+      
+      return 'U'; // Default grade if no match found
     }
 
     // Get grade comment
@@ -641,7 +721,9 @@
         'B': 'Good performance',
         'C': 'Satisfactory',
         'D': 'Needs improvement',
-        'F': 'Requires attention'
+        'U': 'Ungraded - Requires attention',
+        'F': 'Fail - Requires attention',
+        'O': 'Ordinary level - Requires improvement'
       };
       return comments[grade] || 'No comment';
     }
