@@ -4478,15 +4478,20 @@ window.recordPayment = async function() {
       // Create new payment
       await addDoc(collection(db, "payments"), paymentData);
       
-      // Track payment creation activity
-      trackAccountActivity('payment_created', {
-        studentId: studentId,
-        amount: amount,
-        currency: currency,
-        method: method,
-        receiptNumber: receiptNumber,
-        term: currentTerm
-      });
+      // Track payment creation activity (non-blocking)
+      try {
+        trackAccountActivity('payment_created', {
+          studentId: studentId,
+          amount: amount,
+          currency: currency,
+          method: method,
+          receiptNumber: receiptNumber,
+          term: currentTerm
+        });
+      } catch (trackingErr) {
+        // Don't let tracking errors fail the payment recording
+        console.warn("Activity tracking failed but payment was successful:", trackingErr);
+      }
       
       showNotification(`Payment recorded successfully! Receipt: ${receiptNumber}`, "success");
     }
@@ -4516,7 +4521,23 @@ window.recordPayment = async function() {
     
   } catch (err) {
     console.error("Error processing payment:", err);
-    showNotification("Error processing payment. Please try again.", "error");
+    
+    // Provide more specific error messages based on the error type
+    let errorMessage = "An error occurred when recording the transaction. ";
+    
+    if (err.code === 'permission-denied') {
+      errorMessage += "Permission denied. Please check your access rights.";
+    } else if (err.code === 'unavailable') {
+      errorMessage += "Service temporarily unavailable. Please try again in a few moments.";
+    } else if (err.code === 'network-request-failed') {
+      errorMessage += "Network error. Please check your internet connection.";
+    } else if (err.message.includes('Firebase')) {
+      errorMessage += "Database connection error. Please try again.";
+    } else {
+      errorMessage += "Please try again or contact support if the problem persists.";
+    }
+    
+    showNotification(errorMessage, "error");
   } finally {
     showLoading(false);
   }
