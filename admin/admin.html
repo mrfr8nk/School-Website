@@ -1286,6 +1286,64 @@
           </button>
         </div>
       </div>
+
+      <!-- System Backup & Restore -->
+      <div class="account-card fade-in">
+        <div class="section-header">
+          <h2><i class="fas fa-database"></i> System Backup & Restore</h2>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <h3><i class="fas fa-download"></i> Backup System Data</h3>
+            <p style="margin-bottom: 1rem; color: var(--text-light);">
+              Export all system data including students, teachers, payments, fees, and settings to backup files.
+            </p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-primary" onclick="createFullBackup()">
+                <i class="fas fa-database"></i> Full System Backup
+              </button>
+              <button type="button" class="btn btn-outline" onclick="createStudentBackup()">
+                <i class="fas fa-users"></i> Students Only
+              </button>
+              <button type="button" class="btn btn-outline" onclick="createPaymentBackup()">
+                <i class="fas fa-money-bill-wave"></i> Payments Only
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <h3><i class="fas fa-upload"></i> Restore System Data</h3>
+            <p style="margin-bottom: 1rem; color: var(--text-light);">
+              Restore system data from backup files. <strong>Warning:</strong> This will replace existing data.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              <input type="file" id="backupFileInput" accept=".json" multiple style="margin-bottom: 0.5rem;">
+              <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary" onclick="restoreFromBackup()" style="background-color: var(--warning); color: var(--dark);">
+                  <i class="fas fa-upload"></i> Restore Selected Files
+                </button>
+                <button type="button" class="btn btn-danger" onclick="showRestoreConfirmation()">
+                  <i class="fas fa-exclamation-triangle"></i> Full System Restore
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="term-info" style="margin-top: 1.5rem;">
+          <p><strong>Backup Information:</strong></p>
+          <ul>
+            <li><strong>Full Backup:</strong> Includes all students, teachers, payments, fees, applications, and system settings</li>
+            <li><strong>Selective Backup:</strong> Export specific data types for partial restoration</li>
+            <li><strong>File Format:</strong> Backups are saved as JSON files with timestamps</li>
+            <li><strong>Restoration:</strong> Always create a backup before restoring to prevent data loss</li>
+          </ul>
+          <p style="margin-top: 1rem; padding: 1rem; background: rgba(245, 101, 101, 0.1); border-left: 4px solid var(--danger); border-radius: 4px;">
+            <strong>⚠️ Important:</strong> Restoration will permanently replace existing data. Always backup current data before restoring.
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1908,6 +1966,514 @@
 
     // Call this when the page loads
     checkAdminAuthState();
+
+    /* ======================================
+       BACKUP & RESTORE FUNCTIONALITY
+    ====================================== */
+    
+    // List of all Firebase collections to backup
+    const FIREBASE_COLLECTIONS = [
+      'students',
+      'teachers', 
+      'payments',
+      'feeStructure',
+      'settings',
+      'applications',
+      'pettyCash',
+      'accountActivity',
+      'reports',
+      'subjects',
+      'classes'
+    ];
+
+    // Create full system backup
+    window.createFullBackup = async function() {
+      // Check if user has admin permissions
+      if (!currentUser || currentUser.role !== 'admin') {
+        alert('Access denied: Only administrators can create system backups.');
+        return;
+      }
+
+      const confirmed = confirm(
+        'Create a full system backup?\n\n' +
+        'This will export all data from the system including:\n' +
+        '• All student records\n' +
+        '• Teacher accounts and assignments\n' +
+        '• Payment history and fee structures\n' +
+        '• System settings and configurations\n\n' +
+        'This may take several minutes for large datasets.'
+      );
+      
+      if (!confirmed) return;
+
+      try {
+        const loadingMessage = showLoadingModal('Creating full system backup...');
+        const backupData = {};
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        let totalDocuments = 0;
+        let failedCollections = [];
+        
+        // Backup each collection with improved error handling
+        for (const collectionName of FIREBASE_COLLECTIONS) {
+          try {
+            showLoadingModal(`Backing up ${collectionName} collection...`);
+            
+            // Use the Firebase functions that are available globally
+            const collectionRef = collection(db, collectionName);
+            const snapshot = await getDocs(collectionRef);
+            
+            backupData[collectionName] = {
+              metadata: {
+                count: snapshot.size,
+                backedUpAt: new Date().toISOString(),
+                collectionName: collectionName
+              },
+              data: snapshot.docs.map(doc => {
+                const data = doc.data();
+                const processedData = { id: doc.id, ...data };
+                
+                // Convert Firebase Timestamps to ISO strings for JSON compatibility
+                Object.keys(processedData).forEach(key => {
+                  if (processedData[key] && typeof processedData[key] === 'object' && processedData[key].toDate) {
+                    processedData[key] = processedData[key].toDate().toISOString();
+                  }
+                });
+                
+                return processedData;
+              })
+            };
+            
+            totalDocuments += snapshot.size;
+            console.log(`✅ Backed up ${collectionName}: ${snapshot.size} documents`);
+          } catch (collectionError) {
+            console.error(`❌ Error backing up collection ${collectionName}:`, collectionError);
+            failedCollections.push(collectionName);
+            backupData[collectionName] = {
+              metadata: {
+                count: 0,
+                backedUpAt: new Date().toISOString(),
+                collectionName: collectionName,
+                error: collectionError.message
+              },
+              data: []
+            };
+          }
+        }
+        
+        // Add backup metadata
+        backupData._metadata = {
+          backupType: 'full',
+          version: '1.0',
+          createdAt: new Date().toISOString(),
+          createdBy: currentUser?.name || 'Admin',
+          totalCollections: FIREBASE_COLLECTIONS.length,
+          totalDocuments: totalDocuments,
+          failedCollections: failedCollections,
+          systemInfo: {
+            userAgent: navigator.userAgent,
+            timestamp: Date.now(),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+          }
+        };
+        
+        // Create backup file with integrity hash
+        const backupJson = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([backupJson], { type: 'application/json' });
+        
+        // Generate backup file download
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `st-marys-full-backup-${timestamp}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        hideLoadingModal();
+        
+        // Show detailed backup summary
+        let summaryMessage = `Full system backup created successfully!\n\n`;
+        summaryMessage += `📁 File: st-marys-full-backup-${timestamp}.json\n`;
+        summaryMessage += `📊 Total Documents: ${totalDocuments}\n`;
+        summaryMessage += `📂 Collections: ${Object.keys(backupData).length - 1}\n`;
+        
+        if (failedCollections.length > 0) {
+          summaryMessage += `\n⚠️ Failed Collections: ${failedCollections.join(', ')}\n`;
+          summaryMessage += `Note: Some collections could not be backed up. Check console for details.`;
+        }
+        
+        alert(summaryMessage);
+        
+      } catch (error) {
+        hideLoadingModal();
+        console.error('Error creating backup:', error);
+        alert('Error creating backup: ' + error.message);
+      }
+    };
+
+    // Create student data backup only  
+    window.createStudentBackup = async function() {
+      // Check admin permissions
+      if (!currentUser || currentUser.role !== 'admin') {
+        alert('Access denied: Only administrators can create backups.');
+        return;
+      }
+
+      try {
+        const loadingMessage = showLoadingModal('Creating student data backup...');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        
+        const studentsRef = collection(db, 'students');
+        const snapshot = await getDocs(studentsRef);
+        
+        const backupData = {
+          students: {
+            metadata: {
+              count: snapshot.size,
+              backedUpAt: new Date().toISOString(),
+              collectionName: 'students'
+            },
+            data: snapshot.docs.map(doc => {
+              const data = doc.data();
+              const processedData = { id: doc.id, ...data };
+              
+              // Convert timestamps to ISO strings
+              Object.keys(processedData).forEach(key => {
+                if (processedData[key] && typeof processedData[key] === 'object' && processedData[key].toDate) {
+                  processedData[key] = processedData[key].toDate().toISOString();
+                }
+              });
+              
+              return processedData;
+            })
+          },
+          _metadata: {
+            backupType: 'students',
+            version: '1.0',
+            createdAt: new Date().toISOString(),
+            createdBy: currentUser?.name || 'Admin',
+            totalDocuments: snapshot.size
+          }
+        };
+        
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { 
+          type: 'application/json' 
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `st-marys-students-backup-${timestamp}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        hideLoadingModal();
+        alert(`Student data backup created successfully!\nFile: st-marys-students-backup-${timestamp}.json\n\nBackup includes ${snapshot.size} student records.`);
+        
+      } catch (error) {
+        hideLoadingModal();
+        console.error('Error creating student backup:', error);
+        alert('Error creating student backup: ' + error.message);
+      }
+    };
+
+    // Create payment data backup only
+    window.createPaymentBackup = async function() {
+      // Check admin permissions
+      if (!currentUser || currentUser.role !== 'admin') {
+        alert('Access denied: Only administrators can create backups.');
+        return;
+      }
+
+      try {
+        const loadingMessage = showLoadingModal('Creating payment data backup...');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        
+        const paymentsRef = collection(db, 'payments');
+        const snapshot = await getDocs(paymentsRef);
+        
+        const backupData = {
+          payments: {
+            metadata: {
+              count: snapshot.size,
+              backedUpAt: new Date().toISOString(),
+              collectionName: 'payments'
+            },
+            data: snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data(),
+              ...(doc.data().date?.toDate && { 
+                date: doc.data().date.toDate().toISOString() 
+              }),
+              ...(doc.data().createdAt?.toDate && { 
+                createdAt: doc.data().createdAt.toDate().toISOString() 
+              }),
+              ...(doc.data().updatedAt?.toDate && { 
+                updatedAt: doc.data().updatedAt.toDate().toISOString() 
+              })
+            }))
+          },
+          _metadata: {
+            backupType: 'payments',
+            version: '1.0',
+            createdAt: new Date().toISOString(),
+            createdBy: currentUser?.name || 'Admin'
+          }
+        };
+        
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { 
+          type: 'application/json' 
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `st-marys-payments-backup-${timestamp}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        hideLoadingModal();
+        alert(`Payment data backup created successfully!\nFile: st-marys-payments-backup-${timestamp}.json\n\nBackup includes ${snapshot.size} payment records.`);
+        
+      } catch (error) {
+        hideLoadingModal();
+        console.error('Error creating payment backup:', error);
+        alert('Error creating payment backup: ' + error.message);
+      }
+    };
+
+    // Restore data from backup files
+    window.restoreFromBackup = async function() {
+      // Enhanced security check
+      if (!currentUser || currentUser.role !== 'admin') {
+        alert('Access denied: Only administrators can restore system data.');
+        return;
+      }
+
+      const fileInput = document.getElementById('backupFileInput');
+      const files = fileInput.files;
+      
+      if (!files || files.length === 0) {
+        alert('Please select backup files to restore.');
+        return;
+      }
+      
+      // Enhanced confirmation with type-to-confirm
+      const typeConfirm = prompt(
+        `🚨 CRITICAL DATA RESTORATION WARNING 🚨\n\n` +
+        `This will restore data from ${files.length} backup file(s) and may REPLACE existing data.\n\n` +
+        `⚠️ This action is IRREVERSIBLE ⚠️\n\n` +
+        `Before proceeding:\n` +
+        `1. Ensure you have a current backup of your system\n` +
+        `2. Verify these are the correct backup files\n` +
+        `3. Consider the impact on current users\n\n` +
+        `Type "RESTORE" (all caps) to confirm:`
+      );
+      
+      if (typeConfirm !== 'RESTORE') {
+        alert('Restoration cancelled. Confirmation text did not match.');
+        return;
+      }
+      
+      try {
+        const loadingMessage = showLoadingModal('Restoring data from backup files...');
+        let totalRestored = 0;
+        let restorationSummary = [];
+        
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const fileContent = await readFileAsText(file);
+          const backupData = JSON.parse(fileContent);
+          
+          // Validate backup file format
+          if (!backupData._metadata) {
+            console.warn(`Invalid backup file format: ${file.name}`);
+            restorationSummary.push(`❌ ${file.name}: Invalid format`);
+            continue;
+          }
+          
+          const metadata = backupData._metadata;
+          console.log(`Restoring from ${file.name} (${metadata.backupType})`);
+          
+          // Restore each collection in the backup
+          for (const [collectionName, collectionData] of Object.entries(backupData)) {
+            if (collectionName === '_metadata') continue;
+            
+            if (!collectionData.data || !Array.isArray(collectionData.data)) {
+              console.warn(`Invalid data structure for collection: ${collectionName}`);
+              continue;
+            }
+            
+            try {
+              const batch = writeBatch(db);
+              let batchCount = 0;
+              
+              // Process documents in batches of 400 (safer than 500 limit)
+              for (const docData of collectionData.data) {
+                const { id, ...data } = docData;
+                
+                // Convert ISO strings back to Firebase Timestamps
+                const processedData = processDataForFirestore(data);
+                
+                const docRef = doc(db, collectionName, id);
+                batch.set(docRef, processedData);
+                batchCount++;
+                
+                // Commit batch if we reach the limit
+                if (batchCount >= 400) {
+                  await batch.commit();
+                  const newBatch = writeBatch(db);
+                  batchCount = 0;
+                }
+              }
+              
+              // Commit remaining documents
+              if (batchCount > 0) {
+                await batch.commit();
+              }
+              
+              totalRestored += collectionData.metadata.count;
+              restorationSummary.push(`✅ ${collectionName}: ${collectionData.metadata.count} documents`);
+              
+            } catch (collectionError) {
+              console.error(`Error restoring collection ${collectionName}:`, collectionError);
+              restorationSummary.push(`❌ ${collectionName}: ${collectionError.message}`);
+            }
+          }
+        }
+        
+        hideLoadingModal();
+        
+        const summaryMessage = `Restoration Complete!\n\n` +
+          `Total documents restored: ${totalRestored}\n\n` +
+          `Summary:\n${restorationSummary.join('\n')}\n\n` +
+          `Please refresh the page to see updated data.`;
+        
+        alert(summaryMessage);
+        
+        // Refresh page to reload data
+        if (confirm('Would you like to refresh the page now to see the restored data?')) {
+          window.location.reload();
+        }
+        
+      } catch (error) {
+        hideLoadingModal();
+        console.error('Error during restoration:', error);
+        alert('Error during restoration: ' + error.message);
+      }
+    };
+
+    // Show confirmation dialog for full system restore
+    window.showRestoreConfirmation = function() {
+      const fileInput = document.getElementById('backupFileInput');
+      const files = fileInput.files;
+      
+      if (!files || files.length === 0) {
+        alert('Please select backup files to restore first.');
+        return;
+      }
+      
+      const confirmed = confirm(
+        `🚨 FULL SYSTEM RESTORE 🚨\n\n` +
+        `This is a COMPLETE SYSTEM RESTORATION that will:\n\n` +
+        `⚠️  COMPLETELY REPLACE all existing data\n` +
+        `⚠️  Remove any data not in the backup files\n` +
+        `⚠️  Reset all system configurations\n` +
+        `⚠️  Potentially disconnect current users\n\n` +
+        `This action is IRREVERSIBLE!\n\n` +
+        `Type "RESTORE" in the next dialog to confirm you understand the risks.`
+      );
+      
+      if (!confirmed) return;
+      
+      const confirmationText = prompt(
+        'To proceed with FULL SYSTEM RESTORE, type "RESTORE" exactly (all caps):'
+      );
+      
+      if (confirmationText !== 'RESTORE') {
+        alert('Restoration cancelled. Incorrect confirmation text.');
+        return;
+      }
+      
+      // Proceed with restoration
+      restoreFromBackup();
+    };
+
+    // Helper function to read file as text
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = e => reject(new Error('Failed to read file'));
+        reader.readAsText(file);
+      });
+    }
+
+    // Helper function to process data for Firestore (convert ISO strings back to Timestamps)
+    function processDataForFirestore(data) {
+      const processedData = { ...data };
+      
+      // Convert ISO date strings back to Firebase Timestamps where appropriate
+      Object.keys(processedData).forEach(key => {
+        if (processedData[key] && typeof processedData[key] === 'string') {
+          // Check if it's an ISO date string
+          const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+          if (isoDateRegex.test(processedData[key])) {
+            try {
+              const date = new Date(processedData[key]);
+              if (!isNaN(date.getTime())) {
+                // Use the original date, not serverTimestamp()
+                processedData[key] = date;
+              }
+            } catch (e) {
+              console.warn(`Could not convert ${key} to timestamp:`, processedData[key]);
+            }
+          }
+        }
+      });
+      
+      return processedData;
+    }
+
+    // Helper functions for loading modal
+    function showLoadingModal(message) {
+      // Create or update loading modal
+      let modal = document.getElementById('loadingModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'loadingModal';
+        modal.style.cssText = `
+          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(0,0,0,0.8); display: flex; align-items: center;
+          justify-content: center; z-index: 10000; color: white;
+          font-family: var(--font-primary);
+        `;
+        modal.innerHTML = `
+          <div style="text-align: center; padding: 2rem; background: var(--primary); border-radius: 10px; box-shadow: var(--shadow-xl);">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <div id="loadingMessage" style="font-size: 1.2rem; font-weight: 500;"></div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+      }
+      
+      document.getElementById('loadingMessage').textContent = message;
+      modal.style.display = 'flex';
+      return modal;
+    }
+
+    function hideLoadingModal() {
+      const modal = document.getElementById('loadingModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+
   </script>
 </body>
 </html>
