@@ -1,19 +1,18 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Teacher Account - St. Mary's High School</title>
+  <title>Contact Administrator - St. Mary's High School</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f393.png">
   <link rel="icon" type="image/png" sizes="32x32" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f393.png">
   <link rel="icon" type="image/png" sizes="16x16" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f393.png">
+  
   <style>
     :root {
-      /* Color System */
       --primary: #003366;
       --primary-light: #3d5d8a;
       --primary-dark: #001a33;
@@ -26,20 +25,12 @@
       --light: #ffffff;
       --light-gray: #f8f9fa;
       --dark: #212529;
-      --success: #28a745;
-      --info: #17a2b8;
-      --warning: #ffc107;
-      --danger: #dc3545;
-      
-      /* Spacing */
       --space-xs: 0.25rem;
       --space-sm: 0.5rem;
       --space-md: 1rem;
       --space-lg: 1.5rem;
       --space-xl: 2rem;
       --space-xxl: 3rem;
-      
-      /* Typography */
       --font-primary: 'Poppins', sans-serif;
       --text-base: 1rem;
       --text-lg: 1.125rem;
@@ -47,52 +38,21 @@
       --text-2xl: 1.5rem;
       --text-3xl: 1.875rem;
       --text-4xl: 2.25rem;
-      --text-5xl: 3rem;
-      --text-6xl: 3.75rem;
-      
-      /* Shadows */
       --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
       --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
       --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
       --shadow-xl: 0 20px 40px rgba(0,0,0,0.15);
-      
-      /* Transitions */
-      --transition-fast: 0.15s ease;
       --transition-normal: 0.3s ease;
-      --transition-slow: 0.5s ease;
-      --transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      
-      /* Border Radius */
       --radius-sm: 0.25rem;
       --radius-md: 0.5rem;
       --radius-lg: 1rem;
-      --radius-xl: 1.5rem;
       --radius-full: 9999px;
     }
 
-    /* Dark Mode Variables */
-    .dark-mode {
-      --primary: #4d94ff;
-      --primary-light: #7ab3ff;
-      --primary-dark: #0052cc;
-      --text: #f8f9fa;
-      --text-light: #adb5bd;
-      --light: #212529;
-      --light-gray: #343a40;
-      --dark: #f8f9fa;
-    }
-
-    /* Base Styles */
-    *,
-    *::before,
-    *::after {
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
     }
 
     body {
@@ -101,394 +61,8 @@
       background-color: var(--light);
       line-height: 1.6;
       overflow-x: hidden;
-      transition: background-color var(--transition-slow), color var(--transition-slow);
     }
 
-    h1, h2, h3, h4, h5, h6 {
-      font-family: var(--font-primary);
-      font-weight: 600;
-      line-height: 1.2;
-      margin-bottom: var(--space-md);
-    }
-
-    p {
-      margin-bottom: var(--space-md);
-    }
-
-    a {
-      color: var(--primary);
-      text-decoration: none;
-      transition: color var(--transition-normal);
-    }
-
-    a:hover {
-      color: var(--primary-dark);
-    }
-
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    ul, ol {
-      padding-left: var(--space-lg);
-      margin-bottom: var(--space-md);
-    }
-
-    /* Utility Classes */
-    .container {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 var(--space-md);
-    }
-
-    .section {
-      padding: var(--space-xxl) 0;
-      position: relative;
-    }
-
-    .section-title {
-      text-align: center;
-      margin-bottom: var(--space-xl);
-    }
-
-    .section-title h2 {
-      font-size: var(--text-4xl);
-      color: var(--primary);
-      position: relative;
-      display: inline-block;
-    }
-
-    .section-title h2::after {
-      content: '';
-      position: absolute;
-      left: 50%;
-      bottom: -10px;
-      width: 80px;
-      height: 4px;
-      background: var(--secondary);
-      transform: translateX(-50%);
-      border-radius: var(--radius-full);
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .mt-1 { margin-top: var(--space-xs); }
-    .mt-2 { margin-top: var(--space-sm); }
-    .mt-3 { margin-top: var(--space-md); }
-    .mt-4 { margin-top: var(--space-lg); }
-    .mt-5 { margin-top: var(--space-xl); }
-
-    /* Buttons */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: var(--space-sm) var(--space-lg);
-      font-family: var(--font-primary);
-      font-size: var(--text-base);
-      font-weight: 500;
-      line-height: 1.5;
-      text-align: center;
-      white-space: nowrap;
-      vertical-align: middle;
-      cursor: pointer;
-      user-select: none;
-      border: 2px solid transparent;
-      border-radius: var(--radius-lg);
-      transition: all var(--transition-normal);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .btn-primary {
-      background-color: var(--primary);
-      color: var(--light);
-    }
-
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
-      color: var(--light);
-    }
-
-    .btn-secondary {
-      background-color: var(--secondary);
-      color: var(--dark);
-    }
-
-    .btn-secondary:hover {
-      background-color: var(--secondary-light);
-      color: var(--dark);
-    }
-
-    .btn-outline {
-      background-color: transparent;
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .btn-outline:hover {
-      background-color: var(--primary);
-      color: var(--light);
-    }
-
-    .btn-lg {
-      padding: var(--space-md) var(--space-xl);
-      font-size: var(--text-lg);
-    }
-
-    .btn-icon {
-      margin-right: var(--space-sm);
-    }
-
-    /* New Admin Settings Styles */
-    .section-header {
-      border-bottom: 2px solid var(--secondary);
-      margin-bottom: var(--space-lg);
-      padding-bottom: var(--space-sm);
-    }
-
-    .section-header h2 {
-      color: var(--primary);
-      font-size: var(--text-2xl);
-      margin-bottom: 0;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: var(--space-lg);
-      margin-bottom: var(--space-lg);
-    }
-
-    .form-group {
-      margin-bottom: var(--space-lg);
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: var(--space-sm);
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: var(--space-sm) var(--space-md);
-      border: 2px solid var(--input-border);
-      border-radius: var(--radius-md);
-      font-size: var(--text-base);
-      transition: border-color var(--transition-normal);
-    }
-
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
-    }
-
-    .profile-pic-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-md);
-    }
-
-    .profile-preview {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid var(--primary);
-      box-shadow: var(--shadow-md);
-    }
-
-    .profile-pic-container input[type="file"] {
-      display: none;
-    }
-
-    .setting-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--space-lg) 0;
-      border-bottom: 1px solid var(--input-border);
-    }
-
-    .setting-item:last-child {
-      border-bottom: none;
-    }
-
-    .setting-item label {
-      font-weight: 600;
-      color: var(--primary);
-      margin: 0;
-    }
-
-    .description {
-      color: var(--text-light);
-      font-size: var(--text-sm);
-      margin-top: var(--space-xs);
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 60px;
-      height: 30px;
-      background: #ccc;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: background var(--transition-normal);
-    }
-
-    .toggle-switch.active {
-      background: var(--success);
-    }
-
-    .toggle-switch::before {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 24px;
-      height: 24px;
-      background: white;
-      border-radius: 50%;
-      transition: transform var(--transition-normal);
-    }
-
-    .toggle-switch.active::before {
-      transform: translateX(30px);
-    }
-
-    .grading-levels {
-      display: grid;
-      gap: var(--space-xl);
-    }
-
-    .level-card {
-      background: var(--light-gray);
-      padding: var(--space-lg);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--input-border);
-    }
-
-    .level-card h3 {
-      color: var(--primary);
-      margin-bottom: var(--space-lg);
-      font-size: var(--text-xl);
-      text-align: center;
-      padding-bottom: var(--space-sm);
-      border-bottom: 2px solid var(--secondary);
-    }
-
-    .grade-ranges {
-      display: grid;
-      gap: var(--space-md);
-    }
-
-    .grade-item {
-      display: grid;
-      grid-template-columns: 100px 1fr auto 1fr;
-      align-items: center;
-      gap: var(--space-sm);
-      padding: var(--space-sm);
-      background: white;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--input-border);
-    }
-
-    .grade-item label {
-      font-weight: 600;
-      color: var(--primary);
-      margin: 0;
-    }
-
-    .grade-item input {
-      width: 70px;
-      text-align: center;
-      margin: 0;
-    }
-
-    .class-assignment {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: var(--space-md);
-      margin-bottom: var(--space-lg);
-    }
-
-    .class-checkbox {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      background: var(--light-gray);
-      padding: var(--space-sm) var(--space-md);
-      border-radius: var(--radius-md);
-      border: 1px solid var(--input-border);
-      cursor: pointer;
-      transition: all var(--transition-normal);
-    }
-
-    .class-checkbox:hover {
-      background: var(--accent);
-      color: white;
-    }
-
-    .class-checkbox input[type="checkbox"] {
-      margin: 0;
-      width: auto;
-    }
-
-    .class-checkbox label {
-      margin: 0;
-      cursor: pointer;
-      font-size: var(--text-sm);
-      font-weight: 500;
-    }
-
-    .term-info {
-      background: var(--light-gray);
-      padding: var(--space-lg);
-      border-radius: var(--radius-lg);
-      border-left: 4px solid var(--primary);
-      margin-bottom: var(--space-lg);
-    }
-
-    .term-info ul {
-      margin: var(--space-md) 0;
-      padding-left: var(--space-lg);
-    }
-
-    .term-info li {
-      margin-bottom: var(--space-xs);
-    }
-
-    .form-actions {
-      display: flex;
-      gap: var(--space-md);
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: var(--space-xl);
-    }
-
-    /* Header & Navigation */
     .header {
       position: fixed;
       top: 0;
@@ -500,20 +74,14 @@
       transition: all var(--transition-normal);
     }
 
-    .header.scrolled {
-      background-color: rgba(255, 255, 255, 0.95);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .dark-mode .header.scrolled {
-      background-color: rgba(33, 37, 41, 0.95);
-    }
-
     .header-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
       height: 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--space-md);
     }
 
     .logo {
@@ -522,6 +90,7 @@
       font-size: var(--text-xl);
       font-weight: 700;
       color: var(--primary);
+      text-decoration: none;
     }
 
     .logo-img {
@@ -556,64 +125,10 @@
       font-weight: 500;
       color: var(--text);
       transition: color var(--transition-normal);
+      text-decoration: none;
     }
 
-    .nav-links a:hover,
-    .nav-links a.active {
-      color: var(--primary);
-    }
-
-    .nav-links a::after {
-      content: '';
-      position: absolute;
-      left: var(--space-md);
-      bottom: 0;
-      width: calc(100% - 2 * var(--space-md));
-      height: 2px;
-      background-color: var(--primary);
-      transform: scaleX(0);
-      transform-origin: right;
-      transition: transform var(--transition-normal);
-    }
-
-    .nav-links a:hover::after,
-    .nav-links a.active::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-
-    .nav-links .dropdown {
-      position: relative;
-    }
-
-    .nav-links .dropdown-content {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      min-width: 200px;
-      background-color: var(--light);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(10px);
-      transition: all var(--transition-normal);
-      z-index: 100;
-    }
-
-    .nav-links .dropdown:hover .dropdown-content {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    .nav-links .dropdown-content a {
-      padding: var(--space-sm) var(--space-md);
-      color: var(--text);
-    }
-
-    .nav-links .dropdown-content a:hover {
-      background-color: var(--light-gray);
+    .nav-links a:hover {
       color: var(--primary);
     }
 
@@ -624,22 +139,22 @@
       font-size: var(--text-2xl);
       cursor: pointer;
       color: var(--primary);
-      z-index: 1001;
     }
 
-    /* Teacher Account Section */
     .teacher-account-section {
       padding: var(--space-xxl) 0;
       background-color: var(--light-gray);
       min-height: calc(100vh - 80px);
       display: flex;
       align-items: center;
+      margin-top: 80px;
     }
 
     .teacher-account-container {
       max-width: 800px;
       margin: 0 auto;
       text-align: center;
+      padding: 0 var(--space-md);
     }
 
     .teacher-account-title {
@@ -762,12 +277,14 @@
       display: flex;
       align-items: center;
       transition: all var(--transition-normal);
+      text-decoration: none;
     }
 
     .whatsapp-btn:hover {
       background-color: #128C7E;
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
+      color: var(--light);
     }
 
     .whatsapp-btn i {
@@ -775,7 +292,6 @@
       font-size: var(--text-xl);
     }
 
-    /* Footer - Compact Design like Student Dashboard */
     .footer {
       background-color: var(--primary);
       color: var(--light);
@@ -796,6 +312,7 @@
       font-size: 1rem;
       transition: all 0.3s ease;
       opacity: 0.8;
+      text-decoration: none;
     }
 
     .social-links a:hover {
@@ -820,12 +337,11 @@
       text-decoration: underline;
     }
 
-    /* Theme Toggle */
     .theme-toggle {
       position: fixed;
       bottom: var(--space-xl);
       right: var(--space-xl);
-            width: 50px;
+      width: 50px;
       height: 50px;
       border-radius: 50%;
       background-color: var(--primary);
@@ -843,45 +359,6 @@
       transform: scale(1.1);
     }
 
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes fadeInUp {
-      from { 
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to { 
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeInLeft {
-      from { 
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      to { 
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    @keyframes fadeInRight {
-      from { 
-        opacity: 0;
-        transform: translateX(20px);
-      }
-      to { 
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
     @keyframes float {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
@@ -892,16 +369,9 @@
       animation: fadeIn 1s ease forwards;
     }
 
-    .delay-1 { animation-delay: 0.2s; }
-    .delay-2 { animation-delay: 0.4s; }
-    .delay-3 { animation-delay: 0.6s; }
-
-    /* Responsive Design */
-    @media (max-width: 992px) {
-      .footer-container,
-      .account-steps {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     @media (max-width: 768px) {
@@ -931,27 +401,12 @@
         margin: 0 0 var(--space-lg) 0;
       }
 
-      .nav-links .dropdown-content {
-        position: static;
-        background: transparent;
-        box-shadow: none;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        display: none;
-      }
-
-      .nav-links .dropdown:hover .dropdown-content,
-      .nav-links .dropdown.active .dropdown-content {
-        display: block;
-      }
-
       .teacher-account-title {
         font-size: var(--text-3xl);
       }
 
-      .account-info h2 {
-        font-size: var(--text-2xl);
+      .account-steps {
+        grid-template-columns: 1fr;
       }
 
       .contact-buttons {
@@ -964,22 +419,13 @@
       .teacher-account-title {
         font-size: var(--text-2xl);
       }
-
-      .section {
-        padding: var(--space-xl) 0;
-      }
-      
-      .footer-container,
-      .account-steps {
-        grid-template-columns: 1fr;
-      }
     }
   </style>
 </head>
 <body>
   <!-- Header -->
   <header class="header">
-    <div class="container header-container">
+    <div class="header-container">
       <a href="/" class="logo">
         <img src="https://i.postimg.cc/mZ81jqGW/In-Shot-20250227-051117557.jpg" alt="St. Mary's Logo" class="logo-img">
         <span class="logo-text">St. Mary's <span>High School</span></span>
@@ -992,15 +438,6 @@
       <ul class="nav-links" id="navLinks">
         <li><a href="/">Home</a></li>
         <li><a href="/about">About</a></li>
-        <li class="dropdown">
-          <a href="/academics">Academics <i class="fas fa-chevron-down"></i></a>
-          <div class="dropdown-content">
-            <a href="/sciences">Sciences</a>
-            <a href="/arts">Arts</a>
-            <a href="/commercials">Commercials</a>
-            <a href="/calendar">School Calendar</a>
-          </div>
-        </li>
         <li><a href="/teachersdashboard">Teacher Dashboard</a></li>
         <li><a href="/setreportcard">Set Report Card</a></li>
         <li><a href="/contact">Contact</a></li>
@@ -1008,340 +445,40 @@
     </div>
   </header>
 
-  <!-- Admin Settings Section -->
-  <section class="section teacher-account-section">
-    <div class="container teacher-account-container">
-      <h1 class="teacher-account-title">Admin Settings</h1>
+  <!-- Contact Administrator Section -->
+  <section class="teacher-account-section">
+    <div class="teacher-account-container">
+      <h1 class="teacher-account-title">Contact Administrator</h1>
       
-      <!-- Teacher Profile Settings -->
       <div class="account-card fade-in">
-        <div class="section-header">
-          <h2><i class="fas fa-user"></i> Teacher Profile Settings</h2>
-        </div>
-        
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="profilePic">Profile Picture</label>
-            <div class="profile-pic-container">
-              <img id="profilePicPreview" src="https://i.ibb.co/Mk70FGWb/subzero-bot.jpg" alt="Profile Picture" class="profile-preview">
-              <input type="file" id="profilePic" accept="image/*" onchange="previewProfilePic(event)">
-              <button type="button" class="btn btn-secondary" onclick="uploadProfilePic()">
-                <i class="fas fa-camera"></i> Change Picture
-              </button>
+        <div class="account-info">
+          <h2>Need to Create Admin or Teacher Account?</h2>
+          <p>To create a new admin or teacher account for St. Mary's High School management system, please follow these steps to contact the administrator.</p>
+          
+          <div class="account-steps">
+            <div class="step-item">
+              <div class="step-number">1</div>
+              <div class="step-text">Contact via WhatsApp</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">2</div>
+              <div class="step-text">Provide your credentials</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <div class="step-text">Await approval & setup</div>
             </div>
           </div>
           
-          <div class="form-group">
-            <label for="teacherName">Full Name</label>
-            <input type="text" id="teacherName" placeholder="Enter your full name">
+          <div class="developer-profile">
+            <img src="https://i.ibb.co/yFJryv1y/mrfrankofc.jpg" alt="Administrator - Darrell Mucheri">
           </div>
-
-          <div class="form-group">
-            <label for="teacherEmail">Email Address</label>
-            <input type="email" id="teacherEmail" placeholder="Enter your email">
+          
+          <div class="contact-buttons">
+            <a href="https://wa.me/263719647303?text=Hi%20Darrell,%20I%20need%20to%20create%20an%20admin%20or%20teacher%20account%20for%20St.%20Mary's%20High%20School%20management%20system.%20Please%20help%20me%20with%20the%20setup." target="_blank" class="whatsapp-btn">
+              <i class="fab fa-whatsapp"></i> Contact Administrator
+            </a>
           </div>
-
-          <div class="form-group">
-            <label for="teacherSubjects">Subjects Taught</label>
-            <input type="text" id="teacherSubjects" placeholder="e.g., Mathematics, Physics, Chemistry">
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn btn-primary" onclick="saveTeacherProfile()">
-            <i class="fas fa-save"></i> Save Profile
-          </button>
-        </div>
-      </div>
-
-      <!-- Report Card Management -->
-      <div class="account-card fade-in">
-        <div class="section-header">
-          <h2><i class="fas fa-file-alt"></i> Report Card Management</h2>
-        </div>
-        
-        <div class="setting-item">
-          <div>
-            <label>Global Report Card Status</label>
-            <div class="description">Control whether students can view their report cards</div>
-          </div>
-          <div class="toggle-switch" id="globalReportToggle"></div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn btn-primary" onclick="activateAllReports()">
-            <i class="fas fa-check-circle"></i> Activate All Reports
-          </button>
-          <button type="button" class="btn btn-secondary" onclick="deactivateAllReports()">
-            <i class="fas fa-times-circle"></i> Deactivate All Reports
-          </button>
-          <button type="button" class="btn btn-outline" onclick="viewReportStatus()">
-            <i class="fas fa-eye"></i> View Report Status
-          </button>
-        </div>
-      </div>
-
-      <!-- Grading Settings by Level -->
-      <div class="account-card fade-in">
-        <div class="section-header">
-          <h2><i class="fas fa-graduation-cap"></i> Grading Settings by Level</h2>
-        </div>
-        
-        <div class="grading-levels">
-          <!-- ZJC Level (Form 1 & 2) -->
-          <div class="level-card">
-            <h3>ZJC Level (Form 1 & 2)</h3>
-            <div class="grade-ranges" id="zjcGrades">
-              <div class="grade-item">
-                <label>A Grade:</label>
-                <input type="number" id="zjc_a_min" value="75" min="0" max="100"> - 
-                <input type="number" id="zjc_a_max" value="100" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>B Grade:</label>
-                <input type="number" id="zjc_b_min" value="65" min="0" max="100"> - 
-                <input type="number" id="zjc_b_max" value="74" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>C Grade:</label>
-                <input type="number" id="zjc_c_min" value="50" min="0" max="100"> - 
-                <input type="number" id="zjc_c_max" value="64" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>D Grade:</label>
-                <input type="number" id="zjc_d_min" value="40" min="0" max="100"> - 
-                <input type="number" id="zjc_d_max" value="49" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>U Grade:</label>
-                <input type="number" id="zjc_u_min" value="0" min="0" max="100"> - 
-                <input type="number" id="zjc_u_max" value="39" min="0" max="100">
-              </div>
-            </div>
-          </div>
-
-          <!-- O Level (Form 3 & 4) -->
-          <div class="level-card">
-            <h3>O Level (Form 3 & 4)</h3>
-            <div class="grade-ranges" id="olevelGrades">
-              <div class="grade-item">
-                <label>A Grade:</label>
-                <input type="number" id="ol_a_min" value="70" min="0" max="100"> - 
-                <input type="number" id="ol_a_max" value="100" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>B Grade:</label>
-                <input type="number" id="ol_b_min" value="60" min="0" max="100"> - 
-                <input type="number" id="ol_b_max" value="69" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>C Grade:</label>
-                <input type="number" id="ol_c_min" value="50" min="0" max="100"> - 
-                <input type="number" id="ol_c_max" value="59" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>D Grade:</label>
-                <input type="number" id="ol_d_min" value="40" min="0" max="100"> - 
-                <input type="number" id="ol_d_max" value="49" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>U Grade:</label>
-                <input type="number" id="ol_u_min" value="0" min="0" max="100"> - 
-                <input type="number" id="ol_u_max" value="39" min="0" max="100">
-              </div>
-            </div>
-          </div>
-
-          <!-- A Level (Form 5 & 6) -->
-          <div class="level-card">
-            <h3>A Level (Form 5 & 6)</h3>
-            <div class="grade-ranges" id="alevelGrades">
-              <div class="grade-item">
-                <label>A Grade:</label>
-                <input type="number" id="al_a_min" value="75" min="0" max="100"> - 
-                <input type="number" id="al_a_max" value="100" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>B Grade:</label>
-                <input type="number" id="al_b_min" value="65" min="0" max="100"> - 
-                <input type="number" id="al_b_max" value="74" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>C Grade:</label>
-                <input type="number" id="al_c_min" value="55" min="0" max="100"> - 
-                <input type="number" id="al_c_max" value="64" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>D Grade:</label>
-                <input type="number" id="al_d_min" value="45" min="0" max="100"> - 
-                <input type="number" id="al_d_max" value="54" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>F Grade:</label>
-                <input type="number" id="al_f_min" value="35" min="0" max="100"> - 
-                <input type="number" id="al_f_max" value="44" min="0" max="100">
-              </div>
-              <div class="grade-item">
-                <label>O Grade:</label>
-                <input type="number" id="al_o_min" value="0" min="0" max="100"> - 
-                <input type="number" id="al_o_max" value="34" min="0" max="100">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn btn-primary" onclick="saveGradingSettings()">
-            <i class="fas fa-save"></i> Save Grading Settings
-          </button>
-          <button type="button" class="btn btn-secondary" onclick="resetToDefaults()">
-            <i class="fas fa-undo"></i> Reset to Defaults
-          </button>
-        </div>
-      </div>
-
-      <!-- Class Assignment -->
-      <div class="account-card fade-in">
-        <div class="section-header">
-          <h2><i class="fas fa-users"></i> Class Assignment</h2>
-        </div>
-        
-        <div class="class-assignment" id="classAssignment">
-          <div class="class-checkbox">
-            <input type="checkbox" id="form1a" value="Form 1A">
-            <label for="form1a">Form 1A</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form1b" value="Form 1B">
-            <label for="form1b">Form 1B</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form2a" value="Form 2A">
-            <label for="form2a">Form 2A</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form2b" value="Form 2B">
-            <label for="form2b">Form 2B</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form3a" value="Form 3A">
-            <label for="form3a">Form 3A</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form3b" value="Form 3B">
-            <label for="form3b">Form 3B</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form4a" value="Form 4A">
-            <label for="form4a">Form 4A</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form4b" value="Form 4B">
-            <label for="form4b">Form 4B</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form5a" value="Form 5A">
-            <label for="form5a">Form 5A</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form5b" value="Form 5B">
-            <label for="form5b">Form 5B</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form6a" value="Form 6A">
-            <label for="form6a">Form 6A</label>
-          </div>
-          <div class="class-checkbox">
-            <input type="checkbox" id="form6b" value="Form 6B">
-            <label for="form6b">Form 6B</label>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn btn-primary" onclick="saveClassAssignments()">
-            <i class="fas fa-save"></i> Save Class Assignments
-          </button>
-        </div>
-      </div>
-
-      <!-- Term Settings -->
-      <div class="account-card fade-in">
-        <div class="section-header">
-          <h2><i class="fas fa-calendar-alt"></i> Term Settings</h2>
-        </div>
-        
-        <div class="term-info">
-          <p><strong>Auto Term Detection:</strong> The system automatically detects the current term based on the month:</p>
-          <ul>
-            <li><strong>Term 1:</strong> January - April</li>
-            <li><strong>Term 2:</strong> May - August</li>
-            <li><strong>Term 3:</strong> September - December</li>
-          </ul>
-          <p><strong>Current Term:</strong> <span id="currentTerm"></span></p>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn btn-outline" onclick="updateCurrentTerm()">
-            <i class="fas fa-refresh"></i> Refresh Current Term
-          </button>
-        </div>
-      </div>
-
-      <!-- System Backup & Restore -->
-      <div class="account-card fade-in">
-        <div class="section-header">
-          <h2><i class="fas fa-database"></i> System Backup & Restore</h2>
-        </div>
-        
-        <div class="form-grid">
-          <div class="form-group">
-            <h3><i class="fas fa-download"></i> Backup System Data</h3>
-            <p style="margin-bottom: 1rem; color: var(--text-light);">
-              Export all system data including students, teachers, payments, fees, and settings to backup files.
-            </p>
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-              <button type="button" class="btn btn-primary" onclick="createFullBackup()">
-                <i class="fas fa-database"></i> Full System Backup
-              </button>
-              <button type="button" class="btn btn-outline" onclick="createStudentBackup()">
-                <i class="fas fa-users"></i> Students Only
-              </button>
-              <button type="button" class="btn btn-outline" onclick="createPaymentBackup()">
-                <i class="fas fa-money-bill-wave"></i> Payments Only
-              </button>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <h3><i class="fas fa-upload"></i> Restore System Data</h3>
-            <p style="margin-bottom: 1rem; color: var(--text-light);">
-              Restore system data from backup files. <strong>Warning:</strong> This will replace existing data.
-            </p>
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-              <input type="file" id="backupFileInput" accept=".json" multiple style="margin-bottom: 0.5rem;">
-              <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <button type="button" class="btn btn-secondary" onclick="restoreFromBackup()" style="background-color: var(--warning); color: var(--dark);">
-                  <i class="fas fa-upload"></i> Restore Selected Files
-                </button>
-                <button type="button" class="btn btn-danger" onclick="showRestoreConfirmation()">
-                  <i class="fas fa-exclamation-triangle"></i> Full System Restore
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="term-info" style="margin-top: 1.5rem;">
-          <p><strong>Backup Information:</strong></p>
-          <ul>
-            <li><strong>Full Backup:</strong> Includes all students, teachers, payments, fees, applications, and system settings</li>
-            <li><strong>Selective Backup:</strong> Export specific data types for partial restoration</li>
-            <li><strong>File Format:</strong> Backups are saved as JSON files with timestamps</li>
-            <li><strong>Restoration:</strong> Always create a backup before restoring to prevent data loss</li>
-          </ul>
-          <p style="margin-top: 1rem; padding: 1rem; background: rgba(245, 101, 101, 0.1); border-left: 4px solid var(--danger); border-radius: 4px;">
-            <strong>⚠️ Important:</strong> Restoration will permanently replace existing data. Always backup current data before restoring.
-          </p>
         </div>
       </div>
     </div>
@@ -1366,1114 +503,43 @@
     <i class="fas fa-moon"></i>
   </div>
 
-  <!-- Scripts -->
   <script>
-    // Preloader
-    window.addEventListener('load', function() {
-      const preloader = document.getElementById('preloader');
-      if (preloader) {
-        preloader.style.transition = 'opacity 0.5s ease';
-        preloader.style.opacity = '0';
-        setTimeout(() => {
-          preloader.style.display = 'none';
-        }, 500);
-      }
-    });
-
     // Mobile Menu Toggle
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const navLinks = document.getElementById('navLinks');
     
-    mobileMenuBtn.addEventListener('click', function() {
-      navLinks.classList.toggle('show');
-      mobileMenuBtn.innerHTML = navLinks.classList.contains('show') 
-        ? '<i class="fas fa-times"></i>' 
-        : '<i class="fas fa-bars"></i>';
-    });
-
-    // Dropdown Menus
-    const dropdowns = document.querySelectorAll('.dropdown');
-    dropdowns.forEach(dropdown => {
-      const link = dropdown.querySelector('a');
-      link.addEventListener('click', function(e) {
-        if (window.innerWidth <= 768) {
-          e.preventDefault();
-          dropdown.classList.toggle('active');
-        }
+    if (mobileMenuBtn && navLinks) {
+      mobileMenuBtn.addEventListener('click', function() {
+        navLinks.classList.toggle('show');
+        mobileMenuBtn.innerHTML = navLinks.classList.contains('show') 
+          ? '<i class="fas fa-times"></i>' 
+          : '<i class="fas fa-bars"></i>';
       });
-    });
-
-    // Sticky Header
-    const header = document.querySelector('.header');
-    window.addEventListener('scroll', function() {
-      if (window.scrollY > 100) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
-      }
-    });
+    }
 
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
-    themeToggle.addEventListener('click', function() {
-      document.body.classList.toggle('dark-mode');
-      
-      // Save preference to localStorage
-      const isDarkMode = document.body.classList.contains('dark-mode');
-      localStorage.setItem('darkMode', isDarkMode);
-      
-      // Update icon
-      themeToggle.innerHTML = isDarkMode 
-        ? '<i class="fas fa-sun"></i>' 
-        : '<i class="fas fa-moon"></i>';
-    });
-
-    // Check for saved theme preference
-    if (localStorage.getItem('darkMode') === 'true') {
-      document.body.classList.add('dark-mode');
-      themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-    }
-
-    // Scroll Animations
-    const fadeElements = document.querySelectorAll('.fade-in');
-    const fadeObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = 1;
-          if (entry.target.classList.contains('step-item')) {
-            entry.target.style.transform = 'translateY(0)';
-          }
-        }
-      });
-    }, { threshold: 0.1 });
-
-    fadeElements.forEach(el => {
-      fadeObserver.observe(el);
-    });
-  </script>
-
-  <!-- Admin Authentication Protection & Settings -->
-  <script type="module">
-    import { 
-      auth, 
-      db,
-      onAuthStateChanged,
-      signOut,
-      getDoc,
-      doc,
-      setDoc,
-      updateDoc,
-      getDocs,
-      collection,
-      storage,
-      ref,
-      uploadBytes,
-      getDownloadURL
-    } from "/db/firebase.js";
-
-    // Global variables
-    let currentUser = null;
-
-    // Admin auth state checker function
-    function checkAdminAuthState() {
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-          // No user logged in, redirect to admin login
-          window.location.href = "/teacherslogin";
-          return;
-        }
-
-        try {
-          // Get user document from Firestore
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          
-          if (!userDoc.exists()) {
-            // User document doesn't exist, log out
-            await signOut(auth);
-            window.location.href = "/teacherslogin";
-            return;
-          }
-
-          const userData = userDoc.data();
-          
-          // Check if user is a student (shouldn't have access)
-          if (userData.role && userData.role.toLowerCase() === "student") {
-            // Log out student users immediately
-            await signOut(auth);
-            
-            // Show message and redirect
-            alert('Access Denied: Students cannot access the admin portal');
-            window.location.href = "/login"; // Redirect to student login
-            return;
-          }
-
-          // Check if user is not admin or teacher
-          if (!userData.role || !['admin', 'teacher'].includes(userData.role.toLowerCase())) {
-            // Log out unauthorized users
-            await signOut(auth);
-            
-            alert('Access Denied: You do not have permission to access this area');
-            window.location.href = "/teacherslogin";
-            return;
-          }
-
-          // User is authorized admin/teacher - initialize admin settings
-          currentUser = userData;
-          console.log('Admin access granted for:', userData.role, user.email);
-          await initAdminSettings(user);
-        } catch (error) {
-          console.error('Error checking user authorization:', error);
-          await signOut(auth);
-          window.location.href = "/teacherslogin";
-        }
-      });
-    }
-
-    // Initialize admin settings functionality
-    async function initAdminSettings(user) {
-      try {
-        // Load existing settings
-        await loadTeacherProfile(user.uid);
-        await loadGradingSettings();
-        await loadGlobalReportStatus();
-        await updateCurrentTerm();
-
-        // Setup event listeners with null checks
-        setupProfileSettings(user.uid);
-        setupReportCardManagement();
-        setupGradingSettings();
-        setupClassAssignments(user.uid);
-        setupTermSettings();
-
-      } catch (error) {
-        console.error('Error initializing admin settings:', error);
-      }
-    }
-
-    // Load teacher profile data
-    async function loadTeacherProfile(uid) {
-      try {
-        const teacherDoc = await getDoc(doc(db, 'teachers', uid));
-        if (teacherDoc.exists()) {
-          const data = teacherDoc.data();
-          
-          const nameInput = document.getElementById('teacherName');
-          const emailInput = document.getElementById('teacherEmail');
-          const subjectsInput = document.getElementById('teacherSubjects');
-          const profilePreview = document.getElementById('profilePicPreview');
-          
-          if (nameInput) nameInput.value = data.name || '';
-          if (emailInput) emailInput.value = data.email || '';
-          if (subjectsInput) subjectsInput.value = data.subjects || '';
-          if (profilePreview && data.profilePicUrl) profilePreview.src = data.profilePicUrl;
-
-          // Load class assignments
-          if (data.assignedClasses) {
-            data.assignedClasses.forEach(className => {
-              const checkbox = document.querySelector(`input[value="${className}"]`);
-              if (checkbox) checkbox.checked = true;
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error loading teacher profile:', error);
-      }
-    }
-
-    // Load grading settings
-    async function loadGradingSettings() {
-      try {
-        const gradingDoc = await getDoc(doc(db, 'settings', 'grading'));
-        if (gradingDoc.exists()) {
-          const data = gradingDoc.data();
-          
-          // Load ZJC grades
-          if (data.zjc) {
-            Object.keys(data.zjc).forEach(grade => {
-              const minInput = document.getElementById(`zjc_${grade}_min`);
-              const maxInput = document.getElementById(`zjc_${grade}_max`);
-              if (minInput) minInput.value = data.zjc[grade].min;
-              if (maxInput) maxInput.value = data.zjc[grade].max;
-            });
-          }
-
-          // Load O Level grades
-          if (data.olevel) {
-            Object.keys(data.olevel).forEach(grade => {
-              const minInput = document.getElementById(`ol_${grade}_min`);
-              const maxInput = document.getElementById(`ol_${grade}_max`);
-              if (minInput) minInput.value = data.olevel[grade].min;
-              if (maxInput) maxInput.value = data.olevel[grade].max;
-            });
-          }
-
-          // Load A Level grades
-          if (data.alevel) {
-            Object.keys(data.alevel).forEach(grade => {
-              const minInput = document.getElementById(`al_${grade}_min`);
-              const maxInput = document.getElementById(`al_${grade}_max`);
-              if (minInput) minInput.value = data.alevel[grade].min;
-              if (maxInput) maxInput.value = data.alevel[grade].max;
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error loading grading settings:', error);
-      }
-    }
-
-    // Load global report status
-    async function loadGlobalReportStatus() {
-      try {
-        const settingsDoc = await getDoc(doc(db, 'settings', 'global'));
-        if (settingsDoc.exists()) {
-          const data = settingsDoc.data();
-          const toggle = document.getElementById('globalReportToggle');
-          if (toggle && data.reportsActive) {
-            toggle.classList.add('active');
-          }
-        }
-      } catch (error) {
-        console.error('Error loading global report status:', error);
-      }
-    }
-
-    // Setup profile settings functionality
-    function setupProfileSettings(uid) {
-      // Profile picture upload
-      const profilePicInput = document.getElementById('profilePic');
-      const uploadBtn = document.querySelector('button[onclick="uploadProfilePic()"]');
-      
-      if (uploadBtn) {
-        uploadBtn.onclick = () => {
-          if (profilePicInput) profilePicInput.click();
-        };
-      }
-
-      if (profilePicInput) {
-        profilePicInput.onchange = (event) => {
-          const file = event.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              const preview = document.getElementById('profilePicPreview');
-              if (preview) preview.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-          }
-        };
-      }
-
-      // Save profile button
-      const saveProfileBtn = document.querySelector('button[onclick="saveTeacherProfile()"]');
-      if (saveProfileBtn) {
-        saveProfileBtn.onclick = async () => {
-          try {
-            const name = document.getElementById('teacherName')?.value || '';
-            const email = document.getElementById('teacherEmail')?.value || '';
-            const subjects = document.getElementById('teacherSubjects')?.value || '';
-            const profilePicFile = document.getElementById('profilePic')?.files[0];
-
-            let profilePicUrl = '';
-            
-            // Upload profile picture if selected
-            if (profilePicFile) {
-              const storageRef = ref(storage, `profile-pics/${uid}`);
-              const snapshot = await uploadBytes(storageRef, profilePicFile);
-              profilePicUrl = await getDownloadURL(snapshot.ref);
-            }
-
-            const teacherData = {
-              name,
-              email,
-              subjects,
-              lastUpdated: new Date().toISOString()
-            };
-
-            if (profilePicUrl) {
-              teacherData.profilePicUrl = profilePicUrl;
-            }
-
-            await setDoc(doc(db, 'teachers', uid), teacherData, { merge: true });
-            alert('Profile saved successfully!');
-          } catch (error) {
-            console.error('Error saving profile:', error);
-            alert('Failed to save profile');
-          }
-        };
-      }
-    }
-
-    // Setup report card management
-    function setupReportCardManagement() {
-      // Global report toggle
-      const globalToggle = document.getElementById('globalReportToggle');
-      if (globalToggle) {
-        globalToggle.onclick = async () => {
-          try {
-            const isActive = globalToggle.classList.contains('active');
-            const newStatus = !isActive;
-            
-            await setDoc(doc(db, 'settings', 'global'), {
-              reportsActive: newStatus,
-              lastUpdated: new Date().toISOString(),
-              updatedBy: currentUser?.email || 'admin'
-            }, { merge: true });
-
-            if (newStatus) {
-              globalToggle.classList.add('active');
-            } else {
-              globalToggle.classList.remove('active');
-            }
-
-            alert(`Reports have been ${newStatus ? 'activated' : 'deactivated'} globally`);
-          } catch (error) {
-            console.error('Error toggling global reports:', error);
-            alert('Failed to update global report status');
-          }
-        };
-      }
-
-      // Activate all reports button
-      const activateAllBtn = document.querySelector('button[onclick="activateAllReports()"]');
-      if (activateAllBtn) {
-        activateAllBtn.onclick = async () => {
-          try {
-            const confirmed = confirm('This will make all report cards visible to students. Continue?');
-            if (!confirmed) return;
-
-            const studentsSnapshot = await getDocs(collection(db, 'students'));
-            const updates = [];
-
-            studentsSnapshot.forEach((studentDoc) => {
-              updates.push(updateDoc(doc(db, 'students', studentDoc.id), {
-                reportCardActive: true
-              }));
-            });
-
-            await Promise.all(updates);
-            alert('All report cards have been activated');
-          } catch (error) {
-            console.error('Error activating all reports:', error);
-            alert('Failed to activate all reports');
-          }
-        };
-      }
-
-      // Deactivate all reports button
-      const deactivateAllBtn = document.querySelector('button[onclick="deactivateAllReports()"]');
-      if (deactivateAllBtn) {
-        deactivateAllBtn.onclick = async () => {
-          try {
-            const confirmed = confirm('This will hide all report cards from students. Continue?');
-            if (!confirmed) return;
-
-            const studentsSnapshot = await getDocs(collection(db, 'students'));
-            const updates = [];
-
-            studentsSnapshot.forEach((studentDoc) => {
-              updates.push(updateDoc(doc(db, 'students', studentDoc.id), {
-                reportCardActive: false
-              }));
-            });
-
-            await Promise.all(updates);
-            alert('All report cards have been deactivated');
-          } catch (error) {
-            console.error('Error deactivating all reports:', error);
-            alert('Failed to deactivate all reports');
-          }
-        };
-      }
-
-      // View report status button
-      const viewStatusBtn = document.querySelector('button[onclick="viewReportStatus()"]');
-      if (viewStatusBtn) {
-        viewStatusBtn.onclick = async () => {
-          try {
-            const studentsSnapshot = await getDocs(collection(db, 'students'));
-            let activeCount = 0;
-            let inactiveCount = 0;
-
-            studentsSnapshot.forEach((studentDoc) => {
-              const data = studentDoc.data();
-              if (data.reportCardActive) {
-                activeCount++;
-              } else {
-                inactiveCount++;
-              }
-            });
-
-            const total = activeCount + inactiveCount;
-            alert(`Report Status:\nActive: ${activeCount}\nInactive: ${inactiveCount}\nTotal: ${total}`);
-          } catch (error) {
-            console.error('Error viewing report status:', error);
-            alert('Failed to load report status');
-          }
-        };
-      }
-    }
-
-    // Setup grading settings
-    function setupGradingSettings() {
-      // Save grading settings button
-      const saveGradingBtn = document.querySelector('button[onclick="saveGradingSettings()"]');
-      if (saveGradingBtn) {
-        saveGradingBtn.onclick = async () => {
-          try {
-            const gradingData = {
-              zjc: {
-                a: { min: parseInt(document.getElementById('zjc_a_min')?.value || 75), max: parseInt(document.getElementById('zjc_a_max')?.value || 100) },
-                b: { min: parseInt(document.getElementById('zjc_b_min')?.value || 65), max: parseInt(document.getElementById('zjc_b_max')?.value || 74) },
-                c: { min: parseInt(document.getElementById('zjc_c_min')?.value || 50), max: parseInt(document.getElementById('zjc_c_max')?.value || 64) },
-                d: { min: parseInt(document.getElementById('zjc_d_min')?.value || 40), max: parseInt(document.getElementById('zjc_d_max')?.value || 49) },
-                u: { min: parseInt(document.getElementById('zjc_u_min')?.value || 0), max: parseInt(document.getElementById('zjc_u_max')?.value || 39) }
-              },
-              olevel: {
-                a: { min: parseInt(document.getElementById('ol_a_min')?.value || 70), max: parseInt(document.getElementById('ol_a_max')?.value || 100) },
-                b: { min: parseInt(document.getElementById('ol_b_min')?.value || 60), max: parseInt(document.getElementById('ol_b_max')?.value || 69) },
-                c: { min: parseInt(document.getElementById('ol_c_min')?.value || 50), max: parseInt(document.getElementById('ol_c_max')?.value || 59) },
-                d: { min: parseInt(document.getElementById('ol_d_min')?.value || 40), max: parseInt(document.getElementById('ol_d_max')?.value || 49) },
-                u: { min: parseInt(document.getElementById('ol_u_min')?.value || 0), max: parseInt(document.getElementById('ol_u_max')?.value || 39) }
-              },
-              alevel: {
-                a: { min: parseInt(document.getElementById('al_a_min')?.value || 75), max: parseInt(document.getElementById('al_a_max')?.value || 100) },
-                b: { min: parseInt(document.getElementById('al_b_min')?.value || 65), max: parseInt(document.getElementById('al_b_max')?.value || 74) },
-                c: { min: parseInt(document.getElementById('al_c_min')?.value || 55), max: parseInt(document.getElementById('al_c_max')?.value || 64) },
-                d: { min: parseInt(document.getElementById('al_d_min')?.value || 45), max: parseInt(document.getElementById('al_d_max')?.value || 54) },
-                f: { min: parseInt(document.getElementById('al_f_min')?.value || 35), max: parseInt(document.getElementById('al_f_max')?.value || 44) },
-                o: { min: parseInt(document.getElementById('al_o_min')?.value || 0), max: parseInt(document.getElementById('al_o_max')?.value || 34) }
-              },
-              lastUpdated: new Date().toISOString(),
-              updatedBy: currentUser?.email || 'admin'
-            };
-
-            await setDoc(doc(db, 'settings', 'grading'), gradingData);
-            alert('Grading settings saved successfully!');
-          } catch (error) {
-            console.error('Error saving grading settings:', error);
-            alert('Failed to save grading settings');
-          }
-        };
-      }
-
-      // Reset to defaults button
-      const resetBtn = document.querySelector('button[onclick="resetToDefaults()"]');
-      if (resetBtn) {
-        resetBtn.onclick = () => {
-          const confirmed = confirm('Reset all grading settings to defaults?');
-          if (!confirmed) return;
-
-          // Reset ZJC
-          const zjcInputs = [
-            ['zjc_a_min', 75], ['zjc_a_max', 100],
-            ['zjc_b_min', 65], ['zjc_b_max', 74],
-            ['zjc_c_min', 50], ['zjc_c_max', 64],
-            ['zjc_d_min', 40], ['zjc_d_max', 49],
-            ['zjc_u_min', 0], ['zjc_u_max', 39]
-          ];
-
-          // Reset O Level
-          const olInputs = [
-            ['ol_a_min', 70], ['ol_a_max', 100],
-            ['ol_b_min', 60], ['ol_b_max', 69],
-            ['ol_c_min', 50], ['ol_c_max', 59],
-            ['ol_d_min', 40], ['ol_d_max', 49],
-            ['ol_u_min', 0], ['ol_u_max', 39]
-          ];
-
-          // Reset A Level
-          const alInputs = [
-            ['al_a_min', 75], ['al_a_max', 100],
-            ['al_b_min', 65], ['al_b_max', 74],
-            ['al_c_min', 55], ['al_c_max', 64],
-            ['al_d_min', 45], ['al_d_max', 54],
-            ['al_f_min', 35], ['al_f_max', 44],
-            ['al_o_min', 0], ['al_o_max', 34]
-          ];
-
-          [...zjcInputs, ...olInputs, ...alInputs].forEach(([id, value]) => {
-            const input = document.getElementById(id);
-            if (input) input.value = value;
-          });
-
-          alert('Grading settings reset to defaults');
-        };
-      }
-    }
-
-    // Setup class assignments
-    function setupClassAssignments(uid) {
-      const saveClassBtn = document.querySelector('button[onclick="saveClassAssignments()"]');
-      if (saveClassBtn) {
-        saveClassBtn.onclick = async () => {
-          try {
-            const checkboxes = document.querySelectorAll('#classAssignment input[type="checkbox"]');
-            const assignedClasses = [];
-
-            checkboxes.forEach(checkbox => {
-              if (checkbox.checked) {
-                assignedClasses.push(checkbox.value);
-              }
-            });
-
-            await updateDoc(doc(db, 'teachers', uid), {
-              assignedClasses,
-              lastUpdated: new Date().toISOString()
-            });
-
-            alert(`Class assignments saved! Assigned to: ${assignedClasses.join(', ') || 'None'}`);
-          } catch (error) {
-            console.error('Error saving class assignments:', error);
-            alert('Failed to save class assignments');
-          }
-        };
-      }
-    }
-
-    // Setup term settings
-    function setupTermSettings() {
-      const refreshTermBtn = document.querySelector('button[onclick="updateCurrentTerm()"]');
-      if (refreshTermBtn) {
-        refreshTermBtn.onclick = updateCurrentTerm;
-      }
-    }
-
-    // Auto term calculation
-    function getCurrentTerm() {
-      const now = new Date();
-      const month = now.getMonth() + 1; // getMonth() returns 0-11
-
-      if (month >= 1 && month <= 4) {
-        return 'Term 1';
-      } else if (month >= 5 && month <= 8) {
-        return 'Term 2';
-      } else {
-        return 'Term 3';
-      }
-    }
-
-    // Update current term display
-    function updateCurrentTerm() {
-      const currentTermElement = document.getElementById('currentTerm');
-      if (currentTermElement) {
-        currentTermElement.textContent = getCurrentTerm();
-      }
-    }
-
-    // Export function to get current term for use in report card system
-    window.getAutoTerm = getCurrentTerm;
-
-    // Call this when the page loads
-    checkAdminAuthState();
-
-    /* ======================================
-       BACKUP & RESTORE FUNCTIONALITY
-    ====================================== */
+    const body = document.body;
     
-    // List of all Firebase collections to backup
-    const FIREBASE_COLLECTIONS = [
-      'students',
-      'teachers', 
-      'payments',
-      'feeStructure',
-      'settings',
-      'applications',
-      'pettyCash',
-      'accountActivity',
-      'reports',
-      'subjects',
-      'classes'
-    ];
-
-    // Create full system backup
-    window.createFullBackup = async function() {
-      // Check if user has admin permissions
-      if (!currentUser || currentUser.role !== 'admin') {
-        alert('Access denied: Only administrators can create system backups.');
-        return;
-      }
-
-      const confirmed = confirm(
-        'Create a full system backup?\n\n' +
-        'This will export all data from the system including:\n' +
-        '• All student records\n' +
-        '• Teacher accounts and assignments\n' +
-        '• Payment history and fee structures\n' +
-        '• System settings and configurations\n\n' +
-        'This may take several minutes for large datasets.'
-      );
-      
-      if (!confirmed) return;
-
-      try {
-        const loadingMessage = showLoadingModal('Creating full system backup...');
-        const backupData = {};
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        let totalDocuments = 0;
-        let failedCollections = [];
-        
-        // Backup each collection with improved error handling
-        for (const collectionName of FIREBASE_COLLECTIONS) {
-          try {
-            showLoadingModal(`Backing up ${collectionName} collection...`);
-            
-            // Use the Firebase functions that are available globally
-            const collectionRef = collection(db, collectionName);
-            const snapshot = await getDocs(collectionRef);
-            
-            backupData[collectionName] = {
-              metadata: {
-                count: snapshot.size,
-                backedUpAt: new Date().toISOString(),
-                collectionName: collectionName
-              },
-              data: snapshot.docs.map(doc => {
-                const data = doc.data();
-                const processedData = { id: doc.id, ...data };
-                
-                // Convert Firebase Timestamps to ISO strings for JSON compatibility
-                Object.keys(processedData).forEach(key => {
-                  if (processedData[key] && typeof processedData[key] === 'object' && processedData[key].toDate) {
-                    processedData[key] = processedData[key].toDate().toISOString();
-                  }
-                });
-                
-                return processedData;
-              })
-            };
-            
-            totalDocuments += snapshot.size;
-            console.log(`✅ Backed up ${collectionName}: ${snapshot.size} documents`);
-          } catch (collectionError) {
-            console.error(`❌ Error backing up collection ${collectionName}:`, collectionError);
-            failedCollections.push(collectionName);
-            backupData[collectionName] = {
-              metadata: {
-                count: 0,
-                backedUpAt: new Date().toISOString(),
-                collectionName: collectionName,
-                error: collectionError.message
-              },
-              data: []
-            };
-          }
-        }
-        
-        // Add backup metadata
-        backupData._metadata = {
-          backupType: 'full',
-          version: '1.0',
-          createdAt: new Date().toISOString(),
-          createdBy: currentUser?.name || 'Admin',
-          totalCollections: FIREBASE_COLLECTIONS.length,
-          totalDocuments: totalDocuments,
-          failedCollections: failedCollections,
-          systemInfo: {
-            userAgent: navigator.userAgent,
-            timestamp: Date.now(),
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-          }
-        };
-        
-        // Create backup file with integrity hash
-        const backupJson = JSON.stringify(backupData, null, 2);
-        const blob = new Blob([backupJson], { type: 'application/json' });
-        
-        // Generate backup file download
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `st-marys-full-backup-${timestamp}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        hideLoadingModal();
-        
-        // Show detailed backup summary
-        let summaryMessage = `Full system backup created successfully!\n\n`;
-        summaryMessage += `📁 File: st-marys-full-backup-${timestamp}.json\n`;
-        summaryMessage += `📊 Total Documents: ${totalDocuments}\n`;
-        summaryMessage += `📂 Collections: ${Object.keys(backupData).length - 1}\n`;
-        
-        if (failedCollections.length > 0) {
-          summaryMessage += `\n⚠️ Failed Collections: ${failedCollections.join(', ')}\n`;
-          summaryMessage += `Note: Some collections could not be backed up. Check console for details.`;
-        }
-        
-        alert(summaryMessage);
-        
-      } catch (error) {
-        hideLoadingModal();
-        console.error('Error creating backup:', error);
-        alert('Error creating backup: ' + error.message);
-      }
-    };
-
-    // Create student data backup only  
-    window.createStudentBackup = async function() {
-      // Check admin permissions
-      if (!currentUser || currentUser.role !== 'admin') {
-        alert('Access denied: Only administrators can create backups.');
-        return;
-      }
-
-      try {
-        const loadingMessage = showLoadingModal('Creating student data backup...');
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        
-        const studentsRef = collection(db, 'students');
-        const snapshot = await getDocs(studentsRef);
-        
-        const backupData = {
-          students: {
-            metadata: {
-              count: snapshot.size,
-              backedUpAt: new Date().toISOString(),
-              collectionName: 'students'
-            },
-            data: snapshot.docs.map(doc => {
-              const data = doc.data();
-              const processedData = { id: doc.id, ...data };
-              
-              // Convert timestamps to ISO strings
-              Object.keys(processedData).forEach(key => {
-                if (processedData[key] && typeof processedData[key] === 'object' && processedData[key].toDate) {
-                  processedData[key] = processedData[key].toDate().toISOString();
-                }
-              });
-              
-              return processedData;
-            })
-          },
-          _metadata: {
-            backupType: 'students',
-            version: '1.0',
-            createdAt: new Date().toISOString(),
-            createdBy: currentUser?.name || 'Admin',
-            totalDocuments: snapshot.size
-          }
-        };
-        
-        const blob = new Blob([JSON.stringify(backupData, null, 2)], { 
-          type: 'application/json' 
-        });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `st-marys-students-backup-${timestamp}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        hideLoadingModal();
-        alert(`Student data backup created successfully!\nFile: st-marys-students-backup-${timestamp}.json\n\nBackup includes ${snapshot.size} student records.`);
-        
-      } catch (error) {
-        hideLoadingModal();
-        console.error('Error creating student backup:', error);
-        alert('Error creating student backup: ' + error.message);
-      }
-    };
-
-    // Create payment data backup only
-    window.createPaymentBackup = async function() {
-      // Check admin permissions
-      if (!currentUser || currentUser.role !== 'admin') {
-        alert('Access denied: Only administrators can create backups.');
-        return;
-      }
-
-      try {
-        const loadingMessage = showLoadingModal('Creating payment data backup...');
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        
-        const paymentsRef = collection(db, 'payments');
-        const snapshot = await getDocs(paymentsRef);
-        
-        const backupData = {
-          payments: {
-            metadata: {
-              count: snapshot.size,
-              backedUpAt: new Date().toISOString(),
-              collectionName: 'payments'
-            },
-            data: snapshot.docs.map(doc => ({
-              id: doc.id,
-              ...doc.data(),
-              ...(doc.data().date?.toDate && { 
-                date: doc.data().date.toDate().toISOString() 
-              }),
-              ...(doc.data().createdAt?.toDate && { 
-                createdAt: doc.data().createdAt.toDate().toISOString() 
-              }),
-              ...(doc.data().updatedAt?.toDate && { 
-                updatedAt: doc.data().updatedAt.toDate().toISOString() 
-              })
-            }))
-          },
-          _metadata: {
-            backupType: 'payments',
-            version: '1.0',
-            createdAt: new Date().toISOString(),
-            createdBy: currentUser?.name || 'Admin'
-          }
-        };
-        
-        const blob = new Blob([JSON.stringify(backupData, null, 2)], { 
-          type: 'application/json' 
-        });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `st-marys-payments-backup-${timestamp}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        hideLoadingModal();
-        alert(`Payment data backup created successfully!\nFile: st-marys-payments-backup-${timestamp}.json\n\nBackup includes ${snapshot.size} payment records.`);
-        
-      } catch (error) {
-        hideLoadingModal();
-        console.error('Error creating payment backup:', error);
-        alert('Error creating payment backup: ' + error.message);
-      }
-    };
-
-    // Restore data from backup files
-    window.restoreFromBackup = async function() {
-      // Enhanced security check
-      if (!currentUser || currentUser.role !== 'admin') {
-        alert('Access denied: Only administrators can restore system data.');
-        return;
-      }
-
-      const fileInput = document.getElementById('backupFileInput');
-      const files = fileInput.files;
-      
-      if (!files || files.length === 0) {
-        alert('Please select backup files to restore.');
-        return;
-      }
-      
-      // Enhanced confirmation with type-to-confirm
-      const typeConfirm = prompt(
-        `🚨 CRITICAL DATA RESTORATION WARNING 🚨\n\n` +
-        `This will restore data from ${files.length} backup file(s) and may REPLACE existing data.\n\n` +
-        `⚠️ This action is IRREVERSIBLE ⚠️\n\n` +
-        `Before proceeding:\n` +
-        `1. Ensure you have a current backup of your system\n` +
-        `2. Verify these are the correct backup files\n` +
-        `3. Consider the impact on current users\n\n` +
-        `Type "RESTORE" (all caps) to confirm:`
-      );
-      
-      if (typeConfirm !== 'RESTORE') {
-        alert('Restoration cancelled. Confirmation text did not match.');
-        return;
-      }
-      
-      try {
-        const loadingMessage = showLoadingModal('Restoring data from backup files...');
-        let totalRestored = 0;
-        let restorationSummary = [];
-        
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const fileContent = await readFileAsText(file);
-          const backupData = JSON.parse(fileContent);
-          
-          // Validate backup file format
-          if (!backupData._metadata) {
-            console.warn(`Invalid backup file format: ${file.name}`);
-            restorationSummary.push(`❌ ${file.name}: Invalid format`);
-            continue;
-          }
-          
-          const metadata = backupData._metadata;
-          console.log(`Restoring from ${file.name} (${metadata.backupType})`);
-          
-          // Restore each collection in the backup
-          for (const [collectionName, collectionData] of Object.entries(backupData)) {
-            if (collectionName === '_metadata') continue;
-            
-            if (!collectionData.data || !Array.isArray(collectionData.data)) {
-              console.warn(`Invalid data structure for collection: ${collectionName}`);
-              continue;
-            }
-            
-            try {
-              const batch = writeBatch(db);
-              let batchCount = 0;
-              
-              // Process documents in batches of 400 (safer than 500 limit)
-              for (const docData of collectionData.data) {
-                const { id, ...data } = docData;
-                
-                // Convert ISO strings back to Firebase Timestamps
-                const processedData = processDataForFirestore(data);
-                
-                const docRef = doc(db, collectionName, id);
-                batch.set(docRef, processedData);
-                batchCount++;
-                
-                // Commit batch if we reach the limit
-                if (batchCount >= 400) {
-                  await batch.commit();
-                  const newBatch = writeBatch(db);
-                  batchCount = 0;
-                }
-              }
-              
-              // Commit remaining documents
-              if (batchCount > 0) {
-                await batch.commit();
-              }
-              
-              totalRestored += collectionData.metadata.count;
-              restorationSummary.push(`✅ ${collectionName}: ${collectionData.metadata.count} documents`);
-              
-            } catch (collectionError) {
-              console.error(`Error restoring collection ${collectionName}:`, collectionError);
-              restorationSummary.push(`❌ ${collectionName}: ${collectionError.message}`);
-            }
-          }
-        }
-        
-        hideLoadingModal();
-        
-        const summaryMessage = `Restoration Complete!\n\n` +
-          `Total documents restored: ${totalRestored}\n\n` +
-          `Summary:\n${restorationSummary.join('\n')}\n\n` +
-          `Please refresh the page to see updated data.`;
-        
-        alert(summaryMessage);
-        
-        // Refresh page to reload data
-        if (confirm('Would you like to refresh the page now to see the restored data?')) {
-          window.location.reload();
-        }
-        
-      } catch (error) {
-        hideLoadingModal();
-        console.error('Error during restoration:', error);
-        alert('Error during restoration: ' + error.message);
-      }
-    };
-
-    // Show confirmation dialog for full system restore
-    window.showRestoreConfirmation = function() {
-      const fileInput = document.getElementById('backupFileInput');
-      const files = fileInput.files;
-      
-      if (!files || files.length === 0) {
-        alert('Please select backup files to restore first.');
-        return;
-      }
-      
-      const confirmed = confirm(
-        `🚨 FULL SYSTEM RESTORE 🚨\n\n` +
-        `This is a COMPLETE SYSTEM RESTORATION that will:\n\n` +
-        `⚠️  COMPLETELY REPLACE all existing data\n` +
-        `⚠️  Remove any data not in the backup files\n` +
-        `⚠️  Reset all system configurations\n` +
-        `⚠️  Potentially disconnect current users\n\n` +
-        `This action is IRREVERSIBLE!\n\n` +
-        `Type "RESTORE" in the next dialog to confirm you understand the risks.`
-      );
-      
-      if (!confirmed) return;
-      
-      const confirmationText = prompt(
-        'To proceed with FULL SYSTEM RESTORE, type "RESTORE" exactly (all caps):'
-      );
-      
-      if (confirmationText !== 'RESTORE') {
-        alert('Restoration cancelled. Incorrect confirmation text.');
-        return;
-      }
-      
-      // Proceed with restoration
-      restoreFromBackup();
-    };
-
-    // Helper function to read file as text
-    function readFileAsText(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = e => reject(new Error('Failed to read file'));
-        reader.readAsText(file);
+    if (themeToggle) {
+      themeToggle.addEventListener('click', function() {
+        body.classList.toggle('dark-mode');
+        const icon = themeToggle.querySelector('i');
+        icon.className = body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-moon';
       });
     }
 
-    // Helper function to process data for Firestore (convert ISO strings back to Timestamps)
-    function processDataForFirestore(data) {
-      const processedData = { ...data };
-      
-      // Convert ISO date strings back to Firebase Timestamps where appropriate
-      Object.keys(processedData).forEach(key => {
-        if (processedData[key] && typeof processedData[key] === 'string') {
-          // Check if it's an ISO date string
-          const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
-          if (isoDateRegex.test(processedData[key])) {
-            try {
-              const date = new Date(processedData[key]);
-              if (!isNaN(date.getTime())) {
-                // Use the original date, not serverTimestamp()
-                processedData[key] = date;
-              }
-            } catch (e) {
-              console.warn(`Could not convert ${key} to timestamp:`, processedData[key]);
-            }
-          }
+    // Header scroll effect
+    window.addEventListener('scroll', function() {
+      const header = document.querySelector('.header');
+      if (header) {
+        if (window.scrollY > 100) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
         }
-      });
-      
-      return processedData;
-    }
-
-    // Helper functions for loading modal
-    function showLoadingModal(message) {
-      // Create or update loading modal
-      let modal = document.getElementById('loadingModal');
-      if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'loadingModal';
-        modal.style.cssText = `
-          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(0,0,0,0.8); display: flex; align-items: center;
-          justify-content: center; z-index: 10000; color: white;
-          font-family: var(--font-primary);
-        `;
-        modal.innerHTML = `
-          <div style="text-align: center; padding: 2rem; background: var(--primary); border-radius: 10px; box-shadow: var(--shadow-xl);">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">
-              <i class="fas fa-spinner fa-spin"></i>
-            </div>
-            <div id="loadingMessage" style="font-size: 1.2rem; font-weight: 500;"></div>
-          </div>
-        `;
-        document.body.appendChild(modal);
       }
-      
-      document.getElementById('loadingMessage').textContent = message;
-      modal.style.display = 'flex';
-      return modal;
-    }
-
-    function hideLoadingModal() {
-      const modal = document.getElementById('loadingModal');
-      if (modal) {
-        modal.style.display = 'none';
-      }
-    }
-
+    });
   </script>
 </body>
 </html>
