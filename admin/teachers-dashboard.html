@@ -970,6 +970,12 @@
         <a href="#addUpdate">
           <i class="fas fa-bullhorn"></i> Add Notice
         </a>
+        <a href="#systemBackup">
+          <i class="fas fa-database"></i> System Backup
+        </a>
+        <a href="#systemRestore">
+          <i class="fas fa-upload"></i> System Restore
+        </a>
         <a href="#updates">
           <i class="fas fa-clipboard-list"></i> Manage Notices
         </a>
@@ -1565,6 +1571,156 @@
             </button>
           </div>
         </form>
+      </section>
+
+      <!-- System Backup Section -->
+      <section id="systemBackup" style="display: none;">
+        <h2><i class="fas fa-database"></i> System Backup</h2>
+        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+          <h3><i class="fas fa-info-circle"></i> Backup Information</h3>
+          <p>Create a complete backup of all system data including students, teachers, grades, notices, and settings. This backup can be used to restore the system to its current state.</p>
+          
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+            <div class="stat-card">
+              <h4>Last Backup</h4>
+              <p id="lastBackupDate">Never</p>
+            </div>
+            <div class="stat-card">
+              <h4>Backup Size</h4>
+              <p id="backupSize">-</p>
+            </div>
+            <div class="stat-card">
+              <h4>Status</h4>
+              <p id="backupStatus">Ready</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+          <h3><i class="fas fa-archive"></i> Create Backup</h3>
+          <div class="form-group">
+            <label for="backupName">Backup Name:</label>
+            <input type="text" id="backupName" placeholder="Enter backup name (optional)" />
+          </div>
+          
+          <div class="form-group">
+            <label>Select Data to Backup:</label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="backupStudents" checked> Students Data
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="backupTeachers" checked> Teachers Data
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="backupGrades" checked> Grades & Reports
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="backupNotices" checked> Notices & Updates
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="backupSettings" checked> System Settings
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="backupFees" checked> Fees & Payments
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-group text-center">
+            <button type="button" onclick="createSystemBackup()" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+              <i class="fas fa-download"></i> Create & Download Backup
+            </button>
+          </div>
+        </div>
+        
+        <div id="backupProgress" style="display: none; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-top: 20px;">
+          <h3><i class="fas fa-spinner fa-spin"></i> Creating Backup...</h3>
+          <div style="background: #333; border-radius: 10px; overflow: hidden; margin: 10px 0;">
+            <div id="backupProgressBar" style="height: 20px; background: #28a745; width: 0%; transition: width 0.3s ease;"></div>
+          </div>
+          <p id="backupProgressText">Initializing...</p>
+        </div>
+      </section>
+
+      <!-- System Restore Section -->
+      <section id="systemRestore" style="display: none;">
+        <h2><i class="fas fa-upload"></i> System Restore</h2>
+        <div style="background: rgba(220, 53, 69, 0.2); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Important Warning</h3>
+          <p><strong>System restore will replace ALL current data with the backup data.</strong> This action cannot be undone. Please ensure you have a recent backup before proceeding.</p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+          <h3><i class="fas fa-file-upload"></i> Upload Backup File</h3>
+          <div class="form-group">
+            <label for="restoreFile">Select Backup File:</label>
+            <input type="file" id="restoreFile" accept=".json,.backup" style="width: 100%; padding: 10px; border: 2px dashed #ccc; border-radius: 8px; background: rgba(255,255,255,0.1); color: var(--text-color);" />
+          </div>
+          
+          <div id="restoreFileInfo" style="display: none; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
+            <h4><i class="fas fa-info-circle"></i> Backup Information</h4>
+            <p><strong>File Name:</strong> <span id="restoreFileName"></span></p>
+            <p><strong>File Size:</strong> <span id="restoreFileSize"></span></p>
+            <p><strong>Created:</strong> <span id="restoreFileDate"></span></p>
+            <p><strong>Contains:</strong> <span id="restoreFileContents"></span></p>
+          </div>
+          
+          <div class="form-group">
+            <label>Restore Options:</label>
+            <div style="margin-top: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <input type="radio" name="restoreMode" value="complete" checked> Complete Restore (Replace all data)
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="radio" name="restoreMode" value="selective"> Selective Restore (Choose what to restore)
+              </label>
+            </div>
+          </div>
+          
+          <div id="selectiveOptions" style="display: none; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin: 10px 0;">
+            <h4>Select Data to Restore:</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="restoreStudents" checked> Students Data
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="restoreTeachers" checked> Teachers Data
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="restoreGrades" checked> Grades & Reports
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="restoreNotices" checked> Notices & Updates
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="restoreSettings" checked> System Settings
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="restoreFees" checked> Fees & Payments
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="restoreConfirm">Type "RESTORE" to confirm:</label>
+            <input type="text" id="restoreConfirm" placeholder="Type RESTORE to enable the restore button" style="text-transform: uppercase;" />
+          </div>
+          
+          <div class="form-group text-center">
+            <button type="button" id="restoreBtn" onclick="performSystemRestore()" disabled style="background: #dc3545; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; cursor: not-allowed; display: inline-flex; align-items: center; gap: 8px; opacity: 0.5;">
+              <i class="fas fa-upload"></i> Restore System
+            </button>
+          </div>
+        </div>
+        
+        <div id="restoreProgress" style="display: none; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-top: 20px;">
+          <h3><i class="fas fa-spinner fa-spin"></i> Restoring System...</h3>
+          <div style="background: #333; border-radius: 10px; overflow: hidden; margin: 10px 0;">
+            <div id="restoreProgressBar" style="height: 20px; background: #dc3545; width: 0%; transition: width 0.3s ease;"></div>
+          </div>
+          <p id="restoreProgressText">Initializing...</p>
+        </div>
       </section>
     </div>
 
@@ -2973,6 +3129,402 @@ loadTeacherStats();
           });
         });
       }
+
+      // System Backup and Restore Functions
+      window.createSystemBackup = async function() {
+        const backupProgress = document.getElementById('backupProgress');
+        const progressBar = document.getElementById('backupProgressBar');
+        const progressText = document.getElementById('backupProgressText');
+        
+        try {
+          backupProgress.style.display = 'block';
+          progressText.textContent = 'Initializing backup...';
+          progressBar.style.width = '10%';
+          
+          const backupData = {
+            metadata: {
+              created: new Date().toISOString(),
+              version: '1.0',
+              school: 'St. Mary\'s High School',
+              createdBy: 'Teacher Dashboard',
+              backupName: document.getElementById('backupName').value || `Backup_${new Date().toISOString().split('T')[0]}`
+            },
+            data: {}
+          };
+          
+          // Get selected data types
+          const selectedTypes = {
+            students: document.getElementById('backupStudents').checked,
+            teachers: document.getElementById('backupTeachers').checked,
+            grades: document.getElementById('backupGrades').checked,
+            notices: document.getElementById('backupNotices').checked,
+            settings: document.getElementById('backupSettings').checked,
+            fees: document.getElementById('backupFees').checked
+          };
+          
+          let progress = 10;
+          const increment = 80 / Object.keys(selectedTypes).filter(k => selectedTypes[k]).length;
+          
+          // Backup Students Data
+          if (selectedTypes.students) {
+            progressText.textContent = 'Backing up students data...';
+            try {
+              const studentsSnapshot = await getDocs(collection(db, "students"));
+              backupData.data.students = studentsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                timestamp: doc.data().timestamp?.toISOString?.() || doc.data().timestamp
+              }));
+              progress += increment;
+              progressBar.style.width = progress + '%';
+            } catch (error) {
+              console.warn('Failed to backup students:', error);
+              backupData.data.students = [];
+            }
+          }
+          
+          // Backup Teachers Data
+          if (selectedTypes.teachers) {
+            progressText.textContent = 'Backing up teachers data...';
+            try {
+              const teachersSnapshot = await getDocs(collection(db, "teachers"));
+              backupData.data.teachers = teachersSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                timestamp: doc.data().timestamp?.toISOString?.() || doc.data().timestamp
+              }));
+              progress += increment;
+              progressBar.style.width = progress + '%';
+            } catch (error) {
+              console.warn('Failed to backup teachers:', error);
+              backupData.data.teachers = [];
+            }
+          }
+          
+          // Backup Grades Data
+          if (selectedTypes.grades) {
+            progressText.textContent = 'Backing up grades and reports...';
+            try {
+              const gradesSnapshot = await getDocs(collection(db, "grades"));
+              backupData.data.grades = gradesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                timestamp: doc.data().timestamp?.toISOString?.() || doc.data().timestamp
+              }));
+              progress += increment;
+              progressBar.style.width = progress + '%';
+            } catch (error) {
+              console.warn('Failed to backup grades:', error);
+              backupData.data.grades = [];
+            }
+          }
+          
+          // Backup Notices Data
+          if (selectedTypes.notices) {
+            progressText.textContent = 'Backing up notices and updates...';
+            try {
+              const noticesSnapshot = await getDocs(collection(db, "updates"));
+              backupData.data.notices = noticesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                timestamp: doc.data().timestamp?.toISOString?.() || doc.data().timestamp
+              }));
+              progress += increment;
+              progressBar.style.width = progress + '%';
+            } catch (error) {
+              console.warn('Failed to backup notices:', error);
+              backupData.data.notices = [];
+            }
+          }
+          
+          // Backup Settings Data
+          if (selectedTypes.settings) {
+            progressText.textContent = 'Backing up system settings...';
+            try {
+              const settingsSnapshot = await getDocs(collection(db, "settings"));
+              backupData.data.settings = settingsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                timestamp: doc.data().timestamp?.toISOString?.() || doc.data().timestamp
+              }));
+              progress += increment;
+              progressBar.style.width = progress + '%';
+            } catch (error) {
+              console.warn('Failed to backup settings:', error);
+              backupData.data.settings = [];
+            }
+          }
+          
+          // Backup Fees Data
+          if (selectedTypes.fees) {
+            progressText.textContent = 'Backing up fees and payments...';
+            try {
+              const feesSnapshot = await getDocs(collection(db, "fees"));
+              backupData.data.fees = feesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                timestamp: doc.data().timestamp?.toISOString?.() || doc.data().timestamp
+              }));
+              progress += increment;
+              progressBar.style.width = progress + '%';
+            } catch (error) {
+              console.warn('Failed to backup fees:', error);
+              backupData.data.fees = [];
+            }
+          }
+          
+          progressText.textContent = 'Generating backup file...';
+          progressBar.style.width = '95%';
+          
+          // Create and download backup file
+          const backupJson = JSON.stringify(backupData, null, 2);
+          const blob = new Blob([backupJson], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${backupData.metadata.backupName.replace(/[^a-z0-9]/gi, '_')}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          progressText.textContent = 'Backup completed!';
+          progressBar.style.width = '100%';
+          
+          // Update backup info
+          document.getElementById('lastBackupDate').textContent = new Date().toLocaleString();
+          document.getElementById('backupSize').textContent = (blob.size / 1024 / 1024).toFixed(2) + ' MB';
+          document.getElementById('backupStatus').textContent = 'Completed';
+          
+          setTimeout(() => {
+            backupProgress.style.display = 'none';
+            progressBar.style.width = '0%';
+            Swal.fire({
+              icon: 'success',
+              title: 'Backup Created!',
+              text: 'System backup has been created and downloaded successfully.',
+              confirmButtonColor: '#d69e2e'
+            });
+          }, 2000);
+          
+        } catch (error) {
+          console.error('Backup failed:', error);
+          backupProgress.style.display = 'none';
+          Swal.fire({
+            icon: 'error',
+            title: 'Backup Failed!',
+            text: 'Failed to create backup: ' + error.message,
+            confirmButtonColor: '#d69e2e'
+          });
+        }
+      };
+
+      // Handle restore file selection
+      document.getElementById('restoreFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const fileInfo = document.getElementById('restoreFileInfo');
+        const restoreBtn = document.getElementById('restoreBtn');
+        
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            try {
+              const backupData = JSON.parse(e.target.result);
+              
+              // Display file information
+              document.getElementById('restoreFileName').textContent = file.name;
+              document.getElementById('restoreFileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+              document.getElementById('restoreFileDate').textContent = 
+                backupData.metadata?.created ? new Date(backupData.metadata.created).toLocaleString() : 'Unknown';
+              
+              const contents = Object.keys(backupData.data || {}).map(key => 
+                key.charAt(0).toUpperCase() + key.slice(1)
+              ).join(', ') || 'Unknown';
+              document.getElementById('restoreFileContents').textContent = contents;
+              
+              fileInfo.style.display = 'block';
+              
+            } catch (error) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Invalid File!',
+                text: 'The selected file is not a valid backup file.',
+                confirmButtonColor: '#d69e2e'
+              });
+              fileInfo.style.display = 'none';
+            }
+          };
+          reader.readAsText(file);
+        } else {
+          fileInfo.style.display = 'none';
+        }
+      });
+
+      // Handle restore mode selection
+      document.querySelectorAll('input[name="restoreMode"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          const selectiveOptions = document.getElementById('selectiveOptions');
+          selectiveOptions.style.display = this.value === 'selective' ? 'block' : 'none';
+        });
+      });
+
+      // Handle restore confirmation
+      document.getElementById('restoreConfirm').addEventListener('input', function() {
+        const restoreBtn = document.getElementById('restoreBtn');
+        const isValid = this.value.toUpperCase() === 'RESTORE';
+        
+        restoreBtn.disabled = !isValid;
+        restoreBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
+        restoreBtn.style.opacity = isValid ? '1' : '0.5';
+      });
+
+      window.performSystemRestore = async function() {
+        const file = document.getElementById('restoreFile').files[0];
+        if (!file) {
+          Swal.fire({
+            icon: 'error',
+            title: 'No File Selected!',
+            text: 'Please select a backup file to restore.',
+            confirmButtonColor: '#d69e2e'
+          });
+          return;
+        }
+
+        const confirm = await Swal.fire({
+          icon: 'warning',
+          title: 'Confirm System Restore',
+          text: 'This will replace ALL current data with the backup data. This action cannot be undone!',
+          showCancelButton: true,
+          confirmButtonColor: '#dc3545',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, restore!',
+          cancelButtonText: 'Cancel'
+        });
+
+        if (!confirm.isConfirmed) return;
+
+        const restoreProgress = document.getElementById('restoreProgress');
+        const progressBar = document.getElementById('restoreProgressBar');
+        const progressText = document.getElementById('restoreProgressText');
+        
+        try {
+          restoreProgress.style.display = 'block';
+          progressText.textContent = 'Reading backup file...';
+          progressBar.style.width = '10%';
+          
+          const reader = new FileReader();
+          reader.onload = async function(e) {
+            try {
+              const backupData = JSON.parse(e.target.result);
+              
+              if (!backupData.data) {
+                throw new Error('Invalid backup file format');
+              }
+              
+              const restoreMode = document.querySelector('input[name="restoreMode"]:checked').value;
+              let selectedTypes = {};
+              
+              if (restoreMode === 'selective') {
+                selectedTypes = {
+                  students: document.getElementById('restoreStudents').checked,
+                  teachers: document.getElementById('restoreTeachers').checked,
+                  grades: document.getElementById('restoreGrades').checked,
+                  notices: document.getElementById('restoreNotices').checked,
+                  settings: document.getElementById('restoreSettings').checked,
+                  fees: document.getElementById('restoreFees').checked
+                };
+              } else {
+                // Complete restore - restore all available data
+                selectedTypes = Object.keys(backupData.data).reduce((acc, key) => {
+                  acc[key] = true;
+                  return acc;
+                }, {});
+              }
+              
+              let progress = 10;
+              const increment = 80 / Object.keys(selectedTypes).filter(k => selectedTypes[k]).length;
+              
+              // Restore each selected data type
+              for (const [dataType, shouldRestore] of Object.entries(selectedTypes)) {
+                if (!shouldRestore || !backupData.data[dataType]) continue;
+                
+                progressText.textContent = `Restoring ${dataType}...`;
+                
+                try {
+                  // Clear existing data
+                  const collectionName = dataType === 'notices' ? 'updates' : dataType;
+                  const snapshot = await getDocs(collection(db, collectionName));
+                  
+                  // Delete existing documents
+                  for (const doc of snapshot.docs) {
+                    await deleteDoc(doc.ref);
+                  }
+                  
+                  // Add backup data
+                  for (const item of backupData.data[dataType]) {
+                    const docData = { ...item };
+                    delete docData.id; // Remove ID to let Firestore auto-generate
+                    
+                    // Convert ISO strings back to Timestamps if needed
+                    if (docData.timestamp && typeof docData.timestamp === 'string') {
+                      docData.timestamp = new Date(docData.timestamp);
+                    }
+                    
+                    await addDoc(collection(db, collectionName), docData);
+                  }
+                  
+                  progress += increment;
+                  progressBar.style.width = progress + '%';
+                  
+                } catch (error) {
+                  console.error(`Failed to restore ${dataType}:`, error);
+                }
+              }
+              
+              progressText.textContent = 'Finalizing restore...';
+              progressBar.style.width = '100%';
+              
+              setTimeout(async () => {
+                restoreProgress.style.display = 'none';
+                progressBar.style.width = '0%';
+                
+                await Swal.fire({
+                  icon: 'success',
+                  title: 'Restore Completed!',
+                  text: 'System has been restored from backup successfully. The page will reload to reflect changes.',
+                  confirmButtonColor: '#d69e2e'
+                });
+                
+                // Reload page to reflect changes
+                window.location.reload();
+              }, 2000);
+              
+            } catch (error) {
+              console.error('Restore failed:', error);
+              restoreProgress.style.display = 'none';
+              Swal.fire({
+                icon: 'error',
+                title: 'Restore Failed!',
+                text: 'Failed to restore system: ' + error.message,
+                confirmButtonColor: '#d69e2e'
+              });
+            }
+          };
+          
+          reader.readAsText(file);
+          
+        } catch (error) {
+          console.error('Restore failed:', error);
+          restoreProgress.style.display = 'none';
+          Swal.fire({
+            icon: 'error',
+            title: 'Restore Failed!',
+            text: 'Failed to restore system: ' + error.message,
+            confirmButtonColor: '#d69e2e'
+          });
+        }
+      };
 
     </script>
   </body>
