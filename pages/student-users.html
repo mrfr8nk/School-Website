@@ -1440,6 +1440,7 @@
               <th class="bulk-col"><input type="checkbox" class="select-all" /></th>
               <th class="profile-col">Photo</th>
               <th>#</th>
+              <th>Student ID</th>
               <th>First Name</th>
               <th>Surname</th>
               <th>Form</th>
@@ -1463,6 +1464,7 @@
                        loading="lazy" />
                 </td>
                 <td>${startIndex + idx + 1}</td>
+                <td><strong>${highlightText(student.studentID || 'Not assigned', searchTerm)}</strong></td>
                 <td>${highlightText(student.firstname, searchTerm)}</td>
                 <td>${highlightText(student.surname, searchTerm)}</td>
                 <td>${highlightText(student.form, searchTerm)}</td>

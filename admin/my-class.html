@@ -1684,6 +1684,7 @@
               </th>
               <th class="profile-col">Photo</th>
               <th>#</th>
+              <th>Student ID</th>
               <th onclick="sortByColumn('firstname')">First Name <i class="fas fa-sort"></i></th>
               <th onclick="sortByColumn('surname')">Surname <i class="fas fa-sort"></i></th>
               <th>National ID</th>
@@ -1710,6 +1711,7 @@
                        loading="lazy" />
                 </td>
                 <td>${idx + 1}</td>
+                <td><strong>${highlightText(student.studentID || 'Not assigned', searchTerm)}</strong></td>
                 <td>${highlightText(student.firstname || '', searchTerm)}</td>
                 <td>${highlightText(student.surname || '', searchTerm)}</td>
                 <td>${highlightText(student.birthNumber || 'Not provided', searchTerm)}</td>

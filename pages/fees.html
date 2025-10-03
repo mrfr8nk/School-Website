@@ -1166,7 +1166,7 @@
             <thead>
               <tr>
                 <th><input type="checkbox" id="selectAllStudents" onchange="toggleSelectAllStudents()"> Select All</th>
-                <th>Adm No.</th>
+                <th>Student ID</th>
                 <th>Student Name</th>
                 <th>Class</th>
                 <th>Total Fees</th>
@@ -1188,7 +1188,7 @@
           <table id="paidStudentsTable">
             <thead>
               <tr>
-                <th>Adm No.</th>
+                <th>Student ID</th>
                 <th>Student Name</th>
                 <th>Class</th>
                 <th>Total Fees</th>
@@ -1209,7 +1209,7 @@
           <table id="unpaidStudentsTable">
             <thead>
               <tr>
-                <th>Adm No.</th>
+                <th>Student ID</th>
                 <th>Student Name</th>
                 <th>Class</th>
                 <th>Total Fees</th>
@@ -1230,7 +1230,7 @@
           <table id="partialStudentsTable">
             <thead>
               <tr>
-                <th>Adm No.</th>
+                <th>Student ID</th>
                 <th>Student Name</th>
                 <th>Class</th>
                 <th>Total Fees</th>
@@ -1251,7 +1251,7 @@
           <table id="balanceStudentsTable">
             <thead>
               <tr>
-                <th>Adm No.</th>
+                <th>Student ID</th>
                 <th>Student Name</th>
                 <th>Class</th>
                 <th>Total Fees</th>
@@ -3981,7 +3981,7 @@ function addStudentToTable(tableBodyId, student, totalFees, paidAmount, balance,
   
   if (tableBodyId === 'studentsBody') {
     tr.innerHTML = `
-      <td>${student.admissionNumber || 'N/A'}</td>
+      <td><strong>${student.studentID || student.admissionNumber || 'N/A'}</strong></td>
       <td>${student.firstname} ${student.surname}</td>
       <td>${student.form} ${student.stream || ''}</td>
       <td>$${totalFees.toLocaleString()}</td>
@@ -3999,7 +3999,7 @@ function addStudentToTable(tableBodyId, student, totalFees, paidAmount, balance,
     `;
   } else {
     tr.innerHTML = `
-      <td>${student.admissionNumber || 'N/A'}</td>
+      <td><strong>${student.studentID || student.admissionNumber || 'N/A'}</strong></td>
       <td>${student.firstname} ${student.surname}</td>
       <td>${student.form} ${student.stream || ''}</td>
       <td>$${totalFees.toLocaleString()}</td>
