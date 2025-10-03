@@ -1011,6 +1011,9 @@
           <button class="btn btn-primary" id="addStudentBtn">
             <i class="fas fa-plus"></i> Add Student
           </button>
+          <button class="btn btn-success" id="createAccountBtn">
+            <i class="fas fa-user-plus"></i> Create Account
+          </button>
           <button class="btn btn-secondary" id="downloadAllBtn">
             <i class="fas fa-file-pdf"></i> Export PDF
           </button>
@@ -1232,6 +1235,119 @@
     </div>
   </div>
 
+  <!-- Create Account Modal -->
+  <div id="createAccountModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-user-plus"></i> Create Student Account</h2>
+        <span class="close" id="createAccountModalClose">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="createAccountForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="accountFirstName">First Name *</label>
+              <input type="text" id="accountFirstName" required />
+            </div>
+            <div class="form-group">
+              <label for="accountSurname">Surname *</label>
+              <input type="text" id="accountSurname" required />
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="accountEmail">Email *</label>
+              <input type="email" id="accountEmail" required />
+            </div>
+            <div class="form-group">
+              <label for="accountPassword">Password *</label>
+              <div style="position: relative;">
+                <input type="password" id="accountPassword" required minlength="6" />
+                <button type="button" class="toggle-password-btn" id="toggleAccountPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-color);">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <small style="color: var(--secondary); display: block; margin-top: 5px;">
+                Student will be required to change this password on first login
+              </small>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="accountForm">Form *</label>
+              <select id="accountForm" required>
+                <option value="">Select Form</option>
+                <option value="FORM 1">FORM 1</option>
+                <option value="FORM 2">FORM 2</option>
+                <option value="FORM 3">FORM 3</option>
+                <option value="FORM 4">FORM 4</option>
+                <option value="FORM 5">FORM 5</option>
+                <option value="FORM 6">FORM 6</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="accountStream">Stream</label>
+              <select id="accountStream">
+                <option value="">Select Stream</option>
+                <option value="G">G</option>
+                <option value="W">W</option>
+                <option value="E">E</option>
+                <option value="Z">Z</option>
+                <option value="U">U</option>
+                <option value="SP">SP</option>
+                <option value="Sciences">Sciences</option>
+                <option value="Commercials">Commercials</option>
+                <option value="Arts">Arts</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="accountPhone">Phone</label>
+              <input type="tel" id="accountPhone" pattern="[0-9]{10,15}" />
+            </div>
+            <div class="form-group">
+              <label for="accountNationalId">National ID / Birth Number</label>
+              <input type="text" id="accountNationalId" />
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="accountDob">Date of Birth</label>
+              <input type="date" id="accountDob" />
+            </div>
+            <div class="form-group">
+              <label for="accountGender">Gender</label>
+              <select id="accountGender">
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="accountParentName">Parent/Guardian Name</label>
+            <input type="text" id="accountParentName" />
+          </div>
+          
+          <div class="form-footer">
+            <button type="button" class="btn btn-secondary" id="cancelAccountBtn">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-user-plus"></i> Create Account
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Theme Toggle -->
   <div class="theme-toggle" id="themeToggle">
     <i class="fas fa-moon"></i>
@@ -1239,8 +1355,14 @@
 
   <!-- Firebase and JavaScript -->
   <script type="module">
+    // Import Firebase SDK functions directly for secondary app
+    import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth as getAuthInstance, createUserWithEmailAndPassword as createUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    
     // Import centralized Firebase configuration
     import {
+      app,
+      auth,
       db,
       storage,
       collection,
@@ -1255,8 +1377,28 @@
       serverTimestamp,
       ref,
       uploadBytes,
-      getDownloadURL
+      getDownloadURL,
+      runTransaction
     } from "/db/firebase.js";
+    
+    // Create or get secondary Firebase app for user creation (doesn't affect admin session)
+    let secondaryApp;
+    try {
+      // Try to get existing secondary app
+      secondaryApp = getApp("Secondary");
+    } catch (error) {
+      // If it doesn't exist, create it
+      secondaryApp = initializeApp({
+        apiKey: "AIzaSyAR9J2Wz7Eu8dXRzDG8JNHcymLCUQUPJRo",
+        authDomain: "deee-9ab53.firebaseapp.com",
+        projectId: "deee-9ab53",
+        storageBucket: "deee-9ab53.appspot.com",
+        messagingSenderId: "399732664479",
+        appId: "1:399732664479:web:b84ac30e8266cc51761aaa",
+        measurementId: "G-524ZPBX42B"
+      }, "Secondary");
+    }
+    const secondaryAuth = getAuthInstance(secondaryApp);
 
     // Global variables
     let studentsData = [];
@@ -1988,6 +2130,154 @@
       document.getElementById("studentModal").style.display = "none";
     }
     
+    // ========================
+    // Create Account Modal Functions
+    // ========================
+    
+    // Generate Student ID
+    async function generateStudentID() {
+      const currentYear = new Date().getFullYear();
+      const prefix = `STM${currentYear}`;
+      const counterKey = `studentIDCounter_${currentYear}`;
+      
+      try {
+        const counterRef = doc(db, "counters", counterKey);
+        
+        const nextNumber = await runTransaction(db, async (transaction) => {
+          const counterDoc = await transaction.get(counterRef);
+          
+          let newValue = 1;
+          if (counterDoc.exists()) {
+            newValue = (counterDoc.data().value || 0) + 1;
+          }
+          
+          transaction.set(counterRef, { value: newValue, year: currentYear }, { merge: true });
+          return newValue;
+        });
+        
+        const studentID = `${prefix}${String(nextNumber).padStart(3, '0')}`;
+        return studentID;
+      } catch (error) {
+        console.error("Error generating student ID:", error);
+        const timestamp = Date.now() % 10000;
+        return `${prefix}${String(timestamp).padStart(3, '0')}`;
+      }
+    }
+    
+    // Open create account modal
+    function openCreateAccountModal() {
+      const modal = document.getElementById("createAccountModal");
+      const form = document.getElementById("createAccountForm");
+      form.reset();
+      modal.style.display = "block";
+    }
+    
+    // Close create account modal
+    function closeCreateAccountModal() {
+      document.getElementById("createAccountModal").style.display = "none";
+    }
+    
+    // Handle create account form submission
+    async function handleCreateAccount(e) {
+      e.preventDefault();
+      
+      const firstName = document.getElementById("accountFirstName").value.trim();
+      const surname = document.getElementById("accountSurname").value.trim();
+      const email = document.getElementById("accountEmail").value.trim();
+      const password = document.getElementById("accountPassword").value;
+      const form = document.getElementById("accountForm").value;
+      const stream = document.getElementById("accountStream").value;
+      const phone = document.getElementById("accountPhone").value.trim();
+      const nationalId = document.getElementById("accountNationalId").value.trim();
+      const dob = document.getElementById("accountDob").value;
+      const gender = document.getElementById("accountGender").value;
+      const parentName = document.getElementById("accountParentName").value.trim();
+      
+      try {
+        showSpinner(true);
+        
+        // Generate unique student ID
+        const studentID = await generateStudentID();
+        
+        // Create user with email/password using secondary auth (doesn't log out admin)
+        const userCredential = await createUser(secondaryAuth, email, password);
+        const user = userCredential.user;
+        
+        // Immediately sign out the new user from secondary auth to prevent session conflicts
+        await secondaryAuth.signOut();
+        
+        // Save user data to Firestore using email as document ID
+        await setDoc(doc(db, "students", email), {
+          studentID: studentID,
+          firstname: firstName,
+          surname: surname,
+          birthNumber: nationalId,
+          email: email,
+          phone: phone,
+          dob: dob,
+          gender: gender,
+          "parent-name": parentName,
+          form: form,
+          stream: stream,
+          createdAt: new Date(),
+          status: "active",
+          createdByAdmin: true,
+          mustChangePassword: true,
+          emailVerified: false,
+          role: "student",
+          uid: user.uid
+        });
+        
+        // Show success message with student ID and login credentials
+        await Swal.fire({
+          title: "Account Created Successfully!",
+          html: `
+            <div style="text-align: left; padding: 10px;">
+              <p><strong>Student ID:</strong> ${studentID}</p>
+              <p><strong>Name:</strong> ${firstName} ${surname}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Password:</strong> ${password}</p>
+              <br>
+              <p style="color: #d69e2e;">⚠️ Student must change this password on first login</p>
+              <p>Please provide these credentials to the student.</p>
+            </div>
+          `,
+          icon: "success",
+          confirmButtonColor: "#003366",
+          confirmButtonText: "OK"
+        });
+        
+        // Close modal and reload students list
+        closeCreateAccountModal();
+        document.getElementById("createAccountForm").reset();
+        await loadStudents();
+        
+      } catch (error) {
+        console.error("Error creating account:", error);
+        
+        let errorMessage = "Failed to create account. ";
+        if (error.code === "auth/email-already-in-use") {
+          errorMessage += "This email is already registered.";
+        } else if (error.code === "auth/invalid-email") {
+          errorMessage += "Invalid email address.";
+        } else if (error.code === "auth/weak-password") {
+          errorMessage += "Password should be at least 6 characters.";
+        } else {
+          errorMessage += error.message;
+        }
+        
+        Swal.fire({
+          title: "Error",
+          text: errorMessage,
+          icon: "error",
+          confirmButtonColor: "#e53e3e"
+        });
+      } finally {
+        // Always hide spinner, even if there was an error
+        showSpinner(false);
+      }
+    }
+    
     // Handle student form submission
     async function handleStudentForm(e) {
       e.preventDefault();
@@ -2150,6 +2440,23 @@
       document.getElementById("addStudentBtn").addEventListener("click", () => openStudentModal());
       document.getElementById("modalClose").addEventListener("click", closeStudentModal);
       document.getElementById("cancelBtn").addEventListener("click", closeStudentModal);
+      
+      // Create Account Modal controls
+      document.getElementById("createAccountBtn").addEventListener("click", openCreateAccountModal);
+      document.getElementById("createAccountModalClose").addEventListener("click", closeCreateAccountModal);
+      document.getElementById("cancelAccountBtn").addEventListener("click", closeCreateAccountModal);
+      document.getElementById("createAccountForm").addEventListener("submit", handleCreateAccount);
+      document.getElementById("toggleAccountPassword").addEventListener("click", () => {
+        const passwordInput = document.getElementById("accountPassword");
+        const icon = document.getElementById("toggleAccountPassword").querySelector("i");
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          icon.className = "fas fa-eye-slash";
+        } else {
+          passwordInput.type = "password";
+          icon.className = "fas fa-eye";
+        }
+      });
       
       // Settings
       document.getElementById("openSettings").addEventListener("click", openSettingsModal);
