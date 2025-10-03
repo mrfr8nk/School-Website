@@ -1268,74 +1268,28 @@
       </div>
     </div>
     
-    <!-- Selective Class Delete Section -->
+    <!-- Bulk Deletion of Student Payment Records -->
     <div class="form-card" style="margin-top: 2rem; border: 2px solid rgba(245, 101, 101, 0.3);">
       <h2 style="color: #f56565; display: flex; align-items: center; gap: 10px;">
-        <i class="fas fa-exclamation-triangle"></i> 
-        Selective Class Data Deletion
-      </h2>
-      <div style="background: rgba(245, 101, 101, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
-        <p><strong>⚠️ WARNING:</strong> This will permanently delete selected classes and ALL related data including:</p>
-        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
-          <li>All student records in selected classes</li>
-          <li>All payment history for those students</li>
-          <li>All fee records and balances</li>
-          <li>All scholarship data for those students</li>
-        </ul>
-        <p><strong>This action cannot be undone!</strong></p>
-      </div>
-      
-      <div class="form-group">
-        <label for="classesToDelete">Select Classes to Delete:</label>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 0.5rem;">
-          <label style="display: flex; align-items: center; gap: 8px; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer;">
-            <input type="checkbox" name="deleteClass" value="Form 1"> Form 1
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer;">
-            <input type="checkbox" name="deleteClass" value="Form 2"> Form 2
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer;">
-            <input type="checkbox" name="deleteClass" value="Form 3"> Form 3
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer;">
-            <input type="checkbox" name="deleteClass" value="Form 4"> Form 4
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer;">
-            <input type="checkbox" name="deleteClass" value="Form 5"> Form 5
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer;">
-            <input type="checkbox" name="deleteClass" value="Form 6"> Form 6
-          </label>
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="deleteConfirmation">Type "I CONFIRM" to proceed:</label>
-        <input type="text" id="deleteConfirmation" placeholder="Type I CONFIRM exactly" style="border-color: rgba(245, 101, 101, 0.5);">
-      </div>
-      
-      <div class="form-actions">
-        <button type="button" class="btn btn-danger" onclick="executeClassDeletion()" style="background-color: rgba(245, 101, 101, 0.8);">
-          <i class="fas fa-trash-alt"></i> Delete Selected Classes
-        </button>
-      </div>
-    </div>
-
-    <!-- Individual Student Deletion Section -->
-    <div class="form-card" style="margin-top: 2rem; border: 2px solid rgba(245, 101, 101, 0.3);">
-      <h2 style="color: #f56565; display: flex; align-items: center; gap: 10px;">
-        <i class="fas fa-user-minus"></i> 
-        Individual Student Deletion
+        <i class="fas fa-trash-alt"></i> 
+        Bulk Deletion of Student Payment Records
       </h2>
       <div style="background: rgba(245, 101, 101, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
         <p><strong>⚠️ WARNING:</strong> This will permanently delete selected students and ALL their related data including:</p>
         <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
           <li>Student profile and personal information</li>
-          <li>All payment history and transaction records</li>
+          <li>All payment records and transaction history</li>
           <li>All fee records and balances</li>
           <li>All scholarship data</li>
           <li>All academic records</li>
         </ul>
+        <p style="margin-top: 0.5rem;"><strong>To delete students:</strong></p>
+        <ol style="margin: 0.5rem 0; padding-left: 1.5rem;">
+          <li>Use the filters and search above to find specific students</li>
+          <li>Select students using checkboxes in the student list table</li>
+          <li>Review your selection below</li>
+          <li>Type the confirmation text and click Delete</li>
+        </ol>
         <p><strong>This action cannot be undone!</strong></p>
       </div>
       
@@ -1561,7 +1515,7 @@
         <ul style="margin: 0; padding-left: 1.5rem; color: var(--text-color);">
           <li>Fees are charged per term (3 terms per academic year)</li>
           <li>All amounts are in US Dollars (USD) with ZWL equivalents calculated automatically</li>
-          <li>ZWL amounts are calculated using the current exchange rate (1 USD = ${settings.exchangeRate} ZWL)</li>
+          <li>ZWL amounts are calculated using the current exchange rate (1 USD = <span id="feeInfoExchangeRate">40</span> ZWL)</li>
           <li>Changes will affect all students immediately after saving</li>
           <li>Tuition fees cover academic instruction and materials</li>
           <li>School levy covers facilities, maintenance, and administrative costs</li>
@@ -2484,7 +2438,14 @@
   window.updateDashboardExchangeRate = function() {
     const newRate = parseFloat(document.getElementById('dashboardExchangeRate').value);
     if (!isNaN(newRate) && newRate > 0) {
-      settings.exchangeRate = newRate;
+      settings.exchangeRate = parseFloat(newRate);
+      
+      // Update the info text display
+      const feeInfoExchangeRate = document.getElementById('feeInfoExchangeRate');
+      if (feeInfoExchangeRate) {
+        feeInfoExchangeRate.textContent = settings.exchangeRate;
+      }
+      
       convertDashboardCurrency('usd');
       updateFeeTotals(); // Update fee structure ZWL amounts
     }
@@ -2575,8 +2536,9 @@
     const term = searchTerm.toLowerCase();
     const filteredStudents = allStudents.filter(student => {
       const fullName = `${student.firstname} ${student.surname}`.toLowerCase();
+      const studentID = student.studentID ? student.studentID.toLowerCase() : '';
       const admissionNo = student.admissionNumber ? student.admissionNumber.toLowerCase() : '';
-      return fullName.includes(term) || admissionNo.includes(term);
+      return fullName.includes(term) || studentID.includes(term) || admissionNo.includes(term);
     });
     
     if (filteredStudents.length > 0) {
@@ -2868,12 +2830,25 @@
       const exchangeDoc = await getDoc(doc(db, "settings", "exchange"));
       if (exchangeDoc.exists()) {
         const exchangeData = exchangeDoc.data();
-        settings.exchangeRate = exchangeData.usd_to_zwl_rate || 40;
+        settings.exchangeRate = parseFloat(exchangeData.usd_to_zwl_rate) || 40;
         settings.lastUpdated = exchangeData.updated_at;
         settings.updatedBy = exchangeData.updated_by;
       }
+      
+      // Update the info text display with current exchange rate
+      const feeInfoExchangeRate = document.getElementById('feeInfoExchangeRate');
+      if (feeInfoExchangeRate) {
+        feeInfoExchangeRate.textContent = settings.exchangeRate;
+      }
     } catch (err) {
       console.log("Exchange rate settings not found, using default rate of 40");
+      settings.exchangeRate = 40;
+      
+      // Update display even with default rate
+      const feeInfoExchangeRate = document.getElementById('feeInfoExchangeRate');
+      if (feeInfoExchangeRate) {
+        feeInfoExchangeRate.textContent = settings.exchangeRate;
+      }
     }
   }
 
@@ -2897,9 +2872,15 @@
       });
       
       // Update local settings
-      settings.exchangeRate = newRate;
+      settings.exchangeRate = parseFloat(newRate);
       settings.lastUpdated = new Date();
       settings.updatedBy = currentUser.name;
+      
+      // Update the info text display
+      const feeInfoExchangeRate = document.getElementById('feeInfoExchangeRate');
+      if (feeInfoExchangeRate) {
+        feeInfoExchangeRate.textContent = settings.exchangeRate;
+      }
       
       showNotification(`Exchange rate updated to 1 USD = ${newRate} ZWL`, "success");
       
@@ -3626,9 +3607,12 @@ function populateStudentsTable() {
     const balance = totalFees - paidAmount;
     const status = getPaymentStatus(student);
     
+    const displayID = student.studentID || 'ID Not Set';
+    const idClass = student.studentID ? '' : ' class="missing-id"';
+    
     return [
       `<input type="checkbox" class="student-checkbox" value="${student.id}" onchange="handleStudentSelection()" data-student-name="${student.firstname} ${student.surname}" data-student-class="${student.form} ${student.stream || ''}">`,
-      student.admissionNumber || 'N/A',
+      `<span${idClass}>${displayID}</span>`,
       `${student.firstname} ${student.surname}`,
       `${student.form} ${student.stream || ''}`,
       `$${totalFees.toLocaleString()}`,
@@ -3676,9 +3660,12 @@ function populatePaidStudentsTable() {
     const paidAmount = calculatePaidAmount(student.id);
     const balance = totalFees - paidAmount;
     
+    const displayID = student.studentID || 'ID Not Set';
+    const idClass = student.studentID ? '' : ' class="missing-id"';
+    
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${student.admissionNumber || 'N/A'}</td>
+      <td><span${idClass}>${displayID}</span></td>
       <td>${student.firstname} ${student.surname}</td>
       <td>${student.form} ${student.stream || ''}</td>
       <td>$${totalFees.toLocaleString()}</td>
@@ -3720,9 +3707,12 @@ function populateUnpaidStudentsTable() {
     const paidAmount = calculatePaidAmount(student.id);
     const balance = totalFees - paidAmount;
     
+    const displayID = student.studentID || 'ID Not Set';
+    const idClass = student.studentID ? '' : ' class="missing-id"';
+    
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${student.admissionNumber || 'N/A'}</td>
+      <td><span${idClass}>${displayID}</span></td>
       <td>${student.firstname} ${student.surname}</td>
       <td>${student.form} ${student.stream || ''}</td>
       <td>$${totalFees.toLocaleString()}</td>
@@ -3764,9 +3754,12 @@ function populatePartialStudentsTable() {
     const paidAmount = calculatePaidAmount(student.id);
     const balance = totalFees - paidAmount;
     
+    const displayID = student.studentID || 'ID Not Set';
+    const idClass = student.studentID ? '' : ' class="missing-id"';
+    
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${student.admissionNumber || 'N/A'}</td>
+      <td><span${idClass}>${displayID}</span></td>
       <td>${student.firstname} ${student.surname}</td>
       <td>${student.form} ${student.stream || ''}</td>
       <td>$${totalFees.toLocaleString()}</td>
@@ -3813,9 +3806,12 @@ function populateBalanceStudentsTable() {
     const balance = totalFees - paidAmount;
     const status = getPaymentStatus(student);
     
+    const displayID = student.studentID || 'ID Not Set';
+    const idClass = student.studentID ? '' : ' class="missing-id"';
+    
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${student.admissionNumber || 'N/A'}</td>
+      <td><span${idClass}>${displayID}</span></td>
       <td>${student.firstname} ${student.surname}</td>
       <td>${student.form} ${student.stream || ''}</td>
       <td>$${totalFees.toLocaleString()}</td>
@@ -7210,156 +7206,6 @@ window.generateReport = function() {
       // Save the PDF
       doc.save(`petty_cash_report_${new Date().toISOString().split('T')[0]}.pdf`);
       showNotification("Petty cash report exported successfully!", "success");
-    };
-
-    // Execute selective class deletion
-    window.executeClassDeletion = async function() {
-      // Get selected classes
-      const selectedClasses = Array.from(document.querySelectorAll('input[name="deleteClass"]:checked'))
-        .map(checkbox => checkbox.value);
-      
-      // Validate confirmation text
-      const confirmationText = document.getElementById('deleteConfirmation').value.trim();
-      
-      if (selectedClasses.length === 0) {
-        showNotification("Please select at least one class to delete", "error");
-        return;
-      }
-      
-      if (confirmationText !== "I CONFIRM") {
-        showNotification("Please type 'I CONFIRM' exactly to proceed", "error");
-        return;
-      }
-
-      // Additional confirmation dialog
-      const studentCount = allStudents.filter(student => 
-        selectedClasses.includes(student.form)
-      ).length;
-      
-      const paymentCount = allPayments.filter(payment => {
-        const student = allStudents.find(s => s.id === payment.studentId);
-        return student && selectedClasses.includes(student.form);
-      }).length;
-
-      const confirmMessage = `You are about to delete:\n\n` +
-        `• ${selectedClasses.length} class(es): ${selectedClasses.join(', ')}\n` +
-        `• ${studentCount} student record(s)\n` +
-        `• ${paymentCount} payment record(s)\n\n` +
-        `This action is PERMANENT and cannot be undone!\n\n` +
-        `Are you absolutely sure you want to proceed?`;
-
-      if (!confirm(confirmMessage)) {
-        return;
-      }
-
-      try {
-        showLoading(true, "Deleting selected class data...");
-        
-        // Get students in selected classes
-        const studentsToDelete = allStudents.filter(student => 
-          selectedClasses.includes(student.form)
-        );
-        
-        const studentIdsToDelete = studentsToDelete.map(s => s.id);
-        
-        let deleteCount = 0;
-        const totalOperations = studentIdsToDelete.length * 3; // students, payments, scholarships
-
-        // Delete all payments for these students
-        const paymentsToDelete = allPayments.filter(payment => 
-          studentIdsToDelete.includes(payment.studentId)
-        );
-        
-        for (const payment of paymentsToDelete) {
-          await updateDoc(doc(db, "payments", payment.id), {
-            deleted: true,
-            deletedAt: serverTimestamp(),
-            deletedBy: currentUser.name,
-            deletedReason: `Class deletion: ${selectedClasses.join(', ')}`
-          });
-          deleteCount++;
-          showLoading(true, `Deleting data... (${deleteCount}/${totalOperations})`);
-        }
-
-        // Delete all scholarship records for these students
-        const scholarshipsQuery = query(
-          collection(db, "scholarships"),
-          where("studentId", "in", studentIdsToDelete.slice(0, 10)) // Firestore limit
-        );
-        const scholarshipsSnapshot = await getDocs(scholarshipsQuery);
-        
-        for (const scholarshipDoc of scholarshipsSnapshot.docs) {
-          await updateDoc(doc(db, "scholarships", scholarshipDoc.id), {
-            deleted: true,
-            deletedAt: serverTimestamp(),
-            deletedBy: currentUser.name,
-            deletedReason: `Class deletion: ${selectedClasses.join(', ')}`
-          });
-          deleteCount++;
-          showLoading(true, `Deleting data... (${deleteCount}/${totalOperations})`);
-        }
-
-        // Handle remaining students if more than 10 (Firestore limitation)
-        if (studentIdsToDelete.length > 10) {
-          for (let i = 10; i < studentIdsToDelete.length; i += 10) {
-            const batch = studentIdsToDelete.slice(i, i + 10);
-            const batchQuery = query(
-              collection(db, "scholarships"),
-              where("studentId", "in", batch)
-            );
-            const batchSnapshot = await getDocs(batchQuery);
-            
-            for (const scholarshipDoc of batchSnapshot.docs) {
-              await updateDoc(doc(db, "scholarships", scholarshipDoc.id), {
-                deleted: true,
-                deletedAt: serverTimestamp(),
-                deletedBy: currentUser.name,
-                deletedReason: `Class deletion: ${selectedClasses.join(', ')}`
-              });
-              deleteCount++;
-              showLoading(true, `Deleting data... (${deleteCount}/${totalOperations})`);
-            }
-          }
-        }
-
-        // Delete all student records
-        for (const student of studentsToDelete) {
-          await updateDoc(doc(db, "students", student.id), {
-            deleted: true,
-            deletedAt: serverTimestamp(),
-            deletedBy: currentUser.name,
-            deletedReason: `Class deletion: ${selectedClasses.join(', ')}`
-          });
-          deleteCount++;
-          showLoading(true, `Deleting data... (${deleteCount}/${totalOperations})`);
-        }
-
-        // Track this major action
-        trackAccountActivity('bulk_class_deletion', {
-          deletedClasses: selectedClasses,
-          studentsDeleted: studentIdsToDelete.length,
-          paymentsDeleted: paymentsToDelete.length,
-          actionBy: currentUser.name
-        });
-
-        showNotification(
-          `Successfully deleted ${selectedClasses.length} class(es), ${studentIdsToDelete.length} student(s), and ${paymentsToDelete.length} payment record(s)`,
-          "success"
-        );
-
-        // Clear form
-        document.querySelectorAll('input[name="deleteClass"]:checked').forEach(cb => cb.checked = false);
-        document.getElementById('deleteConfirmation').value = '';
-
-        // Reload all data
-        await loadInitialData();
-
-      } catch (err) {
-        console.error("Error during class deletion:", err);
-        showNotification("Error occurred during deletion. Some data may not have been deleted.", "error");
-      } finally {
-        showLoading(false);
-      }
     };
 
     // Student Selection and Deletion Functions
