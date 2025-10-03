@@ -1009,10 +1009,7 @@
         </div>
         <div class="btn-group">
           <button class="btn btn-primary" id="addStudentBtn">
-            <i class="fas fa-plus"></i> Add Student
-          </button>
-          <button class="btn btn-success" id="createAccountBtn">
-            <i class="fas fa-user-plus"></i> Create Account
+            <i class="fas fa-user-plus"></i> Add Student / Create Account
           </button>
           <button class="btn btn-secondary" id="downloadAllBtn">
             <i class="fas fa-file-pdf"></i> Export PDF
@@ -1044,11 +1041,11 @@
   <!-- Loading Spinner -->
   <div id="spinner" class="spinner"></div>
 
-  <!-- Add/Edit Student Modal -->
+  <!-- Add Student / Create Account Modal -->
   <div id="studentModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2><i class="fas fa-user-graduate"></i> <span id="modalTitle">Add Student</span></h2>
+        <h2><i class="fas fa-user-graduate"></i> <span id="modalTitle">Add Student / Create Account</span></h2>
         <span class="close" id="modalClose">&times;</span>
       </div>
       <div class="modal-body">
@@ -1057,18 +1054,37 @@
           
           <div class="form-row">
             <div class="form-group">
-              <label for="firstName">First Name</label>
+              <label for="firstName">First Name *</label>
               <input type="text" id="firstName" required />
             </div>
             <div class="form-group">
-              <label for="surname">Surname</label>
+              <label for="surname">Surname *</label>
               <input type="text" id="surname" required />
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
-              <label for="form">Form</label>
+              <label for="email">Email *</label>
+              <input type="email" id="email" required />
+            </div>
+            <div class="form-group">
+              <label for="password">Password *</label>
+              <div style="position: relative;">
+                <input type="password" id="password" required minlength="6" />
+                <button type="button" class="toggle-password-btn" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-color);">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <small style="color: var(--secondary); display: block; margin-top: 5px;">
+                Student will be required to change this password on first login
+              </small>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="form">Form *</label>
               <select id="form" required>
                 <option value="">Select Form</option>
                 <option value="FORM 1">FORM 1</option>
@@ -1098,38 +1114,27 @@
           
           <div class="form-row">
             <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" required />
-            </div>
-            <div class="form-group">
               <label for="phone">Phone</label>
               <input type="tel" id="phone" pattern="[0-9]{10,15}" />
             </div>
-          </div>
-          
-          <div class="form-row">
             <div class="form-group">
               <label for="nationalId">National ID / Birth Number</label>
               <input type="text" id="nationalId" placeholder="Enter national ID or birth number" />
             </div>
+          </div>
+          
+          <div class="form-row">
             <div class="form-group">
               <label for="dob">Date of Birth</label>
               <input type="date" id="dob" />
             </div>
-          </div>
-          
-          <div class="form-row">
             <div class="form-group">
               <label for="gender">Gender</label>
               <select id="gender">
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-                
               </select>
-            </div>
-            <div class="form-group">
-              <!-- Empty column to maintain layout balance -->
             </div>
           </div>
           
@@ -1160,15 +1165,6 @@
           </div>
           
           <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" />
-            <div class="toggle-password">
-              <input type="checkbox" id="showPassword" />
-              <label for="showPassword">Show Password</label>
-            </div>
-          </div>
-          
-          <div class="form-group">
             <label for="profilePic">Profile Photo</label>
             <input type="file" id="profilePic" accept="image/*" />
           </div>
@@ -1178,7 +1174,7 @@
               <i class="fas fa-times"></i> Cancel
             </button>
             <button type="submit" class="btn btn-primary">
-              <i class="fas fa-save"></i> Save Student
+              <i class="fas fa-user-plus"></i> Add Student / Create Account
             </button>
           </div>
         </form>
@@ -1235,118 +1231,6 @@
     </div>
   </div>
 
-  <!-- Create Account Modal -->
-  <div id="createAccountModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2><i class="fas fa-user-plus"></i> Create Student Account</h2>
-        <span class="close" id="createAccountModalClose">&times;</span>
-      </div>
-      <div class="modal-body">
-        <form id="createAccountForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="accountFirstName">First Name *</label>
-              <input type="text" id="accountFirstName" required />
-            </div>
-            <div class="form-group">
-              <label for="accountSurname">Surname *</label>
-              <input type="text" id="accountSurname" required />
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="accountEmail">Email *</label>
-              <input type="email" id="accountEmail" required />
-            </div>
-            <div class="form-group">
-              <label for="accountPassword">Password *</label>
-              <div style="position: relative;">
-                <input type="password" id="accountPassword" required minlength="6" />
-                <button type="button" class="toggle-password-btn" id="toggleAccountPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-color);">
-                  <i class="fas fa-eye"></i>
-                </button>
-              </div>
-              <small style="color: var(--secondary); display: block; margin-top: 5px;">
-                Student will be required to change this password on first login
-              </small>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="accountForm">Form *</label>
-              <select id="accountForm" required>
-                <option value="">Select Form</option>
-                <option value="FORM 1">FORM 1</option>
-                <option value="FORM 2">FORM 2</option>
-                <option value="FORM 3">FORM 3</option>
-                <option value="FORM 4">FORM 4</option>
-                <option value="FORM 5">FORM 5</option>
-                <option value="FORM 6">FORM 6</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="accountStream">Stream</label>
-              <select id="accountStream">
-                <option value="">Select Stream</option>
-                <option value="G">G</option>
-                <option value="W">W</option>
-                <option value="E">E</option>
-                <option value="Z">Z</option>
-                <option value="U">U</option>
-                <option value="SP">SP</option>
-                <option value="Sciences">Sciences</option>
-                <option value="Commercials">Commercials</option>
-                <option value="Arts">Arts</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="accountPhone">Phone</label>
-              <input type="tel" id="accountPhone" pattern="[0-9]{10,15}" />
-            </div>
-            <div class="form-group">
-              <label for="accountNationalId">National ID / Birth Number</label>
-              <input type="text" id="accountNationalId" />
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="accountDob">Date of Birth</label>
-              <input type="date" id="accountDob" />
-            </div>
-            <div class="form-group">
-              <label for="accountGender">Gender</label>
-              <select id="accountGender">
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label for="accountParentName">Parent/Guardian Name</label>
-            <input type="text" id="accountParentName" />
-          </div>
-          
-          <div class="form-footer">
-            <button type="button" class="btn btn-secondary" id="cancelAccountBtn">
-              <i class="fas fa-times"></i> Cancel
-            </button>
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-user-plus"></i> Create Account
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
   <!-- Theme Toggle -->
   <div class="theme-toggle" id="themeToggle">
@@ -1592,12 +1476,19 @@
               <th>National ID</th>
               <th>Parent</th>
               <th>DOB</th>
+              <th>Account Status</th>
               <th>Payment Status</th>
               <th class="action-col">Actions</th>
             </tr>
           </thead>
           <tbody>
-            ${group.students.map((student, idx) => `
+            ${group.students.map((student, idx) => {
+              const accountStatus = student.status || 'active';
+              const isPending = student.accountPendingApproval || accountStatus === 'inactive';
+              const isBanned = accountStatus === 'banned';
+              const isActive = accountStatus === 'active';
+              
+              return `
               <tr>
                 <td class="bulk-col"><input type="checkbox" class="student-checkbox" data-id="${student.id}" /></td>
                 <td class="profile-col">
@@ -1616,17 +1507,41 @@
                 <td>${highlightText((student.birthNumber ?? student.nationalId ?? 'N/A').toString(), searchTerm)}</td>
                 <td>${highlightText(student.parentName, searchTerm)}</td>
                 <td>${formatDate(student.dob)}</td>
+                <td>${getAccountStatusBadge(accountStatus, isPending)}</td>
                 <td>${getPaymentStatusBadge(calculatePaymentStatus(student))}</td>
                 <td class="action-buttons">
-                  <button class="btn btn-primary" onclick="editStudent('${student.id}')">
-                    <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button class="btn btn-danger" onclick="deleteStudent('${student.id}')">
-                    <i class="fas fa-trash"></i> Delete
-                  </button>
+                  ${isPending ? `
+                    <button class="btn btn-success" onclick="activateStudent('${student.id}', '${student.firstname}', '${student.surname}')">
+                      <i class="fas fa-check"></i> Activate
+                    </button>
+                    <button class="btn btn-danger" onclick="rejectStudent('${student.id}', '${student.firstname}', '${student.surname}')">
+                      <i class="fas fa-times"></i> Reject
+                    </button>
+                  ` : isBanned ? `
+                    <button class="btn btn-success" onclick="activateStudent('${student.id}', '${student.firstname}', '${student.surname}')">
+                      <i class="fas fa-unlock"></i> Unban
+                    </button>
+                    <button class="btn btn-info" onclick="viewResetPassword('${student.id}', '${student.firstname}', '${student.surname}')">
+                      <i class="fas fa-key"></i> Password
+                    </button>
+                  ` : `
+                    <button class="btn btn-primary" onclick="editStudent('${student.id}')">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-info" onclick="viewResetPassword('${student.id}', '${student.firstname}', '${student.surname}')">
+                      <i class="fas fa-key"></i> Password
+                    </button>
+                    <button class="btn btn-danger" onclick="banStudent('${student.id}', '${student.firstname}', '${student.surname}')">
+                      <i class="fas fa-ban"></i> Ban
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteStudent('${student.id}')">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  `}
                 </td>
               </tr>
-            `).join("")}
+            `;
+            }).join("")}
           </tbody>
         `;
         
@@ -1801,6 +1716,7 @@
       filteredData = studentsData.filter(student => {
         // Text search filter
         const matchesSearch = !searchTerm || (
+          (student.studentID && student.studentID.toLowerCase().includes(searchTerm)) ||
           (student.firstname && student.firstname.toLowerCase().includes(searchTerm)) ||
           (student.surname && student.surname.toLowerCase().includes(searchTerm)) ||
           (student.email && student.email.toLowerCase().includes(searchTerm)) ||
@@ -1969,6 +1885,216 @@
       };
       return badges[status] || '<span class="status-badge status-notset"><i class="fas fa-question"></i> Unknown</span>';
     }
+    
+    // Get account status badge HTML
+    function getAccountStatusBadge(status, isPending) {
+      if (isPending) {
+        return '<span class="status-badge status-balance"><i class="fas fa-clock"></i> Pending Approval</span>';
+      }
+      const badges = {
+        'active': '<span class="status-badge status-paid"><i class="fas fa-check-circle"></i> Active</span>',
+        'inactive': '<span class="status-badge status-unpaid"><i class="fas fa-times-circle"></i> Inactive</span>',
+        'banned': '<span class="status-badge status-unpaid"><i class="fas fa-ban"></i> Banned</span>'
+      };
+      return badges[status] || '<span class="status-badge status-notset"><i class="fas fa-question"></i> Unknown</span>';
+    }
+    
+    // Activate student account
+    async function activateStudent(studentId, firstName, surname) {
+      try {
+        const result = await Swal.fire({
+          title: 'Activate Account',
+          html: `Are you sure you want to activate the account for <strong>${firstName} ${surname}</strong>?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#38a169',
+          cancelButtonColor: '#718096',
+          confirmButtonText: 'Yes, activate it!'
+        });
+        
+        if (result.isConfirmed) {
+          showSpinner(true);
+          await updateDoc(doc(db, "students", studentId), {
+            status: "active",
+            accountPendingApproval: false,
+            activatedAt: new Date(),
+            updatedAt: serverTimestamp()
+          });
+          
+          showToast(`Account activated for ${firstName} ${surname}`, "success");
+          clearCache();
+          loadStudents();
+        }
+      } catch (error) {
+        console.error("Error activating student:", error);
+        showToast("Failed to activate account", "error");
+      } finally {
+        showSpinner(false);
+      }
+    }
+    window.activateStudent = activateStudent;
+    
+    // Ban student account
+    async function banStudent(studentId, firstName, surname) {
+      try {
+        const result = await Swal.fire({
+          title: 'Ban Account',
+          html: `Are you sure you want to ban the account for <strong>${firstName} ${surname}</strong>?<br><br>
+                 <span style="color: #e53e3e;">⚠️ This will prevent the student from accessing their account.</span>`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#e53e3e',
+          cancelButtonColor: '#718096',
+          confirmButtonText: 'Yes, ban it!'
+        });
+        
+        if (result.isConfirmed) {
+          showSpinner(true);
+          await updateDoc(doc(db, "students", studentId), {
+            status: "banned",
+            bannedAt: new Date(),
+            updatedAt: serverTimestamp()
+          });
+          
+          showToast(`Account banned for ${firstName} ${surname}`, "success");
+          clearCache();
+          loadStudents();
+        }
+      } catch (error) {
+        console.error("Error banning student:", error);
+        showToast("Failed to ban account", "error");
+      } finally {
+        showSpinner(false);
+      }
+    }
+    window.banStudent = banStudent;
+    
+    // Reject student account
+    async function rejectStudent(studentId, firstName, surname) {
+      try {
+        const result = await Swal.fire({
+          title: 'Reject Account',
+          html: `Are you sure you want to reject the account for <strong>${firstName} ${surname}</strong>?<br><br>
+                 <span style="color: #e53e3e;">⚠️ This will permanently delete this account and all associated data.</span>`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#e53e3e',
+          cancelButtonColor: '#718096',
+          confirmButtonText: 'Yes, reject and delete it!'
+        });
+        
+        if (result.isConfirmed) {
+          showSpinner(true);
+          await deleteDoc(doc(db, "students", studentId));
+          
+          showToast(`Account rejected and deleted for ${firstName} ${surname}`, "success");
+          clearCache();
+          loadStudents();
+        }
+      } catch (error) {
+        console.error("Error rejecting student:", error);
+        showToast("Failed to reject account", "error");
+      } finally {
+        showSpinner(false);
+      }
+    }
+    window.rejectStudent = rejectStudent;
+    
+    // View and reset password
+    async function viewResetPassword(studentId, firstName, surname) {
+      try {
+        showSpinner(true);
+        const studentDoc = await getDoc(doc(db, "students", studentId));
+        
+        if (!studentDoc.exists()) {
+          showToast("Student not found", "error");
+          return;
+        }
+        
+        const studentData = studentDoc.data();
+        const currentPassword = studentData.userPass || "Not set";
+        
+        showSpinner(false);
+        
+        const result = await Swal.fire({
+          title: `Password Management`,
+          html: `
+            <div style="text-align: left; padding: 10px;">
+              <p><strong>Student:</strong> ${firstName} ${surname}</p>
+              <p><strong>Email:</strong> ${studentData.email}</p>
+              <hr>
+              <p><strong>Current Password:</strong></p>
+              <div style="background: #f0f0f0; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0;">
+                ${currentPassword}
+              </div>
+              <hr>
+              <p><strong>Enter New Password:</strong></p>
+              <input type="text" id="newPassword" class="swal2-input" placeholder="Enter new password" style="width: 80%;" />
+              <p style="color: #718096; font-size: 0.9rem; margin-top: 10px;">
+                Leave blank to keep current password
+              </p>
+            </div>
+          `,
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonColor: '#3182ce',
+          cancelButtonColor: '#718096',
+          confirmButtonText: 'Update Password',
+          preConfirm: () => {
+            const newPassword = document.getElementById('newPassword').value;
+            if (newPassword && newPassword.length < 6) {
+              Swal.showValidationMessage('Password must be at least 6 characters');
+              return false;
+            }
+            return newPassword;
+          }
+        });
+        
+        if (result.isConfirmed && result.value) {
+          showSpinner(true);
+          
+          // Update password in Firestore
+          await updateDoc(doc(db, "students", studentId), {
+            userPass: result.value,
+            mustChangePassword: true,
+            passwordResetByAdmin: true,
+            passwordResetAt: new Date(),
+            updatedAt: serverTimestamp()
+          });
+          
+          // Show success with new password
+          await Swal.fire({
+            title: 'Password Updated!',
+            html: `
+              <div style="text-align: left; padding: 10px;">
+                <p><strong>Student:</strong> ${firstName} ${surname}</p>
+                <p><strong>New Password:</strong></p>
+                <div style="background: #f0f0f0; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0; font-size: 1.1rem;">
+                  ${result.value}
+                </div>
+                <p style="color: #d69e2e; margin-top: 10px;">
+                  ⚠️ Student will be required to change this password on next login
+                </p>
+                <p style="color: #718096; font-size: 0.9rem;">
+                  Please provide this password to the student securely
+                </p>
+              </div>
+            `,
+            icon: 'success',
+            confirmButtonColor: '#38a169'
+          });
+          
+          clearCache();
+          loadStudents();
+        }
+      } catch (error) {
+        console.error("Error managing password:", error);
+        showToast("Failed to manage password", "error");
+      } finally {
+        showSpinner(false);
+      }
+    }
+    window.viewResetPassword = viewResetPassword;
     
     // Clear cache
     function clearCache() {
@@ -2164,157 +2290,165 @@
       }
     }
     
-    // Open create account modal
-    function openCreateAccountModal() {
-      const modal = document.getElementById("createAccountModal");
-      const form = document.getElementById("createAccountForm");
-      form.reset();
-      modal.style.display = "block";
-    }
-    
-    // Close create account modal
-    function closeCreateAccountModal() {
-      document.getElementById("createAccountModal").style.display = "none";
-    }
-    
-    // Handle create account form submission
-    async function handleCreateAccount(e) {
-      e.preventDefault();
-      
-      const firstName = document.getElementById("accountFirstName").value.trim();
-      const surname = document.getElementById("accountSurname").value.trim();
-      const email = document.getElementById("accountEmail").value.trim();
-      const password = document.getElementById("accountPassword").value;
-      const form = document.getElementById("accountForm").value;
-      const stream = document.getElementById("accountStream").value;
-      const phone = document.getElementById("accountPhone").value.trim();
-      const nationalId = document.getElementById("accountNationalId").value.trim();
-      const dob = document.getElementById("accountDob").value;
-      const gender = document.getElementById("accountGender").value;
-      const parentName = document.getElementById("accountParentName").value.trim();
-      
-      try {
-        showSpinner(true);
-        
-        // Generate unique student ID
-        const studentID = await generateStudentID();
-        
-        // Create user with email/password using secondary auth (doesn't log out admin)
-        const userCredential = await createUser(secondaryAuth, email, password);
-        const user = userCredential.user;
-        
-        // Immediately sign out the new user from secondary auth to prevent session conflicts
-        await secondaryAuth.signOut();
-        
-        // Save user data to Firestore using email as document ID
-        await setDoc(doc(db, "students", email), {
-          studentID: studentID,
-          firstname: firstName,
-          surname: surname,
-          birthNumber: nationalId,
-          email: email,
-          phone: phone,
-          dob: dob,
-          gender: gender,
-          "parent-name": parentName,
-          form: form,
-          stream: stream,
-          createdAt: new Date(),
-          status: "active",
-          createdByAdmin: true,
-          mustChangePassword: true,
-          emailVerified: false,
-          role: "student",
-          uid: user.uid
-        });
-        
-        // Show success message with student ID and login credentials
-        await Swal.fire({
-          title: "Account Created Successfully!",
-          html: `
-            <div style="text-align: left; padding: 10px;">
-              <p><strong>Student ID:</strong> ${studentID}</p>
-              <p><strong>Name:</strong> ${firstName} ${surname}</p>
-              <p><strong>Email:</strong> ${email}</p>
-              <p><strong>Password:</strong> ${password}</p>
-              <br>
-              <p style="color: #d69e2e;">⚠️ Student must change this password on first login</p>
-              <p>Please provide these credentials to the student.</p>
-            </div>
-          `,
-          icon: "success",
-          confirmButtonColor: "#003366",
-          confirmButtonText: "OK"
-        });
-        
-        // Close modal and reload students list
-        closeCreateAccountModal();
-        document.getElementById("createAccountForm").reset();
-        await loadStudents();
-        
-      } catch (error) {
-        console.error("Error creating account:", error);
-        
-        let errorMessage = "Failed to create account. ";
-        if (error.code === "auth/email-already-in-use") {
-          errorMessage += "This email is already registered.";
-        } else if (error.code === "auth/invalid-email") {
-          errorMessage += "Invalid email address.";
-        } else if (error.code === "auth/weak-password") {
-          errorMessage += "Password should be at least 6 characters.";
-        } else {
-          errorMessage += error.message;
-        }
-        
-        Swal.fire({
-          title: "Error",
-          text: errorMessage,
-          icon: "error",
-          confirmButtonColor: "#e53e3e"
-        });
-      } finally {
-        // Always hide spinner, even if there was an error
-        showSpinner(false);
-      }
-    }
     
     // Handle student form submission
     async function handleStudentForm(e) {
       e.preventDefault();
       
-      const formData = {
-        firstname: document.getElementById("firstName").value.trim(),
-        surname: document.getElementById("surname").value.trim(),
-        form: document.getElementById("form").value,
-        stream: document.getElementById("stream").value,
-        email: document.getElementById("email").value.trim(),
-        phone: document.getElementById("phone").value.trim(),
-        dob: document.getElementById("dob").value,
-        gender: document.getElementById("gender").value,
-        address: document.getElementById("address").value.trim(),
-        parentName: document.getElementById("parentName").value.trim(),
-        parentPhone: document.getElementById("parentPhone").value.trim(),
-        healthIssues: document.getElementById("healthIssues").value.trim(),
-        additionalInfo: document.getElementById("additionalInfo").value.trim(),
-        userPass: document.getElementById("password").value.trim()
-      };
+      const firstName = document.getElementById("firstName").value.trim();
+      const surname = document.getElementById("surname").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const form = document.getElementById("form").value;
+      const stream = document.getElementById("stream").value;
+      const phone = document.getElementById("phone").value.trim();
+      const nationalId = document.getElementById("nationalId").value.trim();
+      const dob = document.getElementById("dob").value;
+      const gender = document.getElementById("gender").value;
+      const address = document.getElementById("address").value.trim();
+      const parentName = document.getElementById("parentName").value.trim();
+      const parentPhone = document.getElementById("parentPhone").value.trim();
+      const healthIssues = document.getElementById("healthIssues").value.trim();
+      const additionalInfo = document.getElementById("additionalInfo").value.trim();
+      const studentId = document.getElementById("studentId").value;
       
       // Validate required fields
-      if (!formData.firstname || !formData.surname || !formData.form || !formData.email) {
-        showToast("Please fill in all required fields", "error");
+      if (!firstName || !surname || !form || !email || !password) {
+        showToast("Please fill in all required fields (First Name, Surname, Form, Email, Password)", "error");
         return;
       }
       
-      showSpinner(true);
-      const studentId = document.getElementById("studentId").value;
-      const success = studentId 
-        ? await updateStudent(studentId, formData)
-        : await addStudent(formData);
-      
-      if (success) {
-        closeStudentModal();
+      if (studentId) {
+        // Edit mode - update existing student
+        const formData = {
+          firstname: firstName,
+          surname: surname,
+          form: form,
+          stream: stream,
+          email: email,
+          phone: phone,
+          nationalId: nationalId,
+          birthNumber: nationalId,
+          dob: dob,
+          gender: gender,
+          address: address,
+          parentName: parentName,
+          "parent-name": parentName,
+          parentPhone: parentPhone,
+          "parent-phone": parentPhone,
+          healthIssues: healthIssues,
+          additionalInfo: additionalInfo,
+          userPass: password
+        };
+        
+        showSpinner(true);
+        const success = await updateStudent(studentId, formData);
+        if (success) {
+          closeStudentModal();
+        }
+        showSpinner(false);
+      } else {
+        // Add mode - create new account with Firebase Auth
+        try {
+          showSpinner(true);
+          
+          // Generate unique student ID
+          const generatedStudentID = await generateStudentID();
+          
+          // Create user with email/password using secondary auth
+          const userCredential = await createUser(secondaryAuth, email, password);
+          const user = userCredential.user;
+          
+          // Immediately sign out the new user from secondary auth
+          await secondaryAuth.signOut();
+          
+          // Save user data to Firestore using email as document ID
+          await setDoc(doc(db, "students", email), {
+            studentID: generatedStudentID,
+            firstname: firstName,
+            surname: surname,
+            birthNumber: nationalId,
+            nationalId: nationalId,
+            email: email,
+            phone: phone,
+            dob: dob,
+            gender: gender,
+            address: address,
+            "parent-name": parentName,
+            parentName: parentName,
+            "parent-phone": parentPhone,
+            parentPhone: parentPhone,
+            form: form,
+            stream: stream,
+            healthIssues: healthIssues,
+            additionalInfo: additionalInfo,
+            userPass: password,
+            createdAt: new Date(),
+            status: "active",
+            createdByAdmin: true,
+            mustChangePassword: true,
+            emailVerified: false,
+            role: "student",
+            uid: user.uid
+          });
+          
+          // Upload profile picture if selected
+          if (selectedFile) {
+            const storageRef = ref(storage, `student-profiles/${email}`);
+            await uploadBytes(storageRef, selectedFile);
+            const photoURL = await getDownloadURL(storageRef);
+            await updateDoc(doc(db, "students", email), { profilePic: photoURL });
+          }
+          
+          // Show success message
+          await Swal.fire({
+            title: "Account Created Successfully!",
+            html: `
+              <div style="text-align: left; padding: 10px;">
+                <p><strong>Student ID:</strong> ${generatedStudentID}</p>
+                <p><strong>Name:</strong> ${firstName} ${surname}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Password:</strong> ${password}</p>
+                <br>
+                <p style="color: #d69e2e;">⚠️ Student must change this password on first login</p>
+                <p>Please provide these credentials to the student.</p>
+              </div>
+            `,
+            icon: "success",
+            confirmButtonColor: "#003366",
+            confirmButtonText: "OK"
+          });
+          
+          // Close modal and reload
+          closeStudentModal();
+          document.getElementById("studentForm").reset();
+          clearCache();
+          await loadStudents();
+          
+        } catch (error) {
+          console.error("Error creating account:", error);
+          
+          let errorMessage = "Failed to create account. ";
+          if (error.code === "auth/email-already-in-use") {
+            errorMessage += "This email is already registered.";
+          } else if (error.code === "auth/invalid-email") {
+            errorMessage += "Invalid email address.";
+          } else if (error.code === "auth/weak-password") {
+            errorMessage += "Password should be at least 6 characters.";
+          } else {
+            errorMessage += error.message;
+          }
+          
+          Swal.fire({
+            title: "Error",
+            text: errorMessage,
+            icon: "error",
+            confirmButtonColor: "#e53e3e"
+          });
+        } finally {
+          showSpinner(false);
+        }
       }
-      showSpinner(false);
     }
     
     // Handle file selection for profile picture
@@ -2432,23 +2566,16 @@
       // Student form
       document.getElementById("studentForm").addEventListener("submit", handleStudentForm);
       document.getElementById("profilePic").addEventListener("change", handleFileSelect);
-      document.getElementById("showPassword").addEventListener("change", (e) => {
-        document.getElementById("password").type = e.target.checked ? "text" : "password";
-      });
       
       // Modal controls
       document.getElementById("addStudentBtn").addEventListener("click", () => openStudentModal());
       document.getElementById("modalClose").addEventListener("click", closeStudentModal);
       document.getElementById("cancelBtn").addEventListener("click", closeStudentModal);
       
-      // Create Account Modal controls
-      document.getElementById("createAccountBtn").addEventListener("click", openCreateAccountModal);
-      document.getElementById("createAccountModalClose").addEventListener("click", closeCreateAccountModal);
-      document.getElementById("cancelAccountBtn").addEventListener("click", closeCreateAccountModal);
-      document.getElementById("createAccountForm").addEventListener("submit", handleCreateAccount);
-      document.getElementById("toggleAccountPassword").addEventListener("click", () => {
-        const passwordInput = document.getElementById("accountPassword");
-        const icon = document.getElementById("toggleAccountPassword").querySelector("i");
+      // Toggle password visibility
+      document.getElementById("togglePassword").addEventListener("click", () => {
+        const passwordInput = document.getElementById("password");
+        const icon = document.getElementById("togglePassword").querySelector("i");
         if (passwordInput.type === "password") {
           passwordInput.type = "text";
           icon.className = "fas fa-eye-slash";

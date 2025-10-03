@@ -828,11 +828,14 @@
           form: form,
           stream: stream,
           createdAt: new Date(),
-          status: "active",
+          status: "inactive",
           emailVerified: false,
           role: "student",
           profileCompleted: true,
-          uid: user.uid
+          uid: user.uid,
+          createdByAdmin: false,
+          mustChangePassword: false,
+          accountPendingApproval: true
         });
 
         // Store user email in localStorage for dashboard
@@ -840,19 +843,20 @@
 
         // Show success message with student ID
         await Swal.fire({
-          title: "Account Created!",
+          title: "Registration Submitted!",
           html: `Welcome to St. Mary's High, ${firstname}!<br><br>
                 <strong>Your Student ID: ${studentID}</strong><br><br>
-                Please save this ID - you can use it to login instead of your email.<br><br>
-                A verification email has been sent to <strong>${email}</strong>.
-                You can verify it later from your dashboard.`,
-          icon: "success",
+                Please save this ID for your records.<br><br>
+                <strong style="color: #d69e2e;">⚠️ Your account is pending admin approval.</strong><br>
+                You will receive an email at <strong>${email}</strong> once your account is activated.<br><br>
+                Please contact the school administration if you have any questions.`,
+          icon: "info",
           confirmButtonColor: "#003366",
-          confirmButtonText: "Continue to Dashboard"
+          confirmButtonText: "OK"
         });
 
-        // Redirect to dashboard instead of login page
-        window.location.href = "/dashboard";
+        // Redirect to login page
+        window.location.href = "/pages/student-login.html";
       } catch (error) {
         // Handle errors
         handleSignupError(error);

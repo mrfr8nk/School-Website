@@ -600,6 +600,33 @@
         // Store user email in localStorage
         localStorage.setItem("studentEmail", loginEmail);
 
+        // Check if user must change password (for admin-created accounts)
+        const userDocRef = doc(db, "students", loginEmail);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          
+          // Check account status
+          if (userData.status === 'inactive' || userData.accountPendingApproval) {
+            await auth.signOut();
+            showError("Your account is pending admin approval. Please contact the school administration.");
+            return;
+          }
+          
+          if (userData.status === 'banned') {
+            await auth.signOut();
+            showError("Your account has been suspended. Please contact the school administration.");
+            return;
+          }
+          
+          // Check if password must be changed (only check transient flags)
+          if (userData.mustChangePassword || userData.passwordResetByAdmin) {
+            await handlePasswordChange(loginEmail, userData);
+            return;
+          }
+        }
+
         // Show success message
         await Swal.fire({
           title: "Login Successful!",
@@ -653,6 +680,117 @@
       showError(errorMessage);
     }
 
+    // Handle password change requirement
+    async function handlePasswordChange(userEmail, userData) {
+      const firstName = userData.firstname || 'Student';
+      const isAdminCreated = userData.createdByAdmin;
+      const isPasswordReset = userData.passwordResetByAdmin;
+      
+      const { value: formValues } = await Swal.fire({
+        title: isPasswordReset ? 'Password Reset Required' : 'Change Your Password',
+        html: `
+          <div style="text-align: left; padding: 10px;">
+            ${isAdminCreated ? `
+              <p style="color: #d69e2e; margin-bottom: 15px;">
+                ⚠️ Your account was created by an administrator. For security, you must set a new password.
+              </p>
+            ` : isPasswordReset ? `
+              <p style="color: #d69e2e; margin-bottom: 15px;">
+                ⚠️ Your password was reset by an administrator. You must set a new password to continue.
+              </p>
+            ` : ''}
+            <label style="font-weight: 600; margin-bottom: 5px; display: block;">New Password:</label>
+            <input type="password" id="newPassword" class="swal2-input" placeholder="Enter new password" style="width: 90%; margin: 5px auto;" />
+            
+            <label style="font-weight: 600; margin-bottom: 5px; margin-top: 15px; display: block;">Confirm Password:</label>
+            <input type="password" id="confirmPassword" class="swal2-input" placeholder="Confirm new password" style="width: 90%; margin: 5px auto;" />
+            
+            <p style="color: #718096; font-size: 0.85rem; margin-top: 15px;">
+              Password must be at least 6 characters long
+            </p>
+          </div>
+        `,
+        icon: 'warning',
+        showCancelButton: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        confirmButtonColor: '#38a169',
+        confirmButtonText: 'Change Password',
+        preConfirm: () => {
+          const newPassword = document.getElementById('newPassword').value;
+          const confirmPassword = document.getElementById('confirmPassword').value;
+          
+          if (!newPassword || !confirmPassword) {
+            Swal.showValidationMessage('Please fill in both password fields');
+            return false;
+          }
+          
+          if (newPassword.length < 6) {
+            Swal.showValidationMessage('Password must be at least 6 characters long');
+            return false;
+          }
+          
+          if (newPassword !== confirmPassword) {
+            Swal.showValidationMessage('Passwords do not match');
+            return false;
+          }
+          
+          return { newPassword };
+        }
+      });
+      
+      if (formValues && formValues.newPassword) {
+        try {
+          setLoadingState(true);
+          
+          // Re-authenticate the user with their current password first
+          const user = auth.currentUser;
+          
+          // Update password in Firebase Auth
+          const { updatePassword } = await import('/db/firebase.js');
+          await updatePassword(user, formValues.newPassword);
+          
+          // Update Firestore with new password and clear transient flags
+          await setDoc(doc(db, "students", userEmail), {
+            userPass: formValues.newPassword,
+            mustChangePassword: false,
+            passwordResetByAdmin: false,
+            passwordChangedAt: new Date(),
+            firstPasswordChangeCompleted: true
+          }, { merge: true });
+          
+          await Swal.fire({
+            title: 'Password Changed Successfully!',
+            text: 'You can now access your dashboard with your new password.',
+            icon: 'success',
+            confirmButtonColor: '#38a169',
+            confirmButtonText: 'Continue to Dashboard'
+          });
+          
+          // Redirect to dashboard
+          window.location.href = "/dashboard";
+        } catch (error) {
+          console.error("Error changing password:", error);
+          
+          let errorMsg = "Failed to change password. Please try again.";
+          if (error.code === 'auth/requires-recent-login') {
+            errorMsg = "For security, please log in again before changing your password.";
+            await auth.signOut();
+            window.location.reload();
+          }
+          
+          await Swal.fire({
+            title: 'Error',
+            text: errorMsg,
+            icon: 'error',
+            confirmButtonColor: '#e53e3e'
+          });
+        } finally {
+          setLoadingState(false);
+        }
+      }
+    }
+    
     // Handle wrong password for accounts that might be Google-only
     async function handleWrongPasswordForGoogleAccount(email) {
       try {
