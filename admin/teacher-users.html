@@ -897,6 +897,9 @@
             <button class="edit-btn" onclick="editAdmin('${adminUser.id}')">
               <i class="fas fa-edit"></i> Edit
             </button>
+            <button class="edit-btn" onclick="viewResetPassword('${adminUser.id}', '${adminUser.firstname}', '${adminUser.surname}')">
+              <i class="fas fa-key"></i> Password
+            </button>
             <button class="delete-btn" onclick="deleteAdmin('${adminUser.id}')">
               <i class="fas fa-trash"></i> Delete
             </button>
@@ -941,6 +944,95 @@
       });
     }
     window.deleteAdmin = deleteAdmin;
+
+    // View and reset password for teacher
+    async function viewResetPassword(teacherId, firstName, surname) {
+      try {
+        // Get teacher document
+        const teacherDoc = await getDoc(doc(db, "users", teacherId));
+        
+        if (!teacherDoc.exists()) {
+          Swal.fire('Error', 'Teacher not found', 'error');
+          return;
+        }
+        
+        const teacherData = teacherDoc.data();
+        const currentPassword = teacherData.userPass || "Not set";
+        
+        // Show password management dialog
+        Swal.fire({
+          title: `Password Management`,
+          html: `
+            <div style="text-align: left;">
+              <p style="margin-bottom: 15px;"><strong>${firstName} ${surname}</strong></p>
+              
+              <p><strong>Current Password:</strong></p>
+              <div style="background: rgba(214, 158, 46, 0.1); padding: 10px; border-radius: 8px; margin: 10px 0; border: 1px solid rgba(214, 158, 46, 0.3);">
+                ${currentPassword}
+              </div>
+              
+              <p><strong>Enter New Password:</strong></p>
+              <input type="text" id="newPassword" class="swal2-input" placeholder="Enter new password" style="width: 80%;" />
+              <p style="font-size: 0.85rem; color: #718096; margin-top: 5px;">
+                Leave blank to keep current password
+              </p>
+            </div>
+          `,
+          showCancelButton: true,
+          confirmButtonColor: '#d69e2e',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Update Password',
+          preConfirm: () => {
+            const newPassword = document.getElementById('newPassword').value;
+            if (newPassword && newPassword.length < 6) {
+              Swal.showValidationMessage('Password must be at least 6 characters');
+              return false;
+            }
+            return newPassword;
+          }
+        }).then(async (result) => {
+          if (result.isConfirmed && result.value) {
+            const newPassword = result.value;
+            
+            // Update password in Firestore
+            await updateDoc(doc(db, "users", teacherId), {
+              userPass: newPassword,
+              mustChangePassword: true,
+              passwordResetByAdmin: true,
+              passwordResetAt: new Date(),
+              lastUpdated: new Date()
+            });
+            
+            // Show success with new password
+            Swal.fire({
+              title: 'Password Updated!',
+              html: `
+                <div style="text-align: left;">
+                  <p><strong>New Password:</strong></p>
+                  <div style="background: rgba(72, 187, 120, 0.1); padding: 10px; border-radius: 8px; margin: 10px 0; border: 1px solid rgba(72, 187, 120, 0.3); word-break: break-all;">
+                    ${newPassword}
+                  </div>
+                  <p style="color: #d69e2e; margin-top: 10px;">
+                    ⚠️ Teacher will be required to change this password on next login
+                  </p>
+                  <p style="font-size: 0.85rem; color: #718096;">
+                    Please provide this password to the teacher securely
+                  </p>
+                </div>
+              `,
+              icon: 'success',
+              confirmButtonColor: '#d69e2e'
+            });
+            
+            loadAdminTeachers();
+          }
+        });
+      } catch (error) {
+        console.error("Error managing password:", error);
+        Swal.fire('Error', 'Failed to manage password: ' + error.message, 'error');
+      }
+    }
+    window.viewResetPassword = viewResetPassword;
 
     // View Admin Teacher Details
     function viewAdmin(adminId) {
