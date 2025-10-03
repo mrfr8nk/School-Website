@@ -3581,17 +3581,24 @@ loadTeacherStats();
                     await deleteDoc(doc.ref);
                   }
                   
-                  // Add backup data
+                  // Add backup data with original IDs preserved
                   for (const item of backupData.data[dataType]) {
                     const docData = { ...item };
-                    delete docData.id; // Remove ID to let Firestore auto-generate
+                    const originalId = docData.id;
+                    delete docData.id; // Remove ID from data object (it goes in the doc reference)
                     
                     // Convert ISO strings back to Timestamps if needed
                     if (docData.timestamp && typeof docData.timestamp === 'string') {
                       docData.timestamp = new Date(docData.timestamp);
                     }
                     
-                    await addDoc(collection(db, collectionName), docData);
+                    // Use setDoc with original ID to preserve document IDs
+                    if (originalId) {
+                      await setDoc(doc(db, collectionName, originalId), docData);
+                    } else {
+                      // If no ID, use addDoc as fallback
+                      await addDoc(collection(db, collectionName), docData);
+                    }
                   }
                   
                   progress += increment;
