@@ -636,7 +636,8 @@
       signInWithPopup,
       sendEmailVerification,
       doc,
-      setDoc
+      setDoc,
+      runTransaction
     } from "/db/firebase.js";
 
     // Initialize Google Auth Provider
@@ -694,6 +695,36 @@
       this.classList.toggle("fa-eye");
       this.classList.toggle("fa-eye-slash");
     });
+
+    // Generate unique student ID using Firestore transaction for atomicity
+    async function generateStudentID() {
+      const currentYear = new Date().getFullYear();
+      const prefix = `STM${currentYear}`;
+      const counterKey = `studentIDCounter_${currentYear}`;
+      
+      try {
+        const counterRef = doc(db, "counters", counterKey);
+        
+        const nextNumber = await runTransaction(db, async (transaction) => {
+          const counterDoc = await transaction.get(counterRef);
+          
+          let newValue = 1;
+          if (counterDoc.exists()) {
+            newValue = (counterDoc.data().value || 0) + 1;
+          }
+          
+          transaction.set(counterRef, { value: newValue, year: currentYear }, { merge: true });
+          return newValue;
+        });
+        
+        const studentID = `${prefix}${String(nextNumber).padStart(3, '0')}`;
+        return studentID;
+      } catch (error) {
+        console.error("Error generating student ID:", error);
+        const timestamp = Date.now() % 10000;
+        return `${prefix}${String(timestamp).padStart(3, '0')}`;
+      }
+    }
 
     // Form Submission - FIXED
     signupForm.addEventListener("submit", async (e) => {
@@ -771,6 +802,9 @@
       setLoadingState(true);
 
       try {
+        // Generate unique student ID
+        const studentID = await generateStudentID();
+
         // Create user with email/password
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
@@ -780,6 +814,7 @@
 
         // Save user data to Firestore using email as document ID (matches dashboard expectations)
         await setDoc(doc(db, "students", email), {
+          studentID: studentID,
           firstname: firstname,
           surname: surname,
           birthNumber: birthNumber,
@@ -803,10 +838,12 @@
         // Store user email in localStorage for dashboard
         localStorage.setItem("studentEmail", email);
 
-        // Show success message
+        // Show success message with student ID
         await Swal.fire({
           title: "Account Created!",
           html: `Welcome to St. Mary's High, ${firstname}!<br><br>
+                <strong>Your Student ID: ${studentID}</strong><br><br>
+                Please save this ID - you can use it to login instead of your email.<br><br>
                 A verification email has been sent to <strong>${email}</strong>.
                 You can verify it later from your dashboard.`,
           icon: "success",

@@ -398,8 +398,9 @@
 
         <!-- Form Fields -->
         <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" class="form-control" placeholder="yourname@example.com" required />
+          <label for="email">Student ID or Email Address</label>
+          <input type="text" id="email" class="form-control" placeholder="Student ID (STM2025001) or Email" required />
+          <small style="color: #666; font-size: 0.85rem; margin-top: 0.25rem; display: block;">You can login with either your Student ID or email address</small>
         </div>
 
         <div class="form-group">
@@ -445,7 +446,13 @@
       setDoc,
       fetchSignInMethodsForEmail,
       linkWithCredential,
-      EmailAuthProvider
+      EmailAuthProvider,
+      collection,
+      getDocs,
+      query,
+      where,
+      limit,
+      runTransaction
     } from "/db/firebase.js";
 
     const provider = new GoogleAuthProvider();
@@ -460,6 +467,54 @@
     const googleLoginBtn = document.getElementById("google-login-btn");
     const togglePassword = document.getElementById("toggle-password");
     const passwordInput = document.getElementById("password");
+
+    // Generate unique student ID using Firestore transaction for atomicity
+    async function generateStudentID() {
+      const currentYear = new Date().getFullYear();
+      const prefix = `STM${currentYear}`;
+      const counterKey = `studentIDCounter_${currentYear}`;
+      
+      try {
+        const counterRef = doc(db, "counters", counterKey);
+        
+        const nextNumber = await runTransaction(db, async (transaction) => {
+          const counterDoc = await transaction.get(counterRef);
+          
+          let newValue = 1;
+          if (counterDoc.exists()) {
+            newValue = (counterDoc.data().value || 0) + 1;
+          }
+          
+          transaction.set(counterRef, { value: newValue, year: currentYear }, { merge: true });
+          return newValue;
+        });
+        
+        const studentID = `${prefix}${String(nextNumber).padStart(3, '0')}`;
+        return studentID;
+      } catch (error) {
+        console.error("Error generating student ID:", error);
+        const timestamp = Date.now() % 10000;
+        return `${prefix}${String(timestamp).padStart(3, '0')}`;
+      }
+    }
+
+    // Lookup email from student ID
+    async function getEmailFromStudentID(studentID) {
+      try {
+        const studentsRef = collection(db, "students");
+        const q = query(studentsRef, where("studentID", "==", studentID), limit(1));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          const studentData = querySnapshot.docs[0].data();
+          return studentData.email;
+        }
+        return null;
+      } catch (error) {
+        console.error("Error looking up student ID:", error);
+        return null;
+      }
+    }
 
     // Set loading state
     function setLoadingState(isLoading) {
@@ -497,7 +552,7 @@
       return re.test(email);
     }
 
-    // Login with Email/Password
+    // Login with Email/Password or Student ID
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       
@@ -505,17 +560,12 @@
       errorMessage.style.display = "none";
       
       // Get form values
-      const email = document.getElementById("email").value.trim();
+      const emailOrStudentID = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
 
       // Validate form
-      if (!email || !password) {
+      if (!emailOrStudentID || !password) {
         showError("Please fill in all required fields");
-        return;
-      }
-
-      if (!validateEmail(email)) {
-        showError("Please enter a valid email address");
         return;
       }
 
@@ -523,12 +573,32 @@
       setLoadingState(true);
 
       try {
+        let loginEmail = emailOrStudentID;
+        
+        // Check if input is a student ID (format: STMYYYYXXX)
+        const studentIDPattern = /^STM\d{7}$/;
+        if (studentIDPattern.test(emailOrStudentID)) {
+          // Look up email from student ID
+          const foundEmail = await getEmailFromStudentID(emailOrStudentID);
+          if (foundEmail) {
+            loginEmail = foundEmail;
+          } else {
+            showError("Student ID not found. Please check your ID and try again.");
+            setLoadingState(false);
+            return;
+          }
+        } else if (!validateEmail(emailOrStudentID)) {
+          showError("Please enter a valid email address or student ID (e.g., STM2025001)");
+          setLoadingState(false);
+          return;
+        }
+
         // Sign in with email and password
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, loginEmail, password);
         const user = userCredential.user;
 
         // Store user email in localStorage
-        localStorage.setItem("studentEmail", email);
+        localStorage.setItem("studentEmail", loginEmail);
 
         // Show success message
         await Swal.fire({
@@ -689,8 +759,12 @@
         
         // If user doesn't exist in database, create their profile
         if (!userDoc.exists()) {
+          // Generate student ID for new user
+          const studentID = await generateStudentID();
+          
           // Create basic profile with Google info
           await setDoc(doc(db, "students", user.email), {
+            studentID: studentID,
             firstname: user.displayName?.split(' ')[0] || 'Google',
             surname: user.displayName?.split(' ')[1] || 'User', 
             email: user.email,
@@ -706,7 +780,7 @@
             status: "active",
             emailVerified: user.emailVerified || false,
             role: "student",
-            profileCompleted: false, // They'll need to complete their profile
+            profileCompleted: false,
             uid: user.uid,
             provider: "google"
           });

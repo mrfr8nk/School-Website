@@ -39,7 +39,9 @@ import {
   onSnapshot,
   serverTimestamp,
   limit,
-  arrayUnion
+  arrayUnion,
+  runTransaction,
+  increment
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { 
   getStorage, 
@@ -129,6 +131,8 @@ export {
   serverTimestamp,
   limit,
   arrayUnion,
+  runTransaction,
+  increment,
   
   // Storage functions
   ref,

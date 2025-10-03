@@ -1102,6 +1102,17 @@
           </div>
           
           <div class="dashboard-grid">
+            <!-- Student ID Card -->
+            <div class="card fade-in-up">
+              <div class="card-header">
+                <h3 class="card-title">Student ID</h3>
+                <div class="card-icon">
+                  <i class="fas fa-id-card"></i>
+                </div>
+              </div>
+              <p id="dashboardStudentID" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">Loading...</p>
+            </div>
+            
             <!-- Grade Card -->
             <div class="card fade-in-up">
               <div class="card-header">
@@ -1207,15 +1218,27 @@
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
+                        <label class="form-label" for="studentID">Student ID</label>
+                        <input type="text" class="form-control" id="studentID" placeholder="Your Student ID" readonly style="background-color: #f8f9fa; font-weight: 600; color: #003366;">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
                         <label class="form-label" for="email">Email</label>
                         <input type="email" class="form-control" id="email" placeholder="Enter your email" readonly>
                       </div>
                     </div>
+                  </div>
+                  
+                  <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label class="form-label" for="phone">Phone</label>
                         <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number">
                       </div>
+                    </div>
+                    <div class="col-md-6">
+                      <!-- Empty column for layout balance -->
                     </div>
                   </div>
                   
@@ -2660,6 +2683,8 @@ function generateVerificationHash() {
         
         // Update UI with user data
         document.getElementById('welcomeMessage').textContent = `Welcome, ${capitalize(userData.firstname || 'Student')}`;
+        document.getElementById('studentID').value = userData.studentID || 'Not Assigned';
+        document.getElementById('dashboardStudentID').textContent = userData.studentID || 'Not Assigned';
         document.getElementById('name').value = userData.firstname || '';
         document.getElementById('surname').value = userData.surname || '';
         document.getElementById('email').value = userData.email || '';
