@@ -1157,33 +1157,6 @@
               </div>
             </div>
             
-            <!-- Fee Payment Status Card -->
-            <div class="card fade-in-up" style="animation-delay: 0.3s">
-              <div class="card-header">
-                <h3 class="card-title">Fee Payment Status</h3>
-                <div class="card-icon">
-                  <i class="fas fa-money-bill-wave"></i>
-                </div>
-              </div>
-              <div id="dashboardPaymentStatus">
-                <div class="detail-row">
-                  <span class="detail-label">Payment Status:</span>
-                  <span class="detail-value" id="dashPaymentStatus">Loading...</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Balance:</span>
-                  <span class="detail-value" id="dashBalance" style="font-weight: 600; color: var(--accent);">$0.00</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Last Payment:</span>
-                  <span class="detail-value" id="dashLastPayment">No payments yet</span>
-                </div>
-                <button class="btn btn-outline btn-sm mt-3" onclick="navigateTo('fees')">
-                  <i class="fas fa-eye btn-icon"></i> View Full Details
-                </button>
-              </div>
-            </div>
-            
             <!-- Quick Links Card -->
             <div class="card fade-in-up" style="animation-delay: 0.4s">
               <div class="card-header">
@@ -1955,7 +1928,7 @@
           loadPerformanceHistory();
           break;
         case 'activity':
-          loadFullActivityLog(user.email);
+          loadFullActivityLog(auth.currentUser?.email);
           break;
         case 'updates':
           loadUpdates();
@@ -2035,64 +2008,7 @@
 
   // Dashboard Functions
   async function loadDashboard() {
-    // Load payment status on dashboard
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    try {
-      const feesDoc = await getDoc(doc(db, 'fees', user.email));
-      
-      if (feesDoc.exists()) {
-        const feesData = feesDoc.data();
-        const dashPaymentStatus = document.getElementById('dashPaymentStatus');
-        const dashBalance = document.getElementById('dashBalance');
-        const dashLastPayment = document.getElementById('dashLastPayment');
-        
-        // Get payment status
-        const status = feesData.paymentStatus || 'unpaid';
-        const statusColors = {
-          'paid': 'var(--success)',
-          'partial': 'var(--warning)',
-          'unpaid': 'var(--danger)',
-          'scholarship': 'var(--info)'
-        };
-        
-        const statusTexts = {
-          'paid': 'Paid in Full',
-          'partial': 'Partial Payment',
-          'unpaid': 'Unpaid',
-          'scholarship': 'Scholarship'
-        };
-        
-        if (dashPaymentStatus) {
-          dashPaymentStatus.textContent = statusTexts[status] || 'Unknown';
-          dashPaymentStatus.style.color = statusColors[status] || 'var(--text-primary)';
-        }
-        
-        // Get balance
-        const balance = feesData.balance || 0;
-        if (dashBalance) {
-          dashBalance.textContent = `$${Math.abs(balance).toFixed(2)}`;
-          dashBalance.style.color = balance > 0 ? 'var(--danger)' : 'var(--success)';
-        }
-        
-        // Get last payment
-        const accountActivity = feesData.accountActivity || [];
-        const paymentActivities = accountActivity.filter(a => 
-          (a.action || '').includes('payment') || (a.action || '').includes('fee')
-        );
-        
-        if (dashLastPayment && paymentActivities.length > 0) {
-          const lastPayment = paymentActivities[0];
-          const date = new Date(lastPayment.timestamp || lastPayment.date);
-          dashLastPayment.textContent = date.toLocaleDateString();
-        } else if (dashLastPayment) {
-          dashLastPayment.textContent = 'No payments yet';
-        }
-      }
-    } catch (error) {
-      console.error('Error loading dashboard payment status:', error);
-    }
+    // Dashboard content is now handled by other sections
   }
 
   // Profile Functions
