@@ -3206,7 +3206,68 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           
           if (feesDoc.exists()) {
             const data = feesDoc.data();
+            
+            // Add account activities
             allActivities = [...(data.accountActivity || [])];
+            
+            // Add payment history as activities with full details
+            if (data.paymentHistory && data.paymentHistory.length > 0) {
+              data.paymentHistory.forEach(payment => {
+                // Safely convert to numbers
+                const amount = parseFloat(payment.amount) || 0;
+                const remainingBalance = parseFloat(payment.remainingBalance) || 0;
+                
+                allActivities.push({
+                  action: 'payment_made',
+                  type: 'payment_made',
+                  timestamp: payment.date,
+                  date: payment.date,
+                  description: `Payment of $${amount.toFixed(2)}`,
+                  deviceInfo: payment.deviceInfo || {},
+                  sessionId: payment.sessionId || '',
+                  additionalDetails: {
+                    'Amount Paid': `$${amount.toFixed(2)}`,
+                    'Balance After': `$${remainingBalance.toFixed(2)}`,
+                    'Payment Method': payment.method || 'Cash',
+                    'Academic Year': payment.academicYear || 'N/A',
+                    'Term': payment.term ? `Term ${payment.term}` : 'N/A',
+                    'Transaction ID': payment.transactionId || payment.id || 'N/A'
+                  }
+                });
+              });
+            }
+            
+            // Add balance information from academic years - show ALL terms
+            if (data.academicYears) {
+              Object.entries(data.academicYears).forEach(([year, yearData]) => {
+                if (yearData.terms) {
+                  Object.entries(yearData.terms).forEach(([termNum, termData]) => {
+                    // Safely convert to numbers
+                    const balance = parseFloat(termData.balance) || 0;
+                    const paid = parseFloat(termData.paid) || 0;
+                    const termBalance = balance - paid;
+                    
+                    // Show all terms, not just paid ones
+                    allActivities.push({
+                      action: 'balance_updated',
+                      type: 'balance_updated',
+                      timestamp: termData.lastUpdated || new Date().toISOString(),
+                      date: termData.lastUpdated || new Date().toISOString(),
+                      description: `${year} Term ${termNum} - Balance Status`,
+                      deviceInfo: {},
+                      additionalDetails: {
+                        'Academic Year': year,
+                        'Term': `Term ${termNum}`,
+                        'Total Balance': `$${balance.toFixed(2)}`,
+                        'Amount Paid': `$${paid.toFixed(2)}`,
+                        'Remaining Balance': `$${termBalance.toFixed(2)}`,
+                        'Status': termData.status || (termBalance <= 0 ? 'paid' : 'unpaid')
+                      }
+                    });
+                  });
+                }
+              });
+            }
           }
           
           // Sort activities by timestamp
@@ -3249,30 +3310,37 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         
         logContainer.innerHTML = activities.map(activity => {
           const icon = getActivityIcon(activity.action || activity.type);
-          const description = getActivityDescription(activity.action || activity.type);
+          const description = activity.description || getActivityDescription(activity.action || activity.type);
           const deviceInfo = activity.deviceInfo || {};
           const details = activity.additionalDetails || {};
+          const isPayment = (activity.action || activity.type) === 'payment_made';
+          const isBalance = (activity.action || activity.type) === 'balance_updated';
           
           return `
-            <div class="activity-item" data-action="${activity.action || activity.type}">
+            <div class="activity-item" data-action="${activity.action || activity.type}" style="border-left: 4px solid ${isPayment ? 'var(--success)' : isBalance ? 'var(--warning)' : 'var(--primary)'}; margin-bottom: 15px; padding-left: 15px;">
               <div class="activity-icon">
                 <i class="${icon}"></i>
               </div>
               <div class="activity-content">
-                <p class="activity-description" style="font-weight: 600; color: var(--primary); margin-bottom: 5px;">
+                <p class="activity-description" style="font-weight: 600; color: var(--primary); margin-bottom: 8px; font-size: 1rem;">
                   ${description}
                 </p>
-                <div class="activity-details" style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 0.85rem; color: var(--text-secondary);">
-                  <span><i class="fas fa-${getDeviceIcon(deviceInfo.type)}"></i> ${deviceInfo.type || 'Unknown'}</span>
-                  <span><i class="fas fa-globe"></i> ${deviceInfo.browser || 'Unknown'} on ${deviceInfo.os || 'Unknown'}</span>
+                <div class="activity-details" style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">
+                  ${deviceInfo.type ? `<span><i class="fas fa-${getDeviceIcon(deviceInfo.type)}"></i> ${deviceInfo.type}</span>` : ''}
+                  ${deviceInfo.browser ? `<span><i class="fas fa-globe"></i> ${deviceInfo.browser}${deviceInfo.os ? ' on ' + deviceInfo.os : ''}</span>` : ''}
                   <span><i class="fas fa-clock"></i> ${formatDateTime(activity.timestamp || activity.date)}</span>
                   ${activity.sessionId ? `<span><i class="fas fa-fingerprint"></i> ${activity.sessionId.substring(0, 15)}...</span>` : ''}
                 </div>
                 ${Object.keys(details).length > 0 ? `
-                  <div style="margin-top: 10px; padding: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; font-size: 0.8rem;">
-                    ${Object.entries(details).map(([key, value]) => 
-                      `<span style="margin-right: 15px;"><strong>${key}:</strong> ${JSON.stringify(value)}</span>`
-                    ).join('')}
+                  <div style="margin-top: 10px; padding: 12px; background: ${isPayment ? 'rgba(40, 167, 69, 0.1)' : isBalance ? 'rgba(255, 193, 7, 0.1)' : 'rgba(0, 51, 102, 0.05)'}; border-radius: 6px; border: 1px solid ${isPayment ? 'rgba(40, 167, 69, 0.2)' : isBalance ? 'rgba(255, 193, 7, 0.2)' : 'rgba(0, 51, 102, 0.1)'};">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                      ${Object.entries(details).map(([key, value]) => 
+                        `<div style="display: flex; flex-direction: column;">
+                          <span style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 2px;">${key}</span>
+                          <span style="font-weight: 600; color: var(--primary); font-size: 0.9rem;">${value}</span>
+                        </div>`
+                      ).join('')}
+                    </div>
                   </div>
                 ` : ''}
               </div>
@@ -3306,7 +3374,12 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
             if (type === 'login') {
               return action === 'login' || action === 'logout' || action.includes('login') || action.includes('logout');
             } else if (type === 'payment') {
-              return action === 'payment_made' || action.includes('payment') || action.includes('fee') || action === 'fees_viewed';
+              return action === 'payment_made' || 
+                     action === 'balance_updated' || 
+                     action.includes('payment') || 
+                     action.includes('fee') || 
+                     action === 'fees_viewed' ||
+                     action === 'fees_section_viewed';
             }
             return false;
           });
