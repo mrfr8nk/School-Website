@@ -3214,16 +3214,37 @@
     }
   }
 
-  // Enhanced payment status calculation with scholarship integration
+  // Enhanced payment status calculation with scholarship integration and ZWL validation
   function getPaymentStatus(student) {
     if (!student || !student.id) {
       return { status: 'unknown', text: 'Unknown', class: 'status-notset' };
     }
     
     const totalFees = calculateTotalFees(student);
-    const paidAmount = calculatePaidAmount(student.id);
+    const paidAmountUSD = calculatePaidAmount(student.id);
     const scholarshipAmount = calculateScholarshipAmount(student.id);
-    const totalCovered = paidAmount + scholarshipAmount;
+    
+    // Calculate total ZWL paid and convert to USD at current exchange rate for validation
+    const currentExchangeRate = (settings && settings.exchangeRate) ? settings.exchangeRate : 4500;
+    let totalZWLPaid = 0;
+    let totalZWLInUSD = 0;
+    
+    if (allPayments) {
+      const zwlPayments = allPayments.filter(payment => 
+        payment && payment.studentId === student.id && 
+        payment.currency === 'ZWL' && 
+        !payment.deleted
+      );
+      
+      totalZWLPaid = zwlPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+      totalZWLInUSD = totalZWLPaid / currentExchangeRate;
+    }
+    
+    // Full ZWL Fee Validation: A student is marked as "Fully Paid" in ZWL only if
+    // (Total ZWL Paid ÷ Current Exchange Rate) ≥ USD Fee for their Level
+    // Combine all payment sources: USD payments + ZWL payments (converted) + Scholarship
+    const totalCovered = paidAmountUSD + totalZWLInUSD + scholarshipAmount;
+    const totalBalance = totalFees - totalCovered;
     
     // Full scholarship coverage
     if (scholarshipAmount >= totalFees) {
@@ -3236,24 +3257,29 @@
     }
     
     // Full payment (with or without partial scholarship)
+    // Check totalCovered which includes USD + ZWL (converted) + Scholarship
     if (totalCovered >= totalFees) {
+      const totalPaidUSD = paidAmountUSD + totalZWLInUSD;
       return { 
         status: 'paid', 
         text: 'Paid in Full', 
         class: 'status-paid',
         details: scholarshipAmount > 0 ? 
-          `Paid: $${paidAmount.toFixed(2)}, Scholarship: $${scholarshipAmount.toFixed(2)}` : 
-          `Total paid: $${paidAmount.toFixed(2)}`
+          `Paid: $${totalPaidUSD.toFixed(2)}${totalZWLPaid > 0 ? ` (incl. ZWL$${totalZWLPaid.toLocaleString()} = $${totalZWLInUSD.toFixed(2)})` : ''}, Scholarship: $${scholarshipAmount.toFixed(2)}` : 
+          totalZWLPaid > 0 ? 
+            `Total paid: $${totalPaidUSD.toFixed(2)} (incl. ZWL$${totalZWLPaid.toLocaleString()} = $${totalZWLInUSD.toFixed(2)} at rate 1:${currentExchangeRate})` :
+            `Total paid: $${totalPaidUSD.toFixed(2)}`
       };
     }
     
     // Partial scholarship with some payments
-    if (scholarshipAmount > 0 && paidAmount > 0) {
+    if (scholarshipAmount > 0 && (paidAmountUSD > 0 || totalZWLInUSD > 0)) {
+      const totalPaidUSD = paidAmountUSD + totalZWLInUSD;
       return { 
         status: 'partial', 
         text: 'Partial Payment + Scholarship', 
         class: 'status-partial',
-        details: `Paid: $${paidAmount.toFixed(2)}, Scholarship: $${scholarshipAmount.toFixed(2)}, Balance: $${(totalFees - totalCovered).toFixed(2)}`
+        details: `Paid: $${totalPaidUSD.toFixed(2)}${totalZWLPaid > 0 ? ` (incl. ZWL$${totalZWLPaid.toLocaleString()} = $${totalZWLInUSD.toFixed(2)})` : ''}, Scholarship: $${scholarshipAmount.toFixed(2)}, Balance: $${totalBalance.toFixed(2)}`
       };
     }
     
@@ -3263,17 +3289,18 @@
         status: 'scholarship', 
         text: 'Partial Scholarship', 
         class: 'status-scholarship',
-        details: `Scholarship: $${scholarshipAmount.toFixed(2)}, Balance: $${(totalFees - scholarshipAmount).toFixed(2)}`
+        details: `Scholarship: $${scholarshipAmount.toFixed(2)}, Balance: $${totalBalance.toFixed(2)}`
       };
     }
     
     // Some payments but not full
-    if (paidAmount > 0) {
+    if (paidAmountUSD > 0 || totalZWLInUSD > 0) {
+      const totalPaidUSD = paidAmountUSD + totalZWLInUSD;
       return { 
         status: 'balance', 
         text: 'Has Balance', 
         class: 'status-balance',
-        details: `Paid: $${paidAmount.toFixed(2)}, Balance: $${(totalFees - paidAmount).toFixed(2)}`
+        details: `Paid: $${totalPaidUSD.toFixed(2)}${totalZWLPaid > 0 ? ` (incl. ZWL$${totalZWLPaid.toLocaleString()} = $${totalZWLInUSD.toFixed(2)} at rate 1:${currentExchangeRate})` : ''}, Balance: $${totalBalance.toFixed(2)}`
       };
     }
     

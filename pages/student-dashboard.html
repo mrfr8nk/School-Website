@@ -1062,6 +1062,10 @@
           <i class="fas fa-line-chart"></i>
           <span>Performance</span>
         </a> -->
+        <a href="#activity" class="sidebar-link">
+          <i class="fas fa-history"></i>
+          <span>Activity Log</span>
+        </a>
         <a href="#chat" class="sidebar-link">
           <i class="fas fa-comments"></i>
           <span>Chat with AI</span>
@@ -1655,6 +1659,65 @@
     </div>
   </section>
 
+<!-- Activity Log Section -->
+<section id="activity" class="section" style="display: none;">
+  <div class="container">
+    <div class="section-title">
+      <h2>Account Activity Log</h2>
+      <p>Track all your account activities and login history</p>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Activity Timeline</h3>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary" onclick="filterActivityLog('all')">
+            <i class="fas fa-list btn-icon"></i> All
+          </button>
+          <button class="btn btn-outline" onclick="filterActivityLog('login')">
+            <i class="fas fa-sign-in-alt btn-icon"></i> Logins
+          </button>
+          <button class="btn btn-outline" onclick="filterActivityLog('payment')">
+            <i class="fas fa-credit-card btn-icon"></i> Payments
+          </button>
+        </div>
+      </div>
+      
+      <div id="fullActivityLog" class="p-4">
+        <p class="text-center">Loading activity log...</p>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3 class="card-title">Current Session</h3>
+      </div>
+      <div class="p-4">
+        <div class="detail-row">
+          <span class="detail-label">Session ID:</span>
+          <span class="detail-value" id="currentSessionId">Loading...</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Login Time:</span>
+          <span class="detail-value" id="currentLoginTime">Loading...</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Device:</span>
+          <span class="detail-value" id="currentDevice">Loading...</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Browser:</span>
+          <span class="detail-value" id="currentBrowser">Loading...</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">OS:</span>
+          <span class="detail-value" id="currentOS">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Update the report section in your main dashboard code -->
 <section id="report" class="section" style="display: none;">
   <div class="container">
@@ -1863,6 +1926,9 @@
           break;
         case 'performance':
           loadPerformanceHistory();
+          break;
+        case 'activity':
+          loadFullActivityLog(user.email);
           break;
         case 'updates':
           loadUpdates();
@@ -3104,6 +3170,120 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           console.error('Error loading account activity:', error);
         }
       }
+      
+      // Load full activity log for Activity section
+      async function loadFullActivityLog(email) {
+        try {
+          const feesDoc = await getDoc(doc(db, 'fees', email));
+          const activityCollection = await getDocs(
+            query(collection(db, 'accountActivity'), 
+                  where('studentEmail', '==', email),
+                  orderBy('timestampUTC', 'desc'),
+                  limit(100))
+          );
+          
+          let allActivities = [];
+          
+          if (feesDoc.exists()) {
+            const data = feesDoc.data();
+            allActivities = [...(data.accountActivity || [])];
+          }
+          
+          activityCollection.forEach(doc => {
+            allActivities.push(doc.data());
+          });
+          
+          // Remove duplicates and sort
+          const uniqueActivities = allActivities.reduce((acc, curr) => {
+            const key = `${curr.action}_${curr.timestamp}_${curr.sessionId}`;
+            if (!acc.some(item => `${item.action}_${item.timestamp}_${item.sessionId}` === key)) {
+              acc.push(curr);
+            }
+            return acc;
+          }, []);
+          
+          uniqueActivities.sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
+          
+          window.fullActivityData = uniqueActivities;
+          displayFullActivityLog(uniqueActivities);
+          
+          // Update current session info
+          const deviceInfo = getDeviceInfo();
+          document.getElementById('currentSessionId').textContent = getOrCreateSessionId();
+          document.getElementById('currentLoginTime').textContent = sessionStorage.getItem('sessionStartTime') || 'Unknown';
+          document.getElementById('currentDevice').textContent = deviceInfo.deviceType;
+          document.getElementById('currentBrowser').textContent = deviceInfo.browser;
+          document.getElementById('currentOS').textContent = deviceInfo.os;
+          
+        } catch (error) {
+          console.error('Error loading full activity log:', error);
+          document.getElementById('fullActivityLog').innerHTML = '<p class="text-center">Error loading activity log</p>';
+        }
+      }
+      
+      // Display full activity log
+      function displayFullActivityLog(activities) {
+        const logContainer = document.getElementById('fullActivityLog');
+        
+        if (activities.length === 0) {
+          logContainer.innerHTML = '<p class="text-center">No activity recorded</p>';
+          return;
+        }
+        
+        logContainer.innerHTML = activities.map(activity => {
+          const icon = getActivityIcon(activity.action || activity.type);
+          const description = getActivityDescription(activity.action || activity.type);
+          const deviceInfo = activity.deviceInfo || {};
+          const details = activity.additionalDetails || {};
+          
+          return `
+            <div class="activity-item" data-action="${activity.action || activity.type}">
+              <div class="activity-icon">
+                <i class="${icon}"></i>
+              </div>
+              <div class="activity-content">
+                <p class="activity-description" style="font-weight: 600; color: var(--primary); margin-bottom: 5px;">
+                  ${description}
+                </p>
+                <div class="activity-details" style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 0.85rem; color: var(--text-secondary);">
+                  <span><i class="fas fa-${getDeviceIcon(deviceInfo.type)}"></i> ${deviceInfo.type || 'Unknown'}</span>
+                  <span><i class="fas fa-globe"></i> ${deviceInfo.browser || 'Unknown'} on ${deviceInfo.os || 'Unknown'}</span>
+                  <span><i class="fas fa-clock"></i> ${formatDateTime(activity.timestamp || activity.date)}</span>
+                  ${activity.sessionId ? `<span><i class="fas fa-fingerprint"></i> ${activity.sessionId.substring(0, 15)}...</span>` : ''}
+                </div>
+                ${Object.keys(details).length > 0 ? `
+                  <div style="margin-top: 10px; padding: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; font-size: 0.8rem;">
+                    ${Object.entries(details).map(([key, value]) => 
+                      `<span style="margin-right: 15px;"><strong>${key}:</strong> ${JSON.stringify(value)}</span>`
+                    ).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      // Filter activity log
+      window.filterActivityLog = function(type) {
+        if (!window.fullActivityData) return;
+        
+        let filtered = window.fullActivityData;
+        
+        if (type !== 'all') {
+          filtered = window.fullActivityData.filter(activity => {
+            const action = activity.action || activity.type;
+            if (type === 'login') {
+              return action === 'login' || action === 'logout';
+            } else if (type === 'payment') {
+              return action === 'payment_made' || action.includes('payment') || action.includes('fee');
+            }
+            return false;
+          });
+        }
+        
+        displayFullActivityLog(filtered);
+      };
       
       // Get activity icon based on action type
       function getActivityIcon(action) {
