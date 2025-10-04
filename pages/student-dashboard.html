@@ -1157,8 +1157,35 @@
               </div>
             </div>
             
-            <!-- Quick Links Card -->
+            <!-- Fee Payment Status Card -->
             <div class="card fade-in-up" style="animation-delay: 0.3s">
+              <div class="card-header">
+                <h3 class="card-title">Fee Payment Status</h3>
+                <div class="card-icon">
+                  <i class="fas fa-money-bill-wave"></i>
+                </div>
+              </div>
+              <div id="dashboardPaymentStatus">
+                <div class="detail-row">
+                  <span class="detail-label">Payment Status:</span>
+                  <span class="detail-value" id="dashPaymentStatus">Loading...</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Balance:</span>
+                  <span class="detail-value" id="dashBalance" style="font-weight: 600; color: var(--accent);">$0.00</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Last Payment:</span>
+                  <span class="detail-value" id="dashLastPayment">No payments yet</span>
+                </div>
+                <button class="btn btn-outline btn-sm mt-3" onclick="navigateTo('fees')">
+                  <i class="fas fa-eye btn-icon"></i> View Full Details
+                </button>
+              </div>
+            </div>
+            
+            <!-- Quick Links Card -->
+            <div class="card fade-in-up" style="animation-delay: 0.4s">
               <div class="card-header">
                 <h3 class="card-title">Quick Links</h3>
                 <div class="card-icon">
@@ -1670,14 +1697,14 @@
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">Activity Timeline</h3>
-        <div style="display: flex; gap: 10px;">
-          <button class="btn btn-secondary" onclick="filterActivityLog('all')">
+        <div style="display: flex; gap: 10px;" id="activityFilterButtons">
+          <button class="btn btn-secondary activity-filter-btn active" data-filter="all" onclick="filterActivityLog('all', this)">
             <i class="fas fa-list btn-icon"></i> All
           </button>
-          <button class="btn btn-outline" onclick="filterActivityLog('login')">
+          <button class="btn btn-outline activity-filter-btn" data-filter="login" onclick="filterActivityLog('login', this)">
             <i class="fas fa-sign-in-alt btn-icon"></i> Logins
           </button>
-          <button class="btn btn-outline" onclick="filterActivityLog('payment')">
+          <button class="btn btn-outline activity-filter-btn" data-filter="payment" onclick="filterActivityLog('payment', this)">
             <i class="fas fa-credit-card btn-icon"></i> Payments
           </button>
         </div>
@@ -1980,10 +2007,92 @@
   function capitalize(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
   }
+  
+  // Navigate to section helper function
+  window.navigateTo = function(sectionId) {
+    const sections = document.querySelectorAll('.section');
+    const navLinks = document.querySelectorAll('.sidebar-link');
+    
+    // Hide all sections
+    sections.forEach(section => section.style.display = 'none');
+    
+    // Show target section
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) targetSection.style.display = 'block';
+    
+    // Update active link
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${sectionId}`) {
+        link.classList.add('active');
+      }
+    });
+    
+    // Load section content if needed
+    if (sectionId === 'fees') loadFees();
+    if (sectionId === 'activity') loadFullActivityLog(auth.currentUser?.email);
+  };
 
   // Dashboard Functions
-  function loadDashboard() {
-    // Already loaded when page loads
+  async function loadDashboard() {
+    // Load payment status on dashboard
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    try {
+      const feesDoc = await getDoc(doc(db, 'fees', user.email));
+      
+      if (feesDoc.exists()) {
+        const feesData = feesDoc.data();
+        const dashPaymentStatus = document.getElementById('dashPaymentStatus');
+        const dashBalance = document.getElementById('dashBalance');
+        const dashLastPayment = document.getElementById('dashLastPayment');
+        
+        // Get payment status
+        const status = feesData.paymentStatus || 'unpaid';
+        const statusColors = {
+          'paid': 'var(--success)',
+          'partial': 'var(--warning)',
+          'unpaid': 'var(--danger)',
+          'scholarship': 'var(--info)'
+        };
+        
+        const statusTexts = {
+          'paid': 'Paid in Full',
+          'partial': 'Partial Payment',
+          'unpaid': 'Unpaid',
+          'scholarship': 'Scholarship'
+        };
+        
+        if (dashPaymentStatus) {
+          dashPaymentStatus.textContent = statusTexts[status] || 'Unknown';
+          dashPaymentStatus.style.color = statusColors[status] || 'var(--text-primary)';
+        }
+        
+        // Get balance
+        const balance = feesData.balance || 0;
+        if (dashBalance) {
+          dashBalance.textContent = `$${Math.abs(balance).toFixed(2)}`;
+          dashBalance.style.color = balance > 0 ? 'var(--danger)' : 'var(--success)';
+        }
+        
+        // Get last payment
+        const accountActivity = feesData.accountActivity || [];
+        const paymentActivities = accountActivity.filter(a => 
+          (a.action || '').includes('payment') || (a.action || '').includes('fee')
+        );
+        
+        if (dashLastPayment && paymentActivities.length > 0) {
+          const lastPayment = paymentActivities[0];
+          const date = new Date(lastPayment.timestamp || lastPayment.date);
+          dashLastPayment.textContent = date.toLocaleDateString();
+        } else if (dashLastPayment) {
+          dashLastPayment.textContent = 'No payments yet';
+        }
+      }
+    } catch (error) {
+      console.error('Error loading dashboard payment status:', error);
+    }
   }
 
   // Profile Functions
@@ -2729,6 +2838,7 @@ function generateVerificationHash() {
         await loadUserData(user.email);
         
         // Load initial data for dashboard
+        loadDashboard();
         loadNotices();
         loadResults();
       } else {
@@ -3175,12 +3285,6 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
       async function loadFullActivityLog(email) {
         try {
           const feesDoc = await getDoc(doc(db, 'fees', email));
-          const activityCollection = await getDocs(
-            query(collection(db, 'accountActivity'), 
-                  where('studentEmail', '==', email),
-                  orderBy('timestampUTC', 'desc'),
-                  limit(100))
-          );
           
           let allActivities = [];
           
@@ -3189,35 +3293,32 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
             allActivities = [...(data.accountActivity || [])];
           }
           
-          activityCollection.forEach(doc => {
-            allActivities.push(doc.data());
-          });
+          // Sort activities by timestamp
+          allActivities.sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
           
-          // Remove duplicates and sort
-          const uniqueActivities = allActivities.reduce((acc, curr) => {
-            const key = `${curr.action}_${curr.timestamp}_${curr.sessionId}`;
-            if (!acc.some(item => `${item.action}_${item.timestamp}_${item.sessionId}` === key)) {
-              acc.push(curr);
-            }
-            return acc;
-          }, []);
-          
-          uniqueActivities.sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
-          
-          window.fullActivityData = uniqueActivities;
-          displayFullActivityLog(uniqueActivities);
+          window.fullActivityData = allActivities;
+          displayFullActivityLog(allActivities);
           
           // Update current session info
           const deviceInfo = getDeviceInfo();
-          document.getElementById('currentSessionId').textContent = getOrCreateSessionId();
-          document.getElementById('currentLoginTime').textContent = sessionStorage.getItem('sessionStartTime') || 'Unknown';
-          document.getElementById('currentDevice').textContent = deviceInfo.deviceType;
-          document.getElementById('currentBrowser').textContent = deviceInfo.browser;
-          document.getElementById('currentOS').textContent = deviceInfo.os;
+          const currentSessionId = document.getElementById('currentSessionId');
+          const currentLoginTime = document.getElementById('currentLoginTime');
+          const currentDevice = document.getElementById('currentDevice');
+          const currentBrowser = document.getElementById('currentBrowser');
+          const currentOS = document.getElementById('currentOS');
+          
+          if (currentSessionId) currentSessionId.textContent = getOrCreateSessionId();
+          if (currentLoginTime) currentLoginTime.textContent = sessionStorage.getItem('sessionStartTime') || new Date().toLocaleString();
+          if (currentDevice) currentDevice.textContent = deviceInfo.deviceType;
+          if (currentBrowser) currentBrowser.textContent = deviceInfo.browser;
+          if (currentOS) currentOS.textContent = deviceInfo.os;
           
         } catch (error) {
           console.error('Error loading full activity log:', error);
-          document.getElementById('fullActivityLog').innerHTML = '<p class="text-center">Error loading activity log</p>';
+          const logContainer = document.getElementById('fullActivityLog');
+          if (logContainer) {
+            logContainer.innerHTML = '<p class="text-center text-danger">Error loading activity log. Please refresh the page.</p>';
+          }
         }
       }
       
@@ -3265,18 +3366,31 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
       }
       
       // Filter activity log
-      window.filterActivityLog = function(type) {
-        if (!window.fullActivityData) return;
+      window.filterActivityLog = function(type, button) {
+        if (!window.fullActivityData) {
+          console.warn('No activity data loaded yet');
+          return;
+        }
+        
+        // Update button states
+        if (button) {
+          document.querySelectorAll('.activity-filter-btn').forEach(btn => {
+            btn.classList.remove('btn-secondary', 'active');
+            btn.classList.add('btn-outline');
+          });
+          button.classList.remove('btn-outline');
+          button.classList.add('btn-secondary', 'active');
+        }
         
         let filtered = window.fullActivityData;
         
         if (type !== 'all') {
           filtered = window.fullActivityData.filter(activity => {
-            const action = activity.action || activity.type;
+            const action = (activity.action || activity.type || '').toLowerCase();
             if (type === 'login') {
-              return action === 'login' || action === 'logout';
+              return action === 'login' || action === 'logout' || action.includes('login') || action.includes('logout');
             } else if (type === 'payment') {
-              return action === 'payment_made' || action.includes('payment') || action.includes('fee');
+              return action === 'payment_made' || action.includes('payment') || action.includes('fee') || action === 'fees_viewed';
             }
             return false;
           });
