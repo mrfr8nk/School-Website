@@ -41,7 +41,8 @@ import {
   limit,
   arrayUnion,
   runTransaction,
-  increment
+  increment,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { 
   getStorage, 
@@ -133,6 +134,7 @@ export {
   arrayUnion,
   runTransaction,
   increment,
+  writeBatch,
   
   // Storage functions
   ref,

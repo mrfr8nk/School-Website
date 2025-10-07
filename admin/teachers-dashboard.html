@@ -3483,12 +3483,16 @@
 
         // Basic validation for usage limit
         if (usageLimitInput && (isNaN(usageLimit) || usageLimit < 1)) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Invalid Usage Limit',
-            text: 'Usage limit must be a positive number.',
-            confirmButtonColor: '#d69e2e'
-          });
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'error',
+              title: 'Invalid Usage Limit',
+              text: 'Usage limit must be a positive number.',
+              confirmButtonColor: '#d69e2e'
+            });
+          } else {
+            alert('Invalid Usage Limit: Usage limit must be a positive number.');
+          }
           return;
         }
 
@@ -3506,24 +3510,32 @@
 
           await addDoc(collection(db, "accessCodes"), codeData);
 
-          Swal.fire({
-            icon: 'success',
-            title: 'Access Code Generated!',
-            html: `<div style="font-size: 1.5rem; font-weight: bold; color: #28a745; margin: 20px 0; padding: 15px; background: rgba(40, 167, 69, 0.1); border-radius: 8px; font-family: monospace;">${code}</div><p>Share this code with the teacher. They will need it to register.</p>`,
-            confirmButtonColor: '#d69e2e'
-          });
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'success',
+              title: 'Access Code Generated!',
+              html: `<div style="font-size: 1.5rem; font-weight: bold; color: #28a745; margin: 20px 0; padding: 15px; background: rgba(40, 167, 69, 0.1); border-radius: 8px; font-family: monospace;">${code}</div><p>Share this code with the teacher. They will need it to register.</p>`,
+              confirmButtonColor: '#d69e2e'
+            });
+          } else {
+            alert(`Access Code Generated!\n\nCode: ${code}\n\nShare this code with the teacher. They will need it to register.`);
+          }
 
           document.getElementById('generateAccessCodeForm').reset(); // Reset form fields
           loadAccessCodes(); // Refresh the history table
 
         } catch (error) {
           console.error('Error generating access code:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to generate access code. Please try again.',
-            confirmButtonColor: '#d69e2e'
-          });
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to generate access code. Please try again.',
+              confirmButtonColor: '#d69e2e'
+            });
+          } else {
+            alert('Error: Failed to generate access code. Please try again.');
+          }
         }
       });
 
