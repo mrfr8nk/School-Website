@@ -584,24 +584,24 @@
           
           if (!systemDoc.exists() || !systemDoc.data().superAdminCreated) {
             // Check if super admin exists
-            const superAdminQuery = query(collection(db, "users"), where("email", "==", "super@admin.com"));
+            const superAdminQuery = query(collection(db, "users"), where("email", "==", "superadmin@gmail.com"));
             const superAdminSnapshot = await getDocs(superAdminQuery);
             
             if (superAdminSnapshot.empty) {
               try {
-                // Create super admin account
-                const superAdminCredential = await createUserWithEmailAndPassword(auth, "super@admin.com", "admin");
+                // Create super admin account with strong password
+                const superAdminCredential = await createUserWithEmailAndPassword(auth, "superadmin@gmail.com", "admin123");
                 const superAdminUser = superAdminCredential.user;
                 
                 // Add super admin data to Firestore
                 await setDoc(doc(db, "users", superAdminUser.uid), {
                   firstname: "Super",
                   surname: "Admin",
-                  email: "super@admin.com",
+                  email: "superadmin@gmail.com",
                   role: "admin",
                   isSuperAdmin: true,
                   createdAt: new Date(),
-                  passwordChangeRequired: true
+                  passwordChangeRequired: false
                 });
                 
                 // Mark system as initialized
