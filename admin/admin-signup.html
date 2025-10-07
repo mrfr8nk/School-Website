@@ -504,6 +504,14 @@
             </div>
           </div>
           
+          <div class="form-group">
+            <label for="access-code"><i class="fas fa-key"></i> Access Code</label>
+            <input type="text" id="access-code" placeholder="Enter teacher registration code" required />
+            <small style="color: var(--text-secondary); font-size: 0.85rem; display: block; margin-top: 5px;">
+              Contact the administrator to get a valid access code
+            </small>
+          </div>
+          
           <div class="confirmation-box">
             <div class="confirmation-checkbox">
               <input type="checkbox" id="confirm-role" required />
@@ -564,8 +572,60 @@
         collection,
         query,
         where,
-        getDocs
+        getDocs,
+        updateDoc
       } from "/db/firebase.js";
+
+      // Initialize Super Admin Account if it doesn't exist
+      async function initializeSuperAdmin() {
+        try {
+          const systemDocRef = doc(db, "systemSettings", "initialized");
+          const systemDoc = await getDoc(systemDocRef);
+          
+          if (!systemDoc.exists() || !systemDoc.data().superAdminCreated) {
+            // Check if super admin exists
+            const superAdminQuery = query(collection(db, "users"), where("email", "==", "super@admin.com"));
+            const superAdminSnapshot = await getDocs(superAdminQuery);
+            
+            if (superAdminSnapshot.empty) {
+              try {
+                // Create super admin account
+                const superAdminCredential = await createUserWithEmailAndPassword(auth, "super@admin.com", "admin");
+                const superAdminUser = superAdminCredential.user;
+                
+                // Add super admin data to Firestore
+                await setDoc(doc(db, "users", superAdminUser.uid), {
+                  firstname: "Super",
+                  surname: "Admin",
+                  email: "super@admin.com",
+                  role: "admin",
+                  isSuperAdmin: true,
+                  createdAt: new Date(),
+                  passwordChangeRequired: true
+                });
+                
+                // Mark system as initialized
+                await setDoc(systemDocRef, {
+                  superAdminCreated: true,
+                  createdAt: new Date()
+                });
+                
+                console.log("Super admin account created successfully");
+                await signOut(auth); // Sign out after creating super admin
+              } catch (error) {
+                if (error.code !== 'auth/email-already-in-use') {
+                  console.error("Error creating super admin:", error);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error initializing super admin:", error);
+        }
+      }
+      
+      // Run super admin initialization
+      initializeSuperAdmin();
 
       // Menu Toggle Functionality
       const menuBtn = document.getElementById("menuBtn");
@@ -587,7 +647,7 @@
       });
 
       // Email/Password Signup Logic
-      document.getElementById('admin-signup-form').addEventListener('submit', (e) => {
+      document.getElementById('admin-signup-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         // Check confirmation checkbox before proceeding
         const confirmCheckbox = document.getElementById('confirm-role');
@@ -605,18 +665,99 @@
         const password = document.getElementById('password').value;
         const firstname = document.getElementById('firstname').value;
         const surname = document.getElementById('surname').value;
+        const accessCode = document.getElementById('access-code').value.trim();
+
+        // Validate access code first
+        try {
+          const accessCodeQuery = query(collection(db, "accessCodes"), where("code", "==", accessCode));
+          const accessCodeSnapshot = await getDocs(accessCodeQuery);
+          
+          if (accessCodeSnapshot.empty) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Invalid Access Code',
+              text: 'The access code you entered is not valid. Please contact the administrator.',
+              confirmButtonColor: '#d69e2e'
+            });
+            return;
+          }
+          
+          const accessCodeDoc = accessCodeSnapshot.docs[0];
+          const accessCodeData = accessCodeDoc.data();
+          const now = new Date();
+          
+          // Check if code is expired
+          if (accessCodeData.expiresAt && accessCodeData.expiresAt.toDate() < now) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Code Expired',
+              text: 'This access code has expired. Please request a new one from the administrator.',
+              confirmButtonColor: '#d69e2e'
+            });
+            return;
+          }
+          
+          // Check if code usage limit is reached
+          if (accessCodeData.usageLimit && accessCodeData.usedCount >= accessCodeData.usageLimit) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Code Limit Reached',
+              text: 'This access code has reached its usage limit. Please request a new one from the administrator.',
+              confirmButtonColor: '#d69e2e'
+            });
+            return;
+          }
+          
+          // Check if code is inactive
+          if (accessCodeData.status !== 'active') {
+            Swal.fire({
+              icon: 'error',
+              title: 'Code Inactive',
+              text: 'This access code is no longer active. Please request a new one from the administrator.',
+              confirmButtonColor: '#d69e2e'
+            });
+            return;
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: 'Failed to validate access code. Please try again.',
+            confirmButtonColor: '#d69e2e'
+          });
+          return;
+        }
 
         createUserWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
+          .then(async (userCredential) => {
             const user = userCredential.user;
+            
             // Add user data to Firestore with role: "admin"
-            return setDoc(doc(db, "users", user.uid), {
+            await setDoc(doc(db, "users", user.uid), {
               firstname: firstname,
               surname: surname,
               email: email,
               role: "admin",
-              createdAt: new Date()
+              createdAt: new Date(),
+              registeredWithCode: accessCode
             });
+            
+            // Increment access code usage count
+            const accessCodeQuery = query(collection(db, "accessCodes"), where("code", "==", accessCode));
+            const accessCodeSnapshot = await getDocs(accessCodeQuery);
+            const accessCodeDoc = accessCodeSnapshot.docs[0];
+            const accessCodeData = accessCodeDoc.data();
+            
+            const newUsedCount = (accessCodeData.usedCount || 0) + 1;
+            const newStatus = (accessCodeData.usageLimit && newUsedCount >= accessCodeData.usageLimit) ? 'depleted' : 'active';
+            
+            await updateDoc(doc(db, "accessCodes", accessCodeDoc.id), {
+              usedCount: newUsedCount,
+              status: newStatus,
+              lastUsedAt: new Date()
+            });
+            
+            return user;
           })
           .then(() => {
             Swal.fire({
@@ -646,7 +787,7 @@
       });
 
       // Google Sign Up Logic
-      document.getElementById("google-signup").addEventListener("click", () => {
+      document.getElementById("google-signup").addEventListener("click", async () => {
         const confirmCheckbox = document.getElementById('confirm-role');
         if (!confirmCheckbox.checked) {
           Swal.fire({
@@ -658,9 +799,81 @@
           return;
         }
         
+        const accessCode = document.getElementById('access-code').value.trim();
+        if (!accessCode) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Access Code Required',
+            text: 'Please enter your access code before signing up.',
+            confirmButtonColor: '#d69e2e'
+          });
+          return;
+        }
+        
+        // Validate access code first
+        try {
+          const accessCodeQuery = query(collection(db, "accessCodes"), where("code", "==", accessCode));
+          const accessCodeSnapshot = await getDocs(accessCodeQuery);
+          
+          if (accessCodeSnapshot.empty) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Invalid Access Code',
+              text: 'The access code you entered is not valid. Please contact the administrator.',
+              confirmButtonColor: '#d69e2e'
+            });
+            return;
+          }
+          
+          const accessCodeDoc = accessCodeSnapshot.docs[0];
+          const accessCodeData = accessCodeDoc.data();
+          const now = new Date();
+          
+          // Check if code is expired
+          if (accessCodeData.expiresAt && accessCodeData.expiresAt.toDate() < now) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Code Expired',
+              text: 'This access code has expired. Please request a new one from the administrator.',
+              confirmButtonColor: '#d69e2e'
+            });
+            return;
+          }
+          
+          // Check if code usage limit is reached
+          if (accessCodeData.usageLimit && accessCodeData.usedCount >= accessCodeData.usageLimit) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Code Limit Reached',
+              text: 'This access code has reached its usage limit. Please request a new one from the administrator.',
+              confirmButtonColor: '#d69e2e'
+            });
+            return;
+          }
+          
+          // Check if code is inactive
+          if (accessCodeData.status !== 'active') {
+            Swal.fire({
+              icon: 'error',
+              title: 'Code Inactive',
+              text: 'This access code is no longer active. Please request a new one from the administrator.',
+              confirmButtonColor: '#d69e2e'
+            });
+            return;
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: 'Failed to validate access code. Please try again.',
+            confirmButtonColor: '#d69e2e'
+          });
+          return;
+        }
+        
         const provider = new GoogleAuthProvider();
         signInWithPopup(auth, provider)
-          .then((result) => {
+          .then(async (result) => {
             const user = result.user;
             // Split displayName into firstname and surname
             const name = user.displayName || "";
@@ -671,13 +884,32 @@
               firstname = parts[0];
               surname = parts.slice(1).join(" ") || "";
             }
-            return setDoc(doc(db, "users", user.uid), {
+            
+            await setDoc(doc(db, "users", user.uid), {
               firstname: firstname,
               surname: surname,
               email: user.email,
               role: "admin",
-              createdAt: new Date()
+              createdAt: new Date(),
+              registeredWithCode: accessCode
             });
+            
+            // Increment access code usage count
+            const accessCodeQuery = query(collection(db, "accessCodes"), where("code", "==", accessCode));
+            const accessCodeSnapshot = await getDocs(accessCodeQuery);
+            const accessCodeDoc = accessCodeSnapshot.docs[0];
+            const accessCodeData = accessCodeDoc.data();
+            
+            const newUsedCount = (accessCodeData.usedCount || 0) + 1;
+            const newStatus = (accessCodeData.usageLimit && newUsedCount >= accessCodeData.usageLimit) ? 'depleted' : 'active';
+            
+            await updateDoc(doc(db, "accessCodes", accessCodeDoc.id), {
+              usedCount: newUsedCount,
+              status: newStatus,
+              lastUsedAt: new Date()
+            });
+            
+            return user;
           })
           .then(() => {
             Swal.fire({

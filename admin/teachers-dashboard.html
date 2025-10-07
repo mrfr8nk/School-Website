@@ -970,6 +970,9 @@
         <a href="#addUpdate">
           <i class="fas fa-bullhorn"></i> Add Notice
         </a>
+        <a href="#accessCodes">
+          <i class="fas fa-key"></i> Access Codes
+        </a>
         <a href="#systemBackup">
           <i class="fas fa-database"></i> System Backup
         </a>
@@ -1194,6 +1197,81 @@
           </div>
         </form>
         <div id="updateResult" class="text-center"></div>
+      </section>
+
+      <!-- Access Codes Section -->
+      <section id="accessCodes" style="display: none;">
+        <h2><i class="fas fa-key"></i> Teacher Access Codes</h2>
+        
+        <div style="background: rgba(214, 158, 46, 0.1); padding: 20px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid var(--secondary);">
+          <h3><i class="fas fa-info-circle"></i> About Access Codes</h3>
+          <p>Generate secure access codes to allow new teachers to register. Each code can have an expiry date and usage limit to control who can create accounts.</p>
+        </div>
+
+        <!-- Generate Access Code Form -->
+        <div style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 12px; margin-bottom: 30px;">
+          <h3><i class="fas fa-plus-circle"></i> Generate New Access Code</h3>
+          <form id="generateAccessCodeForm">
+            <div class="flex justify-between items-center" style="gap: 20px; margin-bottom: 20px;">
+              <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label for="codeDescription"><i class="fas fa-comment"></i> Description (Optional):</label>
+                <input type="text" id="codeDescription" placeholder="e.g., New teachers for 2025" />
+              </div>
+            </div>
+            
+            <div class="flex justify-between items-center" style="gap: 20px; margin-bottom: 20px;">
+              <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label for="codeExpiry"><i class="fas fa-clock"></i> Expiry Date & Time:</label>
+                <input type="datetime-local" id="codeExpiry" />
+                <small style="color: var(--text-secondary); font-size: 0.85rem; display: block; margin-top: 5px;">
+                  Leave empty for no expiry
+                </small>
+              </div>
+              
+              <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label for="codeUsageLimit"><i class="fas fa-users"></i> Usage Limit:</label>
+                <input type="number" id="codeUsageLimit" min="1" placeholder="e.g., 5" />
+                <small style="color: var(--text-secondary); font-size: 0.85rem; display: block; margin-top: 5px;">
+                  Number of times this code can be used
+                </small>
+              </div>
+            </div>
+            
+            <div class="form-group text-center" style="margin-bottom: 0;">
+              <button type="submit" style="background: #28a745; color: white;">
+                <i class="fas fa-key"></i> Generate Access Code
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Access Codes History -->
+        <div style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 12px;">
+          <h3><i class="fas fa-history"></i> Access Code History (Last 20)</h3>
+          <div class="table-wrapper" style="margin-top: 20px;">
+            <table id="accessCodesTable" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Code</th>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Description</th>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Created</th>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Expires</th>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Usage</th>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Status</th>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="accessCodesTableBody">
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <i class="fas fa-key" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                    No access codes generated yet
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       <!-- View/Manage Notices Section -->
@@ -1708,6 +1786,32 @@
             <div id="backupProgressBar" style="height: 20px; background: #28a745; width: 0%; transition: width 0.3s ease;"></div>
           </div>
           <p id="backupProgressText">Initializing...</p>
+        </div>
+        
+        <!-- Backup History -->
+        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-top: 30px;">
+          <h3><i class="fas fa-history"></i> Backup History (Last 20)</h3>
+          <div class="table-wrapper" style="margin-top: 20px;">
+            <table id="backupHistoryTable" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Backup Name</th>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Created</th>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Size</th>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Datasets</th>
+                  <th style="padding: 12px; text-align: left; background: rgba(214, 158, 46, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">Created By</th>
+                </tr>
+              </thead>
+              <tbody id="backupHistoryTableBody">
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <i class="fas fa-database" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                    No backups created yet
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -3250,6 +3354,184 @@ loadTeacherStats();
         });
       }
 
+      // Access Code Generation and Management
+      function generateRandomCode() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 12; i++) {
+          if (i > 0 && i % 4 === 0) code += '-';
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+      }
+
+      document.getElementById('generateAccessCodeForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const description = document.getElementById('codeDescription').value;
+        const expiryInput = document.getElementById('codeExpiry').value;
+        const usageLimit = parseInt(document.getElementById('codeUsageLimit').value) || null;
+        
+        const code = generateRandomCode();
+        const currentUser = auth.currentUser;
+        
+        try {
+          const codeData = {
+            code: code,
+            description: description || 'No description',
+            createdAt: new Date(),
+            createdBy: currentUser ? currentUser.uid : 'unknown',
+            expiresAt: expiryInput ? new Date(expiryInput) : null,
+            usageLimit: usageLimit,
+            usedCount: 0,
+            status: 'active'
+          };
+          
+          await addDoc(collection(db, "accessCodes"), codeData);
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Access Code Generated!',
+            html: `<div style="font-size: 1.5rem; font-weight: bold; color: #28a745; margin: 20px 0; padding: 15px; background: rgba(40, 167, 69, 0.1); border-radius: 8px; font-family: monospace;">${code}</div><p>Share this code with the teacher. They will need it to register.</p>`,
+            confirmButtonColor: '#d69e2e'
+          });
+          
+          document.getElementById('generateAccessCodeForm').reset();
+          loadAccessCodes();
+          
+        } catch (error) {
+          console.error('Error generating access code:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to generate access code. Please try again.',
+            confirmButtonColor: '#d69e2e'
+          });
+        }
+      });
+
+      async function loadAccessCodes() {
+        try {
+          const codesQuery = query(collection(db, "accessCodes"), orderBy("createdAt", "desc"), limit(20));
+          const codesSnapshot = await getDocs(codesQuery);
+          const tableBody = document.getElementById('accessCodesTableBody');
+          
+          if (codesSnapshot.empty) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                  <i class="fas fa-key" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                  No access codes generated yet
+                </td>
+              </tr>
+            `;
+            return;
+          }
+          
+          tableBody.innerHTML = '';
+          const now = new Date();
+          
+          codesSnapshot.forEach(doc => {
+            const code = doc.data();
+            const isExpired = code.expiresAt && code.expiresAt.toDate() < now;
+            const isDepleted = code.usageLimit && code.usedCount >= code.usageLimit;
+            
+            let status = code.status;
+            let statusColor = '#28a745';
+            
+            if (isExpired) {
+              status = 'expired';
+              statusColor = '#dc3545';
+            } else if (isDepleted) {
+              status = 'depleted';
+              statusColor = '#ffc107';
+            } else if (status === 'active') {
+              statusColor = '#28a745';
+            }
+            
+            const row = document.createElement('tr');
+            row.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+            row.innerHTML = `
+              <td style="padding: 12px; font-family: monospace; font-weight: bold; color: var(--secondary);">${code.code}</td>
+              <td style="padding: 12px;">${code.description || 'No description'}</td>
+              <td style="padding: 12px;">${code.createdAt.toDate().toLocaleDateString()}</td>
+              <td style="padding: 12px;">${code.expiresAt ? code.expiresAt.toDate().toLocaleString() : 'Never'}</td>
+              <td style="padding: 12px;">${code.usedCount || 0}${code.usageLimit ? ` / ${code.usageLimit}` : ' / Unlimited'}</td>
+              <td style="padding: 12px;"><span style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; text-transform: uppercase;">${status}</span></td>
+              <td style="padding: 12px;">
+                <button onclick="copyAccessCode('${code.code}')" class="action-btn" style="background: #17a2b8; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                  <i class="fas fa-copy"></i> Copy
+                </button>
+                ${status === 'active' ? `
+                  <button onclick="deactivateAccessCode('${doc.id}')" class="action-btn" style="background: #ffc107; color: #1a365d; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                    <i class="fas fa-ban"></i> Deactivate
+                  </button>
+                ` : ''}
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+          
+        } catch (error) {
+          console.error('Error loading access codes:', error);
+        }
+      }
+
+      window.copyAccessCode = function(code) {
+        navigator.clipboard.writeText(code).then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Copied!',
+            text: 'Access code copied to clipboard',
+            timer: 1500,
+            showConfirmButton: false
+          });
+        });
+      };
+
+      window.deactivateAccessCode = async function(codeId) {
+        const confirm = await Swal.fire({
+          icon: 'warning',
+          title: 'Deactivate Code?',
+          text: 'This access code will no longer be usable for registration.',
+          showCancelButton: true,
+          confirmButtonColor: '#ffc107',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, deactivate',
+          cancelButtonText: 'Cancel'
+        });
+
+        if (confirm.isConfirmed) {
+          try {
+            await updateDoc(doc(db, "accessCodes", codeId), {
+              status: 'inactive'
+            });
+            
+            Swal.fire({
+              icon: 'success',
+              title: 'Deactivated',
+              text: 'Access code has been deactivated',
+              confirmButtonColor: '#d69e2e'
+            });
+            
+            loadAccessCodes();
+          } catch (error) {
+            console.error('Error deactivating code:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to deactivate code',
+              confirmButtonColor: '#d69e2e'
+            });
+          }
+        }
+      };
+
+      // Load access codes when section is shown
+      document.querySelector('a[href="#accessCodes"]').addEventListener('click', () => {
+        loadAccessCodes();
+      });
+
       // System Backup and Restore Functions
       window.createSystemBackup = async function() {
         const backupProgress = document.getElementById('backupProgress');
@@ -3409,6 +3691,23 @@ loadTeacherStats();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
           
+          progressText.textContent = 'Saving backup metadata...';
+          progressBar.style.width = '95%';
+          
+          // Save backup metadata to Firestore
+          const currentUser = auth.currentUser;
+          const datasets = Object.keys(selectedTypes).filter(k => selectedTypes[k]).join(', ');
+          
+          await addDoc(collection(db, "systemBackups"), {
+            backupName: backupData.metadata.backupName,
+            created: new Date(),
+            createdBy: currentUser ? currentUser.email : 'Unknown',
+            sizeBytes: blob.size,
+            sizeMB: (blob.size / 1024 / 1024).toFixed(2),
+            datasets: datasets,
+            version: backupData.metadata.version
+          });
+          
           progressText.textContent = 'Backup completed!';
           progressBar.style.width = '100%';
           
@@ -3420,6 +3719,7 @@ loadTeacherStats();
           setTimeout(() => {
             backupProgress.style.display = 'none';
             progressBar.style.width = '0%';
+            loadBackupHistory(); // Refresh backup history
             Swal.fire({
               icon: 'success',
               title: 'Backup Created!',
@@ -3439,6 +3739,51 @@ loadTeacherStats();
           });
         }
       };
+
+      // Load Backup History
+      async function loadBackupHistory() {
+        try {
+          const backupQuery = query(collection(db, "systemBackups"), orderBy("created", "desc"), limit(20));
+          const backupSnapshot = await getDocs(backupQuery);
+          const tableBody = document.getElementById('backupHistoryTableBody');
+          
+          if (backupSnapshot.empty) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                  <i class="fas fa-database" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                  No backups created yet
+                </td>
+              </tr>
+            `;
+            return;
+          }
+          
+          tableBody.innerHTML = '';
+          
+          backupSnapshot.forEach(doc => {
+            const backup = doc.data();
+            const row = document.createElement('tr');
+            row.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+            row.innerHTML = `
+              <td style="padding: 12px; font-weight: 500;">${backup.backupName || 'Unnamed Backup'}</td>
+              <td style="padding: 12px;">${backup.created.toDate().toLocaleString()}</td>
+              <td style="padding: 12px;">${backup.sizeMB || '0'} MB</td>
+              <td style="padding: 12px;">${backup.datasets || 'Unknown'}</td>
+              <td style="padding: 12px;">${backup.createdBy || 'Unknown'}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+          
+        } catch (error) {
+          console.error('Error loading backup history:', error);
+        }
+      }
+
+      // Load backup history when section is shown
+      document.querySelector('a[href="#systemBackup"]').addEventListener('click', () => {
+        loadBackupHistory();
+      });
 
       // Handle restore file selection
       document.getElementById('restoreFile').addEventListener('change', function(e) {
@@ -3490,14 +3835,21 @@ loadTeacherStats();
       });
 
       // Handle restore confirmation
-      document.getElementById('restoreConfirm').addEventListener('input', function() {
-        const restoreBtn = document.getElementById('restoreBtn');
-        const isValid = this.value.toUpperCase() === 'RESTORE';
-        
-        restoreBtn.disabled = !isValid;
-        restoreBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
-        restoreBtn.style.opacity = isValid ? '1' : '0.5';
-      });
+      const restoreConfirmInput = document.getElementById('restoreConfirm');
+      if (restoreConfirmInput) {
+        restoreConfirmInput.addEventListener('input', function() {
+          const restoreBtn = document.getElementById('restoreBtn');
+          if (restoreBtn) {
+            const inputValue = this.value.trim().toUpperCase();
+            const isValid = inputValue === 'RESTORE';
+            
+            restoreBtn.disabled = !isValid;
+            restoreBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
+            restoreBtn.style.opacity = isValid ? '1' : '0.5';
+            restoreBtn.style.background = isValid ? '#dc3545' : '#6c757d';
+          }
+        });
+      }
 
       window.performSystemRestore = async function() {
         const file = document.getElementById('restoreFile').files[0];
