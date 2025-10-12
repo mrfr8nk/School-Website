@@ -5,26 +5,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Dashboard - St. Mary's High School</title>
-    
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://i.postimg.cc/mZ81jqGW/In-Shot-20250227-051117557.jpg" />
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    
+
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <style>
       /* ========== Global Variables & Reset ========== */
       :root {
@@ -40,19 +40,19 @@
         --danger: #dc3545;
         --warning: #ffc107;
         --info: #17a2b8;
-        
+
         /* Neutral Colors */
         --white: #ffffff;
         --light-gray: #f8f9fa;
         --medium-gray: #e9ecef;
         --dark-gray: #6c757d;
         --black: #212529;
-        
+
         /* Text Colors */
         --text-primary: #212529;
         --text-secondary: #495057;
         --text-light: #f8f9fa;
-        
+
         /* Spacing */
         --space-xs: 0.25rem;
         --space-sm: 0.5rem;
@@ -60,7 +60,7 @@
         --space-lg: 1.5rem;
         --space-xl: 2rem;
         --space-xxl: 3rem;
-        
+
         /* Typography */
         --font-primary: 'Poppins', sans-serif;
         --font-secondary: 'Montserrat', sans-serif;
@@ -71,25 +71,25 @@
         --text-3xl: 1.875rem;
         --text-4xl: 2.25rem;
         --text-5xl: 3rem;
-        
+
         /* Shadows */
         --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
         --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
         --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
         --shadow-xl: 0 20px 25px rgba(0,0,0,0.1);
-        
+
         /* Transitions */
         --transition-fast: 0.15s ease;
         --transition-normal: 0.3s ease;
         --transition-slow: 0.5s ease;
-        
+
         /* Border Radius */
         --radius-sm: 0.25rem;
         --radius-md: 0.5rem;
         --radius-lg: 0.75rem;
         --radius-xl: 1rem;
         --radius-full: 9999px;
-        
+
         /* Layout */
         --header-height: 80px;
         --sidebar-width: 280px;
@@ -103,13 +103,13 @@
         --primary-dark: #0052cc;
         --secondary: #ffcc00;
         --accent: #5aa5d1;
-        
+
         --white: #121212;
         --light-gray: #1e1e1e;
         --medium-gray: #2d2d2d;
         --dark-gray: #868e96;
         --black: #f8f9fa;
-        
+
         --text-primary: #f8f9fa;
         --text-secondary: #e9ecef;
         --text-light: #212529;
@@ -738,15 +738,15 @@
           width: 100%;
           transform: translateX(-100%);
         }
-        
+
         .sidebar.active {
           transform: translateX(0);
         }
-        
+
         .main-content.expanded {
           margin-left: 0;
         }
-        
+
         .dashboard-grid {
           grid-template-columns: 1fr;
         }
@@ -756,7 +756,7 @@
         .section {
           padding: var(--space-xl) 0;
         }
-        
+
         .section-title h2 {
           font-size: var(--text-2xl);
         }
@@ -989,27 +989,27 @@
   .year-tabs {
     flex-wrap: wrap;
   }
-  
+
   .term-tabs {
     flex-wrap: wrap;
   }
-  
+
   .year-tab,
   .term-tab {
     flex: 1;
     text-align: center;
     min-width: 120px;
   }
-  
+
   .activity-item {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .activity-item:before {
     display: none;
   }
-  
+
   .activity-icon {
     align-self: center;
   }
@@ -1029,7 +1029,7 @@
           <img src="https://i.postimg.cc/mZ81jqGW/In-Shot-20250227-051117557.jpg" alt="St. Mary's Logo" class="logo-img">
           <span class="logo-text">St. Mary's</span>
         </div>
-        
+
         <div class="header-profile">
           <img id="smallProfilePic" src="https://i.postimg.cc/28gm27sy/2993763.png" alt="Profile" class="profile-pic">
           <button class="menu-btn" id="menuBtn">
@@ -1070,9 +1070,9 @@
           <i class="fas fa-comments"></i>
           <span>Chat with AI</span>
         </a>
-        
+
         <div class="sidebar-divider"></div>
-        
+
         <a href="#updates" class="sidebar-link">
           <i class="fas fa-bell"></i>
           <span>Updates</span>
@@ -1082,9 +1082,9 @@
           <i class="fas fa-share"></i>
           <span>Send Report</span>
         </a>
-        
+
         <div class="sidebar-divider"></div>
-        
+
         <a href="#" id="logoutBtn" class="sidebar-link">
           <i class="fas fa-sign-out-alt"></i>
           <span>Logout</span>
@@ -1104,7 +1104,7 @@
             <h2 id="welcomeMessage">Welcome Back, Student</h2>
             <p>Your personalized dashboard with all important information</p>
           </div>
-          
+
           <div class="dashboard-grid">
             <!-- Student ID Card -->
             <div class="card fade-in-up">
@@ -1116,7 +1116,7 @@
               </div>
               <p id="dashboardStudentID" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">Loading...</p>
             </div>
-            
+
             <!-- Grade Card -->
             <div class="card fade-in-up">
               <div class="card-header">
@@ -1127,7 +1127,7 @@
               </div>
               <p id="currentGrade">Not set</p>
             </div>
-            
+
             <!-- Attendance Card -->
             <!--div class="card fade-in-up" style="animation-delay: 0.1s">
               <div class="card-header">
@@ -1156,7 +1156,7 @@
                 </div>
               </div>
             </div>
-            
+
             <!-- Quick Links Card -->
             <div class="card fade-in-up" style="animation-delay: 0.4s">
               <div class="card-header">
@@ -1185,7 +1185,7 @@
             <h2>Personal Information</h2>
             <p>Manage your profile details and settings</p>
           </div>
-          
+
           <div class="card">
             <div class="row">
               <div class="col-md-4 text-center">
@@ -1201,7 +1201,7 @@
                   <small id="progressText" class="text-muted">0%</small>
                 </div>
               </div>
-              
+
               <div class="col-md-8">
                 <form id="profileForm">
                   <div class="row">
@@ -1218,7 +1218,7 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
@@ -1233,7 +1233,7 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
@@ -1245,7 +1245,7 @@
                       <!-- Empty column for layout balance -->
                     </div>
                   </div>
-                  
+
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
@@ -1260,7 +1260,7 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
@@ -1276,12 +1276,12 @@
                       <!-- Empty column to maintain layout balance -->
                     </div>
                   </div>
-                  
+
                   <div class="form-group">
                     <label class="form-label" for="address">Address</label>
                     <input type="text" class="form-control" id="address" placeholder="Enter your address">
                   </div>
-                  
+
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
@@ -1296,7 +1296,7 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
@@ -1329,17 +1329,17 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="form-group">
                     <label class="form-label" for="healthIssues">Health Issues</label>
                     <textarea class="form-control" id="healthIssues" rows="2" placeholder="Enter any health issues"></textarea>
                   </div>
-                  
+
                   <div class="form-group">
                     <label class="form-label" for="additionalInfo">Additional Information</label>
                     <textarea class="form-control" id="additionalInfo" rows="2" placeholder="Enter any additional information"></textarea>
                   </div>
-                  
+
                   <div class="d-flex justify-content-between mt-4">
                     <button type="button" class="btn btn-primary" id="saveChangesBtn">
                       <i class="fas fa-save btn-icon"></i> Save Changes
@@ -1362,9 +1362,9 @@
             <h2>Academic Results</h2>
             <p>View your latest report card and performance</p>
           </div>
-          
+
           <div id="resultsMessage" class="alert alert-info" style="display: none;"></div>
-          
+
           <div class="card" id="reportCardContainer" style="display: none;">
             <div class="card-header">
               <h3 class="card-title">Report Card</h3>
@@ -1372,7 +1372,7 @@
                 <i class="fas fa-download btn-icon"></i> Download PDF
               </button>
             </div>
-            
+
             <div class="report-header mb-4">
               <div class="row">
                 <div class="col-md-6">
@@ -1386,7 +1386,7 @@
               </div>
               <p class="mt-3"><strong>Teacher's Comments:</strong> <span id="reportTeacherComments" class="highlight-comments"></span></p>
             </div>
-            
+
             <div class="table-responsive">
               <table class="results-table">
                 <thead>
@@ -1402,7 +1402,7 @@
                 </tbody>
               </table>
             </div>
-            
+
                    <div class="chart-container mt-4">
           <canvas id="performanceChart"></canvas>
         </div>
@@ -1417,7 +1417,7 @@
         <h2>Fees & Payments</h2>
         <p>View your payment history, balance, and financial status</p>
       </div>
-      
+
       <!-- Student Financial Status -->
       <div class="dashboard-grid" style="margin-bottom: 2rem;">
         <!-- Organization/Scholarship Status -->
@@ -1434,7 +1434,7 @@
             <p><strong>Scholarship Status:</strong> <span id="scholarshipStatus" class="status-badge status-notset">No Scholarship</span></p>
           </div>
         </div>
-        
+
         <!-- Current Balance -->
         <div class="card fade-in-up">
           <div class="card-header">
@@ -1449,7 +1449,7 @@
             <p class="status-badge" id="paymentStatus">Up to Date</p>
           </div>
         </div>
-        
+
         <!-- Academic Progress -->
         <div class="card fade-in-up">
           <div class="card-header">
@@ -1494,7 +1494,7 @@
             <i class="fas fa-download btn-icon"></i> Download Report
           </button>
         </div>
-        
+
         <div class="table-responsive">
           <table class="results-table" id="paymentHistoryTable">
             <thead>
@@ -1548,7 +1548,7 @@
         <h2>Performance History</h2>
         <p>Track your academic progress over time</p>
       </div>
-      
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">Historical Performance</h3>
@@ -1556,15 +1556,15 @@
             <i class="fas fa-download btn-icon"></i> Download Report
           </button>
         </div>
-        
+
         <div id="performanceHistoryContainer" class="p-4">
           <p>Loading performance history...</p>
         </div>
-        
+
         <div class="chart-container">
           <canvas id="overallPerformanceChart"></canvas>
         </div>
-        
+
         <div id="analyticsMessage" class="alert alert-info mt-4" style="display: none;"></div>
       </div>
     </div>
@@ -1578,7 +1578,7 @@
       <h2>Chat with AI Assistant</h2>
       <p>Get instant help with your academic questions</p>
     </div>
-    
+
     <div class="card">
       <div id="chatContainer" class="p-4">
         <div class="text-center py-5">
@@ -1617,18 +1617,18 @@
     50% { transform: scale(1.1); opacity: 0.4; }
     100% { transform: scale(0.95); opacity: 0.7; }
   }
-  
+
   @keyframes shine {
     0% { left: -50%; opacity: 0; }
     20% { opacity: 0.5; }
     100% { left: 150%; opacity: 0; }
   }
-  
+
   #startChatBtn:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
   }
-  
+
   #startChatBtn:active {
     transform: translateY(1px);
   }
@@ -1647,7 +1647,7 @@
           </button>
         </div>
       </div>
-      
+
       <div class="card">
         <div id="updatesList" class="p-4">
           <div class="notice-card">
@@ -1666,7 +1666,7 @@
       <h2>Account Activity Log</h2>
       <p>Track all your account activities and login history</p>
     </div>
-    
+
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">Activity Timeline</h3>
@@ -1682,7 +1682,7 @@
           </button>
         </div>
       </div>
-      
+
       <div id="fullActivityLog" class="p-4">
         <p class="text-center">Loading activity log...</p>
       </div>
@@ -1725,25 +1725,25 @@
       <h2>Send Report</h2>
       <p>Submit reports or issues to school administration</p>
     </div>
-    
+
     <div class="card">
       <div class="p-4">
         <div class="report-header" style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--secondary);">
           <img src="https://i.postimg.cc/mZ81jqGW/In-Shot-20250227-051117557.jpg" alt="School Logo" style="height: 50px; border-radius: 50%; border: 2px solid var(--secondary);" />
           <h2 style="margin: 0; color: var(--secondary);">Student Report Form</h2>
         </div>
-        
+
         <form id="reportForm">
           <div class="checkbox-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
             <input type="checkbox" id="anonymous" name="anonymous" style="width: 18px; height: 18px; accent-color: var(--secondary);" />
             <label for="anonymous" style="margin: 0; font-size: 0.95rem;">Submit Anonymously</label>
           </div>
-          
+
           <div class="form-group" id="nameGroup">
             <label class="form-label" for="name">Full Name</label>
             <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" />
           </div>
-          
+
           <div class="form-group" id="classGroup">
             <label class="form-label">Class Information</label>
             <div style="display: flex; gap: 15px;">
@@ -1767,12 +1767,12 @@
               </select>
             </div>
           </div>
-          
+
           <div class="form-group">
             <label class="form-label" for="message">Report Details</label>
             <textarea class="form-control" id="message" name="message" rows="5" placeholder="Please provide detailed information about your report..." required></textarea>
           </div>
-          
+
           <div class="form-group">
             <label class="form-label" for="reportAttachment">Attach Supporting Documents (Optional)</label>
             <div class="file-input-wrapper" style="position: relative; overflow: hidden; display: inline-block; width: 100%;">
@@ -1784,7 +1784,7 @@
             </div>
             <small style="display: block; margin-top: 5px; color: var(--secondary);">Max file size: 5MB (Images, PDF, Word)</small>
           </div>
-          
+
           <button type="submit" class="btn btn-primary mt-3" id="submitReportBtn">
             <i class="fas fa-paper-plane btn-icon"></i> Submit Report
           </button>
@@ -1840,7 +1840,10 @@
     addDoc,
     ref,
     uploadBytes,
-    getDownloadURL
+    getDownloadURL,
+    serverTimestamp,
+    fetchSignInMethodsForEmail,
+    EmailAuthProvider
   } from "/db/firebase.js";
 
   // DOM Elements
@@ -1852,11 +1855,11 @@
   const sections = document.querySelectorAll('section');
   const navLinks = document.querySelectorAll('.sidebar-link');
   const quickLinks = document.querySelectorAll('.quick-link');
-  
+
   // Global variables
   let performanceChart = null;
   let overallPerformanceChart = null;
-  
+
   // Toggle Sidebar
   menuBtn.addEventListener('click', () => {
     sidebar.classList.add('active');
@@ -1889,27 +1892,27 @@
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      
+
       // Hide all sections
       sections.forEach(section => {
         section.style.display = 'none';
       });
-      
+
       // Show selected section
       const target = link.getAttribute('href').substring(1);
       document.getElementById(target).style.display = 'block';
-      
+
       // Update active link
       navLinks.forEach(navLink => {
         navLink.classList.remove('active');
       });
       link.classList.add('active');
-      
+
       // Close sidebar on mobile
       sidebar.classList.remove('active');
       overlay.classList.remove('active');
       mainContent.classList.remove('expanded');
-      
+
       // Load section-specific content
       switch(target) {
         case 'dashboard':
@@ -1942,15 +1945,15 @@
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const target = link.getAttribute('href').substring(1);
-      
+
       // Hide all sections
       sections.forEach(section => {
         section.style.display = 'none';
       });
-      
+
       // Show target section
       document.getElementById(target).style.display = 'block';
-      
+
       // Update active link in sidebar
       navLinks.forEach(navLink => {
         navLink.classList.remove('active');
@@ -1958,7 +1961,7 @@
           navLink.classList.add('active');
         }
       });
-      
+
       // Load section content if needed
       if (target === 'results') loadResults();
       if (target === 'profile') loadProfile();
@@ -1980,19 +1983,19 @@
   function capitalize(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
   }
-  
+
   // Navigate to section helper function
   window.navigateTo = function(sectionId) {
     const sections = document.querySelectorAll('.section');
     const navLinks = document.querySelectorAll('.sidebar-link');
-    
+
     // Hide all sections
     sections.forEach(section => section.style.display = 'none');
-    
+
     // Show target section
     const targetSection = document.getElementById(sectionId);
     if (targetSection) targetSection.style.display = 'block';
-    
+
     // Update active link
     navLinks.forEach(link => {
       link.classList.remove('active');
@@ -2000,7 +2003,7 @@
         link.classList.add('active');
       }
     });
-    
+
     // Load section content if needed
     if (sectionId === 'fees') loadFees();
     if (sectionId === 'activity') loadFullActivityLog(auth.currentUser?.email);
@@ -2021,15 +2024,15 @@
     try {
       const user = auth.currentUser;
       if (!user) return;
-      
+
       const studentRef = doc(db, 'students', user.email);
       const docSnap = await getDoc(studentRef);
-      
+
       if (docSnap.exists()) {
         const studentData = docSnap.data();
         const resultsMessage = document.getElementById('resultsMessage');
         const reportCardContainer = document.getElementById('reportCardContainer');
-        
+
         // Enhanced scholarship-aware results access check
         const canAccessResults = await checkResultsAccess(user.email, studentData);
         if (!canAccessResults.allowed) {
@@ -2050,7 +2053,7 @@
         } else {
           resultsMessage.style.display = 'none';
           reportCardContainer.style.display = 'block';
-          
+
           // Populate report card
           document.getElementById('reportName').textContent = 
             `${capitalize(studentData.firstname || '')} ${capitalize(studentData.surname || '')}`;
@@ -2059,17 +2062,17 @@
           document.getElementById('reportTerm').textContent = studentData.term || 'Not set';
           document.getElementById('reportTeacherComments').textContent = 
             studentData.teacherComments || 'No comments available';
-          
+
           // Populate results table
           const tbody = document.getElementById('reportCardBody');
           tbody.innerHTML = '';
-          
+
           let totalMarks = 0;
           let subjectCount = 0;
-          
+
           for (const [subject, data] of Object.entries(studentData.marks)) {
             const row = document.createElement('tr');
-            
+
             let performanceIcon = '';
             if (data.marks >= 75) {
               performanceIcon = '<i class="fas fa-thumbs-up text-success"></i> Excellent';
@@ -2078,7 +2081,7 @@
             } else {
               performanceIcon = '<i class="fas fa-exclamation-triangle text-danger"></i> Needs Improvement';
             }
-            
+
             row.innerHTML = `
               <td>${subject}</td>
               <td>${data.marks}</td>
@@ -2086,11 +2089,11 @@
               <td>${performanceIcon}</td>
             `;
             tbody.appendChild(row);
-            
+
             totalMarks += Number(data.marks);
             subjectCount++;
           }
-          
+
           // Add average row
           if (subjectCount > 0) {
             const average = (totalMarks / subjectCount).toFixed(2);
@@ -2101,10 +2104,10 @@
               </td>
             `;
             tbody.appendChild(avgRow);
-            
-            
+
+
           }
-          
+
           // Update performance chart
           updatePerformanceChart(studentData.marks);
         }
@@ -2118,16 +2121,16 @@
   function updatePerformanceChart(marksData) {
     const canvas = document.getElementById('performanceChart');
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     const subjects = Object.keys(marksData);
     const marks = subjects.map(subject => marksData[subject].marks);
-    
+
     // Destroy previous chart if it exists
     if (performanceChart) {
       performanceChart.destroy();
     }
-    
+
     performanceChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -2167,10 +2170,10 @@
     try {
       const user = auth.currentUser;
       if (!user) return;
-      
+
       const container = document.getElementById('performanceHistoryContainer');
       container.innerHTML = '<p>Loading performance history...</p>';
-      
+
       // Query performance records for this student
       const q = query(
         collection(db, 'performanceHistory'),
@@ -2178,19 +2181,19 @@
         orderBy('year', 'desc'),
         orderBy('term', 'desc')
       );
-      
+
       const querySnapshot = await getDocs(q);
       const performanceRecords = [];
-      
+
       querySnapshot.forEach((doc) => {
         performanceRecords.push(doc.data());
       });
-      
+
       if (performanceRecords.length === 0) {
         container.innerHTML = '<p>No performance records found.</p>';
         return;
       }
-      
+
       // Display performance records
       container.innerHTML = '';
       performanceRecords.forEach(record => {
@@ -2203,10 +2206,10 @@
         `;
         container.appendChild(recordElement);
       });
-      
+
       // Update overall performance chart
       updateOverallPerformanceChart(performanceRecords);
-      
+
       // Show analytics message
       showPerformanceAnalytics(performanceRecords);
     } catch (error) {
@@ -2219,21 +2222,21 @@
   function updateOverallPerformanceChart(records) {
     const canvas = document.getElementById('overallPerformanceChart');
     if (!canvas) return;
-    
+
     // Sort records chronologically
     const sortedRecords = [...records].sort((a, b) => {
       if (a.year !== b.year) return a.year - b.year;
       return a.term.localeCompare(b.term);
     });
-    
+
     const labels = sortedRecords.map(r => `${r.term} ${r.year}`);
     const averages = sortedRecords.map(r => r.average);
-    
+
     // Destroy previous chart if it exists
     if (overallPerformanceChart) {
       overallPerformanceChart.destroy();
     }
-    
+
     const ctx = canvas.getContext('2d');
     overallPerformanceChart = new Chart(ctx, {
       type: 'line',
@@ -2278,17 +2281,17 @@
       document.getElementById('analyticsMessage').style.display = 'block';
       return;
     }
-    
+
     // Sort records chronologically
     const sortedRecords = [...records].sort((a, b) => {
       if (a.year !== b.year) return a.year - b.year;
       return a.term.localeCompare(b.term);
     });
-    
+
     const latest = sortedRecords[sortedRecords.length - 1];
     const previous = sortedRecords[sortedRecords.length - 2];
     const change = latest.average - previous.average;
-    
+
     let message = '';
     if (change > 0) {
       message = `Your performance has improved by ${change.toFixed(2)}% compared to the previous term. Keep up the good work!`;
@@ -2297,7 +2300,7 @@
     } else {
       message = 'Your performance is consistent with the previous term.';
     }
-    
+
     document.getElementById('analyticsMessage').innerHTML = message;
     document.getElementById('analyticsMessage').style.display = 'block';
   }
@@ -2307,41 +2310,91 @@
     try {
       const user = auth.currentUser;
       if (!user) return;
-      
+
       const updatesList = document.getElementById('updatesList');
       updatesList.innerHTML = '<p>Loading updates...</p>';
-      
+
       const q = query(
         collection(db, 'updates'),
         orderBy('timestamp', 'desc'),
         limit(10)
       );
-      
+
       const querySnapshot = await getDocs(q);
       let unreadCount = 0;
       let updatesHtml = '';
-      
+
       querySnapshot.forEach(doc => {
         const update = doc.data();
         const isRead = update.readBy && update.readBy.includes(user.email);
-        
+
         if (!isRead) unreadCount++;
-        
+
+        let date = "No date available";
+
+        if (update.timestamp) {
+          try {
+            // Handle Firestore Timestamp object
+            if (typeof update.timestamp.toDate === 'function') {
+              date = update.timestamp.toDate().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+            } 
+            // Handle Date object
+            else if (update.timestamp instanceof Date) {
+              date = update.timestamp.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+            }
+            // Handle timestamp string
+            else if (typeof update.timestamp === 'string') {
+              date = new Date(update.timestamp).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+            }
+            // Handle Unix timestamp (seconds)
+            else if (typeof update.timestamp === 'number') {
+              date = new Date(update.timestamp * 1000).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+            }
+          } catch (error) {
+            console.error('Error formatting date:', error);
+            date = "Invalid date";
+          }
+        }
+
         updatesHtml += `
           <div class="notice-card ${isRead ? 'read' : 'unread'}" data-id="${doc.id}">
             <h4 class="notice-title">${update.updateTitle || 'No title'}</h4>
             <p>${update.updateContent || ''}</p>
             <div class="notice-meta">
               Posted by ${update.teacherName || 'Staff'} on 
-              ${update.timestamp?.toDate().toLocaleDateString() || 'unknown date'}
+              ${date}
               ${isRead ? '<span class="badge bg-success float-end">Read</span>' : ''}
             </div>
           </div>
         `;
       });
-      
+
       updatesList.innerHTML = updatesHtml || '<p>No updates available.</p>';
-      
+
       // Update unread count badge
       const updateCountBadge = document.getElementById('updateCount');
       if (unreadCount > 0) {
@@ -2350,7 +2403,7 @@
       } else {
         updateCountBadge.style.display = 'none';
       }
-      
+
       // Add click handlers to mark updates as read
       document.querySelectorAll('.notice-card.unread').forEach(card => {
         card.addEventListener('click', () => markUpdateAsRead(card));
@@ -2365,28 +2418,28 @@
   async function markUpdateAsRead(card) {
     const updateId = card.getAttribute('data-id');
     const user = auth.currentUser;
-    
+
     if (!user || !updateId) return;
-    
+
     try {
       await updateDoc(doc(db, 'updates', updateId), {
         readBy: arrayUnion(user.email)
       });
-      
+
       card.classList.remove('unread');
       card.classList.add('read');
-      
+
       // Update the read badge
       const meta = card.querySelector('.notice-meta');
       if (meta) {
         meta.innerHTML += '<span class="badge bg-success float-end">Read</span>';
       }
-      
+
       // Decrement unread count
       const updateCountBadge = document.getElementById('updateCount');
       let count = parseInt(updateCountBadge.textContent) || 0;
       count--;
-      
+
       if (count > 0) {
         updateCountBadge.textContent = count;
       } else {
@@ -2428,34 +2481,34 @@ document.getElementById('reportAttachment').addEventListener('change', function(
 // Report form submission
 document.getElementById('reportForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  
+
   const submitBtn = document.getElementById('submitReportBtn');
   const user = auth.currentUser;
-  
+
   if (!user) return;
-  
+
   try {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> Submitting...';
-    
+
     const name = document.getElementById('name').value;
     const form = document.getElementById('form').value;
     const stream = document.getElementById('stream').value;
     const message = document.getElementById('message').value;
     const attachment = document.getElementById('reportAttachment').files[0];
     const isAnonymous = document.getElementById('anonymous').checked;
-    
+
     // Validate required fields
     if (!message) {
       showMessage('Please provide the details of your report', 'error');
       return;
     }
-    
+
     if (!isAnonymous && (!name || !form)) {
       showMessage('Please provide your name and class information', 'error');
       return;
     }
-    
+
     let attachmentUrl = null;
     if (attachment) {
       // Check file size (5MB limit)
@@ -2463,12 +2516,12 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
         showMessage('File size exceeds 5MB limit', 'error');
         return;
       }
-      
+
       const storageRef = ref(storage, `reports/${user.email}/${Date.now()}_${attachment.name}`);
       await uploadBytes(storageRef, attachment);
       attachmentUrl = await getDownloadURL(storageRef);
     }
-    
+
     // Prepare report data
     const reportData = {
       studentEmail: user.email,
@@ -2481,19 +2534,19 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
       isAnonymous,
       read: false
     };
-    
+
     // Add to Firestore
     await addDoc(collection(db, 'reports'), reportData);
-    
+
     showMessage('Report submitted successfully! We will review it shortly.');
     document.getElementById('reportForm').reset();
-    
+
     // Reset file input display
     const fileInputLabel = document.getElementById('reportAttachment').nextElementSibling;
     fileInputLabel.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Click to upload files or drag and drop';
     fileInputLabel.style.border = '1px dashed var(--medium-gray)';
     fileInputLabel.style.background = 'var(--light-gray)';
-    
+
   } catch (error) {
     console.error('Error submitting report:', error);
     showMessage('Error submitting report. Please try again.', 'error');
@@ -2507,36 +2560,36 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
   document.getElementById('markAllReadBtn').addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) return;
-    
+
     try {
       const q = query(
         collection(db, 'updates'),
         orderBy('timestamp', 'desc'),
         limit(10)
       );
-      
+
       const querySnapshot = await getDocs(q);
       const batch = [];
-      
+
       querySnapshot.forEach(doc => {
         batch.push(updateDoc(doc.ref, {
           readBy: arrayUnion(user.email)
         }));
       });
-      
+
       await Promise.all(batch);
-      
+
       // Update UI
       document.querySelectorAll('.notice-card').forEach(card => {
         card.classList.remove('unread');
         card.classList.add('read');
-        
+
         const meta = card.querySelector('.notice-meta');
         if (meta && !meta.innerHTML.includes('Read</span>')) {
           meta.innerHTML += '<span class="badge bg-success float-end">Read</span>';
         }
       });
-      
+
       document.getElementById('updateCount').style.display = 'none';
       showMessage('All updates marked as read');
     } catch (error) {
@@ -2550,15 +2603,15 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
     try {
       const noticesContainer = document.getElementById('notices');
       noticesContainer.innerHTML = '<p>Loading notices...</p>';
-      
+
       const q = query(
         collection(db, 'updates'),
         orderBy('timestamp', 'desc'),
         limit(1)
       );
-      
+
       const querySnapshot = await getDocs(q);
-      
+
       if (querySnapshot.empty) {
         noticesContainer.innerHTML = `
           <div class="notice-card">
@@ -2568,7 +2621,7 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
         `;
         return;
       }
-      
+
       const notice = querySnapshot.docs[0].data();
       let dateStr = 'unknown date';
       if (notice.timestamp) {
@@ -2580,7 +2633,7 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
           dateStr = new Date(notice.timestamp).toLocaleDateString();
         }
       }
-      
+
       noticesContainer.innerHTML = `
         <div class="notice-card">
           <h4 class="notice-title">${notice.updateTitle || 'School Notice'}</h4>
@@ -2605,41 +2658,41 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
 window.exportPDF = function() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  
+
   // Add school logo
   const logoUrl = 'https://i.postimg.cc/mZ81jqGW/In-Shot-20250227-051117557.jpg';
   const img = new Image();
   img.src = logoUrl;
-  
+
   // Wait for image to load
   img.onload = function() {
     doc.addImage(img, 'JPEG', 14, 10, 30, 30);
-    
+
     // Add header text
     doc.setFontSize(16);
     doc.setTextColor(0, 51, 102);
     doc.text('St. Mary\'s High School', 105, 20, { align: 'center' });
     doc.setFontSize(12);
     doc.text('Official Report Card', 105, 27, { align: 'center' });
-    
+
     // Add security features
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
     doc.text(`Document ID: ${generateDocumentId()}`, 14, 45);
     doc.text(`Generated: ${new Date().toLocaleString()}`, 160, 45);
-    
+
     // Add watermark
     doc.setFontSize(40);
     doc.setTextColor(200, 200, 200);
     doc.text('OFFICIAL', 40, 150, { angle: 45 });
-    
+
     // Add student info
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.text(`Name: ${document.getElementById('reportName').textContent}`, 14, 55);
     doc.text(`Term: ${document.getElementById('reportTerm').textContent} ${document.getElementById('reportYear').textContent}`, 14, 60);
     doc.text(`Comments: ${document.getElementById('reportTeacherComments').textContent}`, 14, 65);
-    
+
     // Add table
     const rows = [];
     document.querySelectorAll('#reportCardBody tr').forEach(tr => {
@@ -2651,7 +2704,7 @@ window.exportPDF = function() {
         rows.push(row);
       }
     });
-    
+
     doc.autoTable({
       head: [['Subject', 'Marks', 'Grade', 'Performance']],
       body: rows,
@@ -2664,16 +2717,16 @@ window.exportPDF = function() {
         fillColor: [240, 240, 240]
       }
     });
-    
+
     // Add security footer
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
     doc.text(`Verification: ${generateVerificationHash()}`, 14, doc.internal.pageSize.height - 10);
     doc.text('Official Document - St. Mary\'s High School', 105, doc.internal.pageSize.height - 10, { align: 'center' });
-    
+
     doc.save(`report_card_${generateDocumentId()}.pdf`);
   };
-  
+
   // Fallback if image fails to load
   img.onerror = function() {
     // Proceed without logo if image fails to load
@@ -2682,7 +2735,7 @@ window.exportPDF = function() {
     doc.text('St. Mary\'s High School', 105, 15, { align: 'center' });
     doc.setFontSize(12);
     doc.text('Official Report Card', 105, 22, { align: 'center' });
-    
+
     // Rest of the document as above...
   };
 };
@@ -2702,26 +2755,26 @@ function generateVerificationHash() {
   document.getElementById('profilePicInput').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
     const uploadProgress = document.getElementById('uploadProgress');
-    
+
     uploadProgress.style.display = 'block';
-    
+
     reader.onload = async (event) => {
       const base64Image = event.target.result;
       const user = auth.currentUser;
-      
+
       if (!user) return;
-      
+
       try {
         // Update Firestore
         await updateDoc(doc(db, 'students', user.email), {
           profilePic: base64Image
         });
-        
+
         // Update UI
         document.getElementById('profilePic').src = base64Image;
         document.getElementById('smallProfilePic').src = base64Image;
@@ -2733,7 +2786,7 @@ function generateVerificationHash() {
         uploadProgress.style.display = 'none';
       }
     };
-    
+
     reader.onprogress = (event) => {
       if (event.lengthComputable) {
         const percent = Math.round((event.loaded / event.total) * 100);
@@ -2741,7 +2794,7 @@ function generateVerificationHash() {
         progressText.textContent = `${percent}%`;
       }
     };
-    
+
     reader.readAsDataURL(file);
   });
 
@@ -2754,20 +2807,25 @@ function generateVerificationHash() {
   document.addEventListener('DOMContentLoaded', () => {
     // Show dashboard by default
     document.getElementById('dashboard').style.display = 'block';
-    
+
     // Check auth state
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is signed in
         console.log('User is signed in:', user.email);
-        
+
         // Load user data
         await loadUserData(user.email);
-        
+
         // Load initial data for dashboard
         loadDashboard();
         loadNotices();
         loadResults();
+
+        // Initialize session start time
+        if (!sessionStorage.getItem('sessionStartTime')) {
+          sessionStorage.setItem('sessionStartTime', new Date().toISOString());
+        }
       } else {
         // User is signed out
         window.location.href = '/login';
@@ -2780,10 +2838,10 @@ function generateVerificationHash() {
     try {
       const docRef = doc(db, 'students', email);
       const docSnap = await getDoc(docRef);
-      
+
       if (docSnap.exists()) {
         const userData = docSnap.data();
-        
+
         // Update UI with user data
         document.getElementById('welcomeMessage').textContent = `Welcome, ${capitalize(userData.firstname || 'Student')}`;
         document.getElementById('studentID').value = userData.studentID || 'Not Assigned';
@@ -2802,16 +2860,16 @@ function generateVerificationHash() {
         document.getElementById('additionalInfo').value = userData.additionalInfo || '';
         document.getElementById('form').value = userData.form || '';
         document.getElementById('stream').value = userData.stream || '';
-        
+
         if (userData.profilePic) {
           document.getElementById('profilePic').src = userData.profilePic;
           document.getElementById('smallProfilePic').src = userData.profilePic;
         }
-        
+
         if (userData.form && userData.stream) {
           document.getElementById('currentGrade').textContent = `${userData.form} ${userData.stream}`;
         }
-        
+
         if (userData.attendance) {
           document.getElementById('attendanceProgress').style.width = `${userData.attendance}%`;
           document.getElementById('attendanceText').textContent = `Attendance: ${userData.attendance}%`;
@@ -2829,13 +2887,13 @@ function generateVerificationHash() {
 document.getElementById('saveChangesBtn').addEventListener('click', async () => {
   const saveBtn = document.getElementById('saveChangesBtn');
   const user = auth.currentUser;
-  
+
   if (!user) return;
-  
+
   try {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> Saving...';
-    
+
     const userData = {
       firstname: document.getElementById('name').value.trim(),
       surname: document.getElementById('surname').value.trim(),
@@ -2853,15 +2911,15 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
       stream: document.getElementById('stream').value,
       lastUpdated: new Date().toISOString()
     };
-    
+
     // Validate required fields
     if (!userData.firstname || !userData.surname) {
       throw new Error('First name and surname are required');
     }
-    
+
     await setDoc(doc(db, 'students', user.email), userData, { merge: true });
     showMessage('Profile updated successfully!');
-    
+
     // Update welcome message and grade display
     document.getElementById('welcomeMessage').textContent = `Welcome, ${capitalize(userData.firstname)}`;
     if (userData.form && userData.stream) {
@@ -2879,12 +2937,11 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
       document.getElementById('changePasswordBtn').addEventListener('click', async () => {
         const user = auth.currentUser;
         if (!user) return;
-        
+
         try {
           // Check if user has password auth method
-          const { fetchSignInMethodsForEmail } = await import('/db/firebase.js');
           const methods = await fetchSignInMethodsForEmail(auth, user.email);
-          
+
           if (methods.includes('password')) {
             // User has password - send reset email
             await sendPasswordResetEmail(auth, user.email);
@@ -2913,10 +2970,9 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
 
             if (newPassword) {
               try {
-                const { linkWithCredential, EmailAuthProvider } = await import('/db/firebase.js');
                 const credential = EmailAuthProvider.credential(user.email, newPassword);
-                await linkWithCredential(user, credential);
-                
+                await user.linkWithCredential(credential); // Use user.linkWithCredential
+
                 await Swal.fire({
                   title: "Password Set Successfully!",
                   text: "You can now login with either Google or email/password.",
@@ -2946,10 +3002,10 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
             logoutTime: new Date().toISOString(),
             sessionDuration: getSessionDuration() 
           });
-          
+
           // Clear session data
           clearSession();
-          
+
           // Sign out from Firebase
           await signOut(auth);
           window.location.href = '/login';
@@ -2958,7 +3014,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           showMessage('Error signing out', 'error');
         }
       });
-      
+
       // Get session duration helper
       function getSessionDuration() {
         const startTime = sessionStorage.getItem('sessionStartTime');
@@ -2970,20 +3026,20 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
       }
 
       // ========== FEES SECTION FUNCTIONALITY ==========
-      
+
       // Term System Logic - Enhanced with Calendar-based Terms
       const TERM_DEFINITIONS = {
         1: { name: 'Term 1', months: [1, 2, 3, 4], label: 'Jan - Apr' },
         2: { name: 'Term 2', months: [5, 6, 7, 8], label: 'May - Aug' },
         3: { name: 'Term 3', months: [9, 10, 11, 12], label: 'Sept - Dec' }
       };
-      
+
       // Helper Functions for Account Activity and Device Info
       function getDeviceInfo() {
         const userAgent = navigator.userAgent;
         const platform = navigator.platform;
         const screen = window.screen;
-        
+
         return {
           userAgent: userAgent,
           deviceType: /Mobile|Android|iPhone|iPad/.test(userAgent) ? 'Mobile' : 'Desktop',
@@ -2998,7 +3054,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           language: navigator.language
         };
       }
-      
+
       function getBrowserName(userAgent) {
         if (userAgent.includes('Chrome')) return 'Chrome';
         if (userAgent.includes('Firefox')) return 'Firefox';
@@ -3006,7 +3062,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         if (userAgent.includes('Edge')) return 'Edge';
         return 'Unknown';
       }
-      
+
       function getOSName(userAgent, platform) {
         if (userAgent.includes('Windows')) return 'Windows';
         if (userAgent.includes('Mac')) return 'macOS';
@@ -3015,7 +3071,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         if (userAgent.includes('iOS')) return 'iOS';
         return platform || 'Unknown';
       }
-      
+
       // Session Management - Persistent Session ID
       function getOrCreateSessionId() {
         let sessionId = sessionStorage.getItem('studentSessionId');
@@ -3026,32 +3082,31 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         }
         return sessionId;
       }
-      
+
       // Clear session on logout
       function clearSession() {
         sessionStorage.removeItem('studentSessionId');
         sessionStorage.removeItem('sessionStartTime');
       }
-      
+
       // Generate session ID (legacy support)
       function generateSessionId() {
         return getOrCreateSessionId();
       }
-      
+
       // Track account activity
       async function trackAccountActivity(action, details = {}) {
         try {
           const user = auth.currentUser;
           if (!user) return;
-          
+
           const deviceInfo = getDeviceInfo();
           const timestamp = new Date();
-          
+
           const activityData = {
             studentEmail: user.email,
             action: action,
             timestamp: timestamp.toISOString(),
-            timestampUTC: timestamp.getTime(),
             timezone: deviceInfo.timezone,
             deviceInfo: {
               type: deviceInfo.deviceType,
@@ -3064,36 +3119,36 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
             additionalDetails: details,
             createdAt: serverTimestamp()
           };
-          
+
           // Store activity in Firebase
           await addDoc(collection(db, "accountActivity"), activityData);
-          
+
           // Also update student fees record with latest activity
           const feesRef = doc(db, 'fees', user.email);
           const feesDoc = await getDoc(feesRef);
-          
+
           if (feesDoc.exists()) {
             const currentData = feesDoc.data();
             const accountActivity = currentData.accountActivity || [];
-            
+
             // Add new activity and keep last 20 activities
             accountActivity.unshift(activityData);
             if (accountActivity.length > 20) {
               accountActivity.splice(20);
             }
-            
+
             await updateDoc(feesRef, {
               accountActivity: accountActivity,
               lastActivity: activityData,
               lastLoginAt: timestamp.toISOString()
             });
           }
-          
+
         } catch (err) {
           console.error("Error tracking account activity:", err);
         }
       }
-      
+
       // Get device icon
       function getDeviceIcon(deviceType) {
         const icons = {
@@ -3103,7 +3158,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         };
         return icons[deviceType] || 'question-circle';
       }
-      
+
       // Get payment method icon
       function getPaymentMethodIcon(method) {
         const icons = {
@@ -3115,16 +3170,16 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         };
         return icons[method] || 'money-bill';
       }
-      
+
       // Display enhanced payment history with term info
       function displayEnhancedPaymentHistory(payments, termInfo) {
         const tbody = document.getElementById('paymentHistoryBody');
-        
+
         if (payments.length > 0) {
           tbody.innerHTML = '';
-          
+
           payments.sort((a, b) => new Date(b.date) - new Date(a.date));
-          
+
           payments.forEach(payment => {
             const row = document.createElement('tr');
             const termLabel = termInfo ? `${termInfo.name} (${termInfo.label})` : `Term ${payment.term || 'N/A'}`;
@@ -3158,22 +3213,22 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           `;
         }
       }
-      
+
       // Load account activity - Enhanced
       async function loadAccountActivity(email) {
         try {
           const feesDoc = await getDoc(doc(db, 'fees', email));
-          
+
           if (feesDoc.exists()) {
             const data = feesDoc.data();
             const accountActivity = data.accountActivity || [];
-            
+
             const logContainer = document.getElementById('activityLog');
             if (!logContainer) {
               console.warn('Activity log container not found');
               return;
             }
-            
+
             if (accountActivity.length > 0) {
               logContainer.innerHTML = accountActivity
                 .sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date))
@@ -3182,7 +3237,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
                   const icon = getActivityIcon(activity.action || activity.type);
                   const description = getActivityDescription(activity.action || activity.type);
                   const deviceInfo = activity.deviceInfo || {};
-                  
+
                   return `
                     <div class="activity-item">
                       <div class="activity-icon">
@@ -3207,32 +3262,31 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           console.error('Error loading account activity:', error);
         }
       }
-      
+
       // Load full activity log for Activity section
       async function loadFullActivityLog(email) {
         try {
           const feesDoc = await getDoc(doc(db, 'fees', email));
-          
+
           let allActivities = [];
-          
+
           if (feesDoc.exists()) {
             const data = feesDoc.data();
-            
+
             // Add account activities
             allActivities = [...(data.accountActivity || [])];
-            
+
             // Add payment history as activities with full details
             if (data.paymentHistory && data.paymentHistory.length > 0) {
               data.paymentHistory.forEach(payment => {
                 // Safely convert to numbers
                 const amount = parseFloat(payment.amount) || 0;
                 const remainingBalance = parseFloat(payment.remainingBalance) || 0;
-                
+
                 allActivities.push({
                   action: 'payment_made',
                   type: 'payment_made',
                   timestamp: payment.date,
-                  date: payment.date,
                   description: `Payment of $${amount.toFixed(2)}`,
                   deviceInfo: payment.deviceInfo || {},
                   sessionId: payment.sessionId || '',
@@ -3247,7 +3301,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
                 });
               });
             }
-            
+
             // Add balance information from academic years - show ALL terms
             if (data.academicYears) {
               Object.entries(data.academicYears).forEach(([year, yearData]) => {
@@ -3257,13 +3311,12 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
                     const balance = parseFloat(termData.balance) || 0;
                     const paid = parseFloat(termData.paid) || 0;
                     const termBalance = balance - paid;
-                    
+
                     // Show all terms, not just paid ones
                     allActivities.push({
                       action: 'balance_updated',
                       type: 'balance_updated',
                       timestamp: termData.lastUpdated || new Date().toISOString(),
-                      date: termData.lastUpdated || new Date().toISOString(),
                       description: `${year} Term ${termNum} - Balance Status`,
                       deviceInfo: {},
                       additionalDetails: {
@@ -3280,13 +3333,13 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
               });
             }
           }
-          
+
           // Sort activities by timestamp
           allActivities.sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
-          
+
           window.fullActivityData = allActivities;
           displayFullActivityLog(allActivities);
-          
+
           // Update current session info
           const deviceInfo = getDeviceInfo();
           const currentSessionId = document.getElementById('currentSessionId');
@@ -3294,13 +3347,13 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           const currentDevice = document.getElementById('currentDevice');
           const currentBrowser = document.getElementById('currentBrowser');
           const currentOS = document.getElementById('currentOS');
-          
+
           if (currentSessionId) currentSessionId.textContent = getOrCreateSessionId();
           if (currentLoginTime) currentLoginTime.textContent = sessionStorage.getItem('sessionStartTime') || new Date().toLocaleString();
           if (currentDevice) currentDevice.textContent = deviceInfo.deviceType;
           if (currentBrowser) currentBrowser.textContent = deviceInfo.browser;
           if (currentOS) currentOS.textContent = deviceInfo.os;
-          
+
         } catch (error) {
           console.error('Error loading full activity log:', error);
           const logContainer = document.getElementById('fullActivityLog');
@@ -3309,16 +3362,16 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           }
         }
       }
-      
+
       // Display full activity log
       function displayFullActivityLog(activities) {
         const logContainer = document.getElementById('fullActivityLog');
-        
+
         if (activities.length === 0) {
           logContainer.innerHTML = '<p class="text-center">No activity recorded</p>';
           return;
         }
-        
+
         logContainer.innerHTML = activities.map(activity => {
           const icon = getActivityIcon(activity.action || activity.type);
           const description = activity.description || getActivityDescription(activity.action || activity.type);
@@ -3326,7 +3379,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           const details = activity.additionalDetails || {};
           const isPayment = (activity.action || activity.type) === 'payment_made';
           const isBalance = (activity.action || activity.type) === 'balance_updated';
-          
+
           return `
             <div class="activity-item" data-action="${activity.action || activity.type}" style="border-left: 4px solid ${isPayment ? 'var(--success)' : isBalance ? 'var(--warning)' : 'var(--primary)'}; margin-bottom: 15px; padding-left: 15px;">
               <div class="activity-icon">
@@ -3359,14 +3412,14 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           `;
         }).join('');
       }
-      
+
       // Filter activity log
       window.filterActivityLog = function(type, button) {
         if (!window.fullActivityData) {
           console.warn('No activity data loaded yet');
           return;
         }
-        
+
         // Update button states
         if (button) {
           document.querySelectorAll('.activity-filter-btn').forEach(btn => {
@@ -3376,9 +3429,9 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           button.classList.remove('btn-outline');
           button.classList.add('btn-secondary', 'active');
         }
-        
+
         let filtered = window.fullActivityData;
-        
+
         if (type !== 'all') {
           filtered = window.fullActivityData.filter(activity => {
             const action = (activity.action || activity.type || '').toLowerCase();
@@ -3395,10 +3448,10 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
             return false;
           });
         }
-        
+
         displayFullActivityLog(filtered);
       };
-      
+
       // Get activity icon based on action type
       function getActivityIcon(action) {
         const icons = {
@@ -3417,7 +3470,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         };
         return icons[action] || icons['default'];
       }
-      
+
       // Get activity description based on action type
       function getActivityDescription(action) {
         const descriptions = {
@@ -3436,17 +3489,17 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         };
         return descriptions[action] || descriptions['default'];
       }
-      
+
       // Enhanced scholarship-aware results access check
       async function checkResultsAccess(email, studentData) {
         try {
           // Check scholarship status from fees record
           const feesDoc = await getDoc(doc(db, 'fees', email));
-          
+
           if (feesDoc.exists()) {
             const feesData = feesDoc.data();
             const scholarshipInfo = window.studentScholarshipInfo || {};
-            
+
             // Full scholarship students can always access results
             if (scholarshipInfo.hasScholarship && scholarshipInfo.canAccessResultsWithoutPayment) {
               return {
@@ -3455,19 +3508,19 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
                 isScholarship: true
               };
             }
-            
+
             // Check if scholarship covers the current term fees
             const currentTerm = getCurrentTerm();
             const currentYear = new Date().getFullYear();
             const scholarshipAmount = scholarshipInfo.scholarshipAmount || 0;
-            
+
             if (feesData.academicYears && feesData.academicYears[currentYear]) {
               const yearData = feesData.academicYears[currentYear];
               const termData = yearData.terms[currentTerm.number];
-              
+
               if (termData) {
                 const termBalance = termData.balance - termData.paid;
-                
+
                 // If scholarship covers this term's fees
                 if (scholarshipAmount >= termBalance) {
                   return {
@@ -3479,7 +3532,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
               }
             }
           }
-          
+
           // Check traditional fee payment status
           if (studentData.feesPaid === true || (studentData.feesBalance && studentData.feesBalance <= 0)) {
             return {
@@ -3488,14 +3541,14 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
               isScholarship: false
             };
           }
-          
+
           // Access denied - outstanding balance
           return {
             allowed: false,
             reason: `You cannot view your results as you have a pending fees balance of $${studentData.feesBalance || 0} for ${studentData.year || 'N/A'} ${studentData.term || 'N/A'}. Please settle the outstanding amount to access your results.`,
             isScholarship: false
           };
-          
+
         } catch (error) {
           console.error('Error checking results access:', error);
           return {
@@ -3505,11 +3558,11 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           };
         }
       }
-      
+
       // Auto-detect current term based on system date
       function getCurrentTerm() {
         const currentMonth = new Date().getMonth() + 1; // getMonth() returns 0-11
-        
+
         for (const [termNumber, termInfo] of Object.entries(TERM_DEFINITIONS)) {
           if (termInfo.months.includes(currentMonth)) {
             return {
@@ -3522,59 +3575,59 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         }
         return { number: 1, name: 'Term 1', label: 'Jan - Apr', months: [1, 2, 3, 4] };
       }
-      
+
       // Load fees section data - Enhanced
       window.loadFees = async function() {
         const user = auth.currentUser;
         if (!user) return;
-        
+
         try {
           // Track account activity
           await trackAccountActivity('fees_section_viewed', { studentEmail: user.email });
-          
+
           // Load student data to get current form
           const studentDoc = await getDoc(doc(db, 'students', user.email));
           let userData = {};
-          
+
           if (studentDoc.exists()) {
             userData = studentDoc.data();
           }
-          
+
           // Initialize fees data if it doesn't exist
           await initializeFeesData(user.email, userData.form);
-          
+
           // Load financial status with admin sync
           await loadFinancialStatusWithAdminSync(user.email, userData);
-          
+
           // Load current balance and academic progress with term awareness
           await loadBalanceAndProgressWithTerms(user.email, userData.form);
-          
+
           // Setup enhanced term navigation
           setupEnhancedTermNavigation(userData.form);
-          
+
           // Load payment history for current term
           await loadPaymentHistoryWithTermFilter(user.email);
-          
+
           // Load account activity
           await loadAccountActivity(user.email);
-          
+
         } catch (error) {
           console.error('Error loading fees:', error);
           showMessage('Error loading fees data', 'error');
         }
       };
-      
+
       // Initialize fees data structure - Enhanced
       async function initializeFeesData(email, form) {
         try {
           const feesRef = doc(db, 'fees', email);
           const feesDoc = await getDoc(feesRef);
-          
+
           if (!feesDoc.exists()) {
             const currentYear = new Date().getFullYear();
             const currentTerm = getCurrentTerm();
-            const academicYears = getAcademicYearsWithTerms(form, currentYear);
-            
+            const academicYears = getAcademicYears(form, currentYear); // Use the corrected getAcademicYears
+
             const initialFeesData = {
               paymentMethod: 'Self-Paid',
               organization: 'N/A',
@@ -3589,7 +3642,6 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
                 type: 'account_created',
                 action: 'account_created',
                 date: new Date().toISOString(),
-                timestamp: new Date().toISOString(),
                 description: 'Student account created',
                 deviceInfo: getDeviceInfo(),
                 sessionId: generateSessionId()
@@ -3597,9 +3649,9 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
               createdAt: new Date().toISOString(),
               lastLoginAt: new Date().toISOString()
             };
-            
+
             await setDoc(feesRef, initialFeesData);
-            
+
             // Track account creation
             await trackAccountActivity('account_created', { studentEmail: email });
           }
@@ -3607,27 +3659,27 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           console.error('Error initializing fees data:', error);
         }
       }
-      
+
       // Get academic years based on form
       function getAcademicYears(form, currentYear) {
         const years = {};
-        
+
         if (form) {
           const formNumber = parseInt(form.replace('Form ', ''));
-          
+
           if (formNumber >= 1 && formNumber <= 4) {
             // O-level: Forms 1-4 = Years 1-4
             for (let i = 1; i <= 4; i++) {
-              const yearLabel = formNumber + i - 1 <= 4 ? `Year ${formNumber + i - 1}` : null;
-              if (yearLabel && formNumber + i - 1 <= 4) {
+              const yearNum = formNumber + i - 1;
+              if (yearNum >= 1 && yearNum <= 4) {
                 years[currentYear + i - 1] = {
                   type: 'O-Level',
-                  year: formNumber + i - 1,
-                  form: `Form ${formNumber + i - 1}`,
+                  year: yearNum,
+                  form: `Form ${yearNum}`,
                   terms: {
-                    1: { balance: 1500, paid: 0, status: 'unpaid' },
-                    2: { balance: 1500, paid: 0, status: 'unpaid' },
-                    3: { balance: 1500, paid: 0, status: 'unpaid' }
+                    1: { balance: 1500, paid: 0, status: 'unpaid', lastUpdated: new Date().toISOString() },
+                    2: { balance: 1500, paid: 0, status: 'unpaid', lastUpdated: new Date().toISOString() },
+                    3: { balance: 1500, paid: 0, status: 'unpaid', lastUpdated: new Date().toISOString() }
                   }
                 };
               }
@@ -3635,41 +3687,42 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           } else if (formNumber >= 5 && formNumber <= 6) {
             // A-level: Forms 5-6 = Years 1-2
             for (let i = 1; i <= 2; i++) {
-              const yearNumber = formNumber === 5 ? 1 : 2;
-              years[currentYear + i - 1] = {
+              const yearNum = formNumber === 5 ? 1 : 2; // Form 5 is Year 1, Form 6 is Year 2
+              const yearKey = currentYear + i - 1; // Actual calendar year
+              years[yearKey] = {
                 type: 'A-Level',
-                year: yearNumber + i - 1,
+                year: yearNum + i - 1, // Academic year number (e.g., 1 or 2)
                 form: `Form ${formNumber + i - 1}`,
                 terms: {
-                  1: { balance: 2000, paid: 0, status: 'unpaid' },
-                  2: { balance: 2000, paid: 0, status: 'unpaid' },
-                  3: { balance: 2000, paid: 0, status: 'unpaid' }
+                  1: { balance: 2000, paid: 0, status: 'unpaid', lastUpdated: new Date().toISOString() },
+                  2: { balance: 2000, paid: 0, status: 'unpaid', lastUpdated: new Date().toISOString() },
+                  3: { balance: 2000, paid: 0, status: 'unpaid', lastUpdated: new Date().toISOString() }
                 }
               };
             }
           }
         }
-        
         return years;
       }
-      
+
       // Load financial status with admin sync - Enhanced
       async function loadFinancialStatusWithAdminSync(email, userData) {
         try {
           const feesDoc = await getDoc(doc(db, 'fees', email));
-          
+
           if (feesDoc.exists()) {
             const data = feesDoc.data();
-            
+
             // Update payment method
             document.getElementById('paymentMethod').textContent = data.paymentMethod || 'Self-Paid';
-            
+            document.getElementById('organization').textContent = data.organization || 'N/A';
+
             // Enhanced scholarship status with admin sync
             const scholarshipElement = document.getElementById('scholarshipStatus');
             const scholarshipStatus = data.scholarshipStatus || 'No Scholarship';
             const scholarshipAmount = data.scholarshipAmount || 0;
             const isFullScholarship = data.scholarship === true || scholarshipAmount > 0;
-            
+
             // Update scholarship display
             if (isFullScholarship) {
               if (scholarshipAmount > 0) {
@@ -3685,7 +3738,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
               scholarshipElement.textContent = 'No Scholarship';
               scholarshipElement.className = 'status-badge status-notset';
             }
-            
+
             // Store scholarship info globally for results access
             window.studentScholarshipInfo = {
               hasScholarship: isFullScholarship,
@@ -3698,19 +3751,19 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           console.error('Error loading financial status:', error);
         }
       }
-      
+
       // Load balance and academic progress with terms - Enhanced
       async function loadBalanceAndProgressWithTerms(email, form) {
         try {
           const feesDoc = await getDoc(doc(db, 'fees', email));
-          
+
           if (feesDoc.exists()) {
             const data = feesDoc.data();
             const currentYear = new Date().getFullYear();
             const currentTerm = getCurrentTerm();
             let totalBalance = 0;
             let currentTermBalance = 0;
-            
+
             // Calculate total balance across all terms and current term balance
             if (data.academicYears && data.academicYears[currentYear]) {
               const yearData = data.academicYears[currentYear];
@@ -3721,14 +3774,14 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
                 }
               });
             }
-            
+
             // Apply scholarship logic for balance calculation
             const scholarshipInfo = window.studentScholarshipInfo || {};
             const effectiveBalance = Math.max(0, totalBalance - (scholarshipInfo.scholarshipAmount || 0));
-            
+
             document.getElementById('currentBalance').textContent = `$${effectiveBalance.toFixed(2)}`;
             document.getElementById('currentTerm').textContent = `${currentTerm.name} (${currentTerm.label}), ${currentYear}`;
-            
+
             // Update payment status with scholarship awareness
             const statusElement = document.getElementById('paymentStatus');
             if (scholarshipInfo.hasScholarship && scholarshipInfo.scholarshipAmount >= totalBalance) {
@@ -3741,20 +3794,20 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
               statusElement.textContent = `Balance Due`;
               statusElement.className = 'status-badge status-unpaid';
             }
-            
+
             // Academic progress with term awareness
             if (form) {
               const formNumber = parseInt(form.replace('Form ', ''));
               const isALevel = formNumber >= 5;
-              
+
               document.getElementById('currentYear').textContent = isALevel ? 
                 `A-Level Year ${formNumber - 4}` : `Year ${formNumber}`;
-              
+
               const totalYears = isALevel ? 2 : 4;
               const currentAcademicYear = isALevel ? formNumber - 4 : formNumber;
-              
+
               document.getElementById('yearsRemaining').textContent = totalYears - currentAcademicYear;
-              
+
               // Enhanced terms calculation
               const completedTerms = Math.max(0, (currentAcademicYear - 1) * 3 + (currentTerm.number - 1));
               document.getElementById('termsCompleted').textContent = `${completedTerms}/${totalYears * 3}`;
@@ -3764,20 +3817,20 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           console.error('Error loading balance and progress:', error);
         }
       }
-      
+
       // Setup enhanced term navigation
       function setupEnhancedTermNavigation(form) {
         const yearTabs = document.querySelectorAll('.year-tab');
         const termTabs = document.querySelectorAll('.term-tab');
         const currentTerm = getCurrentTerm();
-        
+
         // Update term tab labels with calendar periods
         termTabs.forEach(tab => {
           const termNumber = parseInt(tab.dataset.term);
           const termInfo = TERM_DEFINITIONS[termNumber];
           if (termInfo) {
             tab.innerHTML = `<i class="fas fa-calendar-alt"></i> ${termInfo.name}<br><small>${termInfo.label}</small>`;
-            
+
             // Highlight current term
             if (termNumber === currentTerm.number) {
               tab.classList.add('current-term');
@@ -3785,7 +3838,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
             }
           }
         });
-        
+
         // Year tab navigation
         yearTabs.forEach(tab => {
           tab.addEventListener('click', () => {
@@ -3794,35 +3847,35 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
             loadPaymentHistoryForYear(tab.dataset.year);
           });
         });
-        
+
         // Enhanced term tab navigation with activity tracking
         termTabs.forEach(tab => {
           tab.addEventListener('click', async () => {
             termTabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            
+
             // Track term view activity
             await trackAccountActivity('term_viewed', {
               termNumber: tab.dataset.term,
               termName: TERM_DEFINITIONS[tab.dataset.term]?.name
             });
-            
+
             loadPaymentHistoryForTerm(tab.dataset.term);
           });
         });
-        
+
         // Auto-select current term tab
         const currentTermTab = document.querySelector(`[data-term="${currentTerm.number}"]`);
         if (currentTermTab) {
           currentTermTab.click();
         }
       }
-      
+
       // Load payment history for specific year
       async function loadPaymentHistoryForYear(year) {
         const user = auth.currentUser;
         if (!user) return;
-        
+
         try {
           const feesDoc = await getDoc(doc(db, 'fees', user.email));
           if (feesDoc.exists()) {
@@ -3836,43 +3889,42 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           console.error('Error loading year payment history:', error);
         }
       }
-      
+
       // Load payment history with term filter - Enhanced
       async function loadPaymentHistoryWithTermFilter(email) {
         const user = auth.currentUser;
         if (!user) return;
-        
+
         try {
           const feesDoc = await getDoc(doc(db, 'fees', email));
           if (feesDoc.exists()) {
             const data = feesDoc.data();
             const currentTerm = getCurrentTerm();
-            
+
             // Filter for current term by default
             const filteredHistory = data.paymentHistory?.filter(payment => {
-              return payment.term === currentTerm.number.toString() || 
-                     payment.term === currentTerm.number;
+              return payment.term == currentTerm.number || payment.term == currentTerm.number.toString();
             }) || [];
-            
+
             displayEnhancedPaymentHistory(filteredHistory, currentTerm);
           }
         } catch (error) {
           console.error('Error loading payment history:', error);
         }
       }
-      
+
       // Load payment history for specific term
       async function loadPaymentHistoryForTerm(term) {
         const user = auth.currentUser;
         if (!user) return;
-        
+
         try {
           const feesDoc = await getDoc(doc(db, 'fees', user.email));
           if (feesDoc.exists()) {
             const data = feesDoc.data();
             const termInfo = TERM_DEFINITIONS[term];
             const filteredHistory = data.paymentHistory?.filter(payment => 
-              payment.term === term || payment.term === term.toString()
+              payment.term == term || payment.term == term.toString()
             ) || [];
             displayEnhancedPaymentHistory(filteredHistory, termInfo);
           }
@@ -3880,16 +3932,16 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           console.error('Error loading term payment history:', error);
         }
       }
-      
+
       // Display payment history helper
       function displayPaymentHistory(payments) {
         const tbody = document.getElementById('paymentHistoryBody');
-        
+
         if (payments.length > 0) {
           tbody.innerHTML = '';
-          
+
           payments.sort((a, b) => new Date(b.date) - new Date(a.date));
-          
+
           payments.forEach(payment => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -3915,21 +3967,21 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           `;
         }
       }
-      
+
       // Load payment history
       async function loadPaymentHistory(email) {
         try {
           const feesDoc = await getDoc(doc(db, 'fees', email));
           const tbody = document.getElementById('paymentHistoryBody');
-          
+
           if (feesDoc.exists()) {
             const data = feesDoc.data();
-            
+
             if (data.paymentHistory && data.paymentHistory.length > 0) {
               tbody.innerHTML = '';
-              
+
               data.paymentHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-              
+
               data.paymentHistory.forEach(payment => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -3959,27 +4011,27 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           console.error('Error loading payment history:', error);
         }
       }
-      
+
       // Load activity log
       async function loadActivityLog(email) {
         try {
           const feesDoc = await getDoc(doc(db, 'fees', email));
           const logContainer = document.getElementById('activityLog');
-          
+
           if (feesDoc.exists()) {
             const data = feesDoc.data();
-            
+
             if (data.activityLog && data.activityLog.length > 0) {
               logContainer.innerHTML = '';
-              
+
               data.activityLog.sort((a, b) => new Date(b.date) - new Date(a.date));
-              
+
               data.activityLog.forEach(activity => {
                 const item = document.createElement('div');
                 item.className = 'activity-item';
-                
+
                 const iconClass = getActivityIcon(activity.type);
-                
+
                 item.innerHTML = `
                   <div class="activity-icon">
                     <i class="${iconClass}"></i>
@@ -3989,7 +4041,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
                     <p class="activity-meta">${activity.description} - ${formatDateTime(activity.date)}</p>
                   </div>
                 `;
-                
+
                 logContainer.appendChild(item);
               });
             }
@@ -3998,19 +4050,19 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           console.error('Error loading activity log:', error);
         }
       }
-      
+
       // Helper functions
       function formatDateTime(dateString) {
         const date = new Date(dateString);
         return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       }
-      
-      
+
+
       // Export payment history function
       window.exportPaymentHistory = function() {
         showMessage('Payment history export feature coming soon!', 'info');
       };
-      
+
       // Download receipt function
       window.downloadReceipt = function(paymentId) {
         showMessage('Receipt download feature coming soon!', 'info');
@@ -4019,4 +4071,3 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
     </script>
   </body>
 </html>
-        
