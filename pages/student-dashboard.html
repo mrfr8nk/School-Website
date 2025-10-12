@@ -284,6 +284,91 @@
         margin-right: var(--space-sm);
       }
 
+      /* Button Loading State */
+      .btn-loading {
+        pointer-events: none;
+        opacity: 0.8;
+      }
+
+      /* Smart Notification Banner Styles */
+      .notification-banner {
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-md);
+        animation: slideInDown 0.5s ease;
+        border-left: 5px solid;
+      }
+
+      .notification-banner.info {
+        background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(23, 162, 184, 0.05));
+        border-left-color: var(--info);
+      }
+
+      .notification-banner.warning {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+        border-left-color: var(--warning);
+      }
+
+      .notification-banner.success {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+        border-left-color: var(--success);
+      }
+
+      .notification-banner.danger {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+        border-left-color: var(--danger);
+      }
+
+      .notification-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .notification-icon {
+        font-size: 2rem;
+      }
+
+      .notification-banner.info .notification-icon { color: var(--info); }
+      .notification-banner.warning .notification-icon { color: var(--warning); }
+      .notification-banner.success .notification-icon { color: var(--success); }
+      .notification-banner.danger .notification-icon { color: var(--danger); }
+
+      .notification-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .notification-body {
+        margin-left: 3rem;
+      }
+
+      .notification-body p {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+      }
+
+      .notification-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      @keyframes slideInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       /* ========== Layout Components ========== */
       /* Header */
       .header {
@@ -1105,6 +1190,9 @@
             <p>Your personalized dashboard with all important information</p>
           </div>
 
+          <!-- Smart Notification Banner -->
+          <div id="smartNotificationBanner"></div>
+
           <div class="dashboard-grid">
             <!-- Student ID Card -->
             <div class="card fade-in-up">
@@ -1852,7 +1940,7 @@
   const overlay = document.getElementById('overlay');
   const mainContent = document.getElementById('mainContent');
   const themeToggle = document.getElementById('themeToggle');
-  const sections = document.querySelectorAll('section');
+  const sections = document.querySelectorAll('.section');
   const navLinks = document.querySelectorAll('.sidebar-link');
   const quickLinks = document.querySelectorAll('.quick-link');
 
@@ -2011,7 +2099,218 @@
 
   // Dashboard Functions
   async function loadDashboard() {
-    // Dashboard content is now handled by other sections
+    // Display smart notifications based on student status
+    await displaySmartNotifications();
+  }
+
+  // Smart Notification System
+  async function displaySmartNotifications() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      const studentRef = doc(db, 'students', user.email);
+      const feesRef = doc(db, 'fees', user.email);
+
+      const [studentDoc, feesDoc] = await Promise.all([
+        getDoc(studentRef),
+        getDoc(feesRef)
+      ]);
+
+      const banner = document.getElementById('smartNotificationBanner');
+
+      if (!studentDoc.exists()) {
+        banner.innerHTML = '';
+        banner.style.display = 'none';
+        return;
+      }
+
+      const studentData = studentDoc.data();
+      const feesData = feesDoc.exists() ? feesDoc.data() : null;
+
+      // Determine student status and show appropriate notification
+      const notification = await determineNotification(studentData, feesData);
+
+      if (notification) {
+        banner.innerHTML = notification.html;
+        banner.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+      }
+    } catch (error) {
+      console.error('Error displaying smart notifications:', error);
+    }
+  }
+
+  // Determine appropriate notification based on student status
+  async function determineNotification(studentData, feesData) {
+    const isNewStudent = !studentData.profileCompleted || !studentData.form || !studentData.stream;
+    const currentYear = new Date().getFullYear();
+    const currentTerm = getCurrentTerm();
+
+    // Check fees status
+    let feesBalance = 0;
+    let hasScholarship = false;
+    let scholarshipAmount = 0;
+
+    if (feesData) {
+      hasScholarship = feesData.scholarship === true || (feesData.scholarshipAmount > 0);
+      scholarshipAmount = feesData.scholarshipAmount || 0;
+
+      // Calculate current balance
+      if (feesData.academicYears && feesData.academicYears[currentYear]) {
+        const yearData = feesData.academicYears[currentYear];
+        const termData = yearData.terms[currentTerm.number];
+        if (termData) {
+          feesBalance = Math.max(0, (termData.balance - termData.paid) - scholarshipAmount);
+        }
+      }
+    }
+
+    const hasMarks = studentData.marks && Object.keys(studentData.marks).length > 0;
+    const canAccessResults = hasScholarship || feesBalance === 0;
+
+    // Priority 1: New Student Welcome
+    if (isNewStudent) {
+      return {
+        html: `
+          <div class="notification-banner info">
+            <div class="notification-header">
+              <i class="fas fa-user-graduate notification-icon"></i>
+              <h3 class="notification-title">Welcome to St. Mary's High School! 🎓</h3>
+            </div>
+            <div class="notification-body">
+              <p><strong>Hello ${capitalize(studentData.firstname || 'Student')}!</strong></p>
+              <p>We're excited to have you join our learning community. To get started:</p>
+              <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                <li>✓ Complete your profile information</li>
+                <li>✓ Review your class schedule</li>
+                <li>✓ Check the school calendar for important dates</li>
+                <li>✓ Explore our academic programs and resources</li>
+              </ul>
+              <div class="notification-actions">
+                <a href="#profile" class="btn btn-primary btn-sm" onclick="navigateTo('profile')">
+                  <i class="fas fa-edit"></i> Complete Profile
+                </a>
+                <a href="/schoolview" class="btn btn-outline btn-sm">
+                  <i class="fas fa-school"></i> Tour Campus
+                </a>
+              </div>
+            </div>
+          </div>
+        `
+      };
+    }
+
+    // Priority 2: Outstanding Fees Balance
+    if (feesBalance > 0 && !hasScholarship) {
+      return {
+        html: `
+          <div class="notification-banner warning">
+            <div class="notification-header">
+              <i class="fas fa-exclamation-triangle notification-icon"></i>
+              <h3 class="notification-title">Fees Balance Pending</h3>
+            </div>
+            <div class="notification-body">
+              <p><strong>Outstanding Balance: $${feesBalance.toFixed(2)}</strong></p>
+              <p>You have a pending fees balance for <strong>${currentYear} ${currentTerm.name}</strong>. Please settle your fees to:</p>
+              <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                <li>✓ Access your academic results</li>
+                <li>✓ Download report cards</li>
+                <li>✓ Participate in school activities</li>
+              </ul>
+              <p style="margin-top: 0.75rem; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> Contact the bursar's office for payment arrangements.
+              </p>
+              <div class="notification-actions">
+                <a href="#fees" class="btn btn-primary btn-sm" onclick="navigateTo('fees')">
+                  <i class="fas fa-money-bill-wave"></i> View Fees Details
+                </a>
+                <a href="/contact" class="btn btn-outline btn-sm">
+                  <i class="fas fa-envelope"></i> Contact Office
+                </a>
+              </div>
+            </div>
+          </div>
+        `
+      };
+    }
+
+    // Priority 3: Scholarship Student
+    if (hasScholarship) {
+      return {
+        html: `
+          <div class="notification-banner success">
+            <div class="notification-header">
+              <i class="fas fa-award notification-icon"></i>
+              <h3 class="notification-title">Scholarship Active 🌟</h3>
+            </div>
+            <div class="notification-body">
+              <p><strong>Congratulations ${capitalize(studentData.firstname)}!</strong></p>
+              <p>Your scholarship of <strong>$${scholarshipAmount.toFixed(2)}</strong> has been applied to your account.</p>
+              <p>You have full access to:</p>
+              <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                <li>✓ Academic results and report cards</li>
+                <li>✓ All school resources and facilities</li>
+                <li>✓ Extracurricular activities</li>
+              </ul>
+              <p style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--success);">
+                <i class="fas fa-lightbulb"></i> Keep up the excellent work to maintain your scholarship status!
+              </p>
+            </div>
+          </div>
+        `
+      };
+    }
+
+    // Priority 4: Results Available
+    if (canAccessResults && hasMarks) {
+      return {
+        html: `
+          <div class="notification-banner success">
+            <div class="notification-header">
+              <i class="fas fa-chart-line notification-icon"></i>
+              <h3 class="notification-title">Results Available! 📊</h3>
+            </div>
+            <div class="notification-body">
+              <p><strong>Great news ${capitalize(studentData.firstname)}!</strong></p>
+              <p>Your academic results for <strong>${currentYear} ${currentTerm.name}</strong> are now available for viewing.</p>
+              <div class="notification-actions">
+                <a href="#results" class="btn btn-primary btn-sm" onclick="navigateTo('results')">
+                  <i class="fas fa-file-alt"></i> View Results
+                </a>
+                <a href="#results" class="btn btn-outline btn-sm" onclick="navigateTo('results'); setTimeout(() => exportPDF(), 500)">
+                  <i class="fas fa-download"></i> Download Report
+                </a>
+              </div>
+            </div>
+          </div>
+        `
+      };
+    }
+
+    // Priority 5: Account in Good Standing
+    if (canAccessResults && !hasMarks) {
+      return {
+        html: `
+          <div class="notification-banner info">
+            <div class="notification-header">
+              <i class="fas fa-check-circle notification-icon"></i>
+              <h3 class="notification-title">Account Active ✓</h3>
+            </div>
+            <div class="notification-body">
+              <p><strong>Welcome back ${capitalize(studentData.firstname)}!</strong></p>
+              <p>Your account is in good standing. Your results will be available once they are published by your teachers.</p>
+              <p style="margin-top: 0.75rem; font-size: 0.9rem;">
+                <i class="fas fa-bell"></i> You'll be notified when new results are posted.
+              </p>
+            </div>
+          </div>
+        `
+      };
+    }
+
+    return null;
   }
 
   // Profile Functions
@@ -2210,7 +2509,7 @@
       // Update overall performance chart
       updateOverallPerformanceChart(performanceRecords);
 
-      // Show analytics message
+      // Show performance analytics message
       showPerformanceAnalytics(performanceRecords);
     } catch (error) {
       console.error('Error loading performance history:', error);
@@ -2473,8 +2772,8 @@ document.getElementById('reportAttachment').addEventListener('change', function(
     fileInputLabel.style.background = "rgba(214, 158, 46, 0.1)";
   } else {
     fileInputLabel.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Click to upload files or drag and drop';
-    fileInputLabel.style.border = "1px dashed var(--medium-gray)";
-    fileInputLabel.style.background = "var(--light-gray)";
+    fileInputLabel.style.border = '1px dashed var(--medium-gray)';
+    fileInputLabel.style.background = 'var(--light-gray)';
   }
 });
 
@@ -2624,7 +2923,7 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
 
       const notice = querySnapshot.docs[0].data();
       let dateStr = 'No date available';
-      
+
       if (notice.timestamp) {
         try {
           // Handle Firestore Timestamp object
@@ -3935,7 +4234,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         if (!user) return;
 
         try {
-          const feesDoc = await getDoc(doc(db, 'fees', email));
+          const feesDoc = await getDoc(doc(db, 'fees', user.email));
           if (feesDoc.exists()) {
             const data = feesDoc.data();
             const currentTerm = getCurrentTerm();
