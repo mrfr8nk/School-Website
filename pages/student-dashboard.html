@@ -3335,7 +3335,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
       // Logout with session tracking
       document.getElementById('logoutBtn').addEventListener('click', async () => {
         try {
-          // Track logout activity with current session
+          // Track account activity
           await trackAccountActivity('logout', { 
             logoutTime: new Date().toISOString(),
             sessionDuration: getSessionDuration() 
@@ -3828,7 +3828,7 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         return descriptions[action] || descriptions['default'];
       }
 
-      // Enhanced scholarship-aware results access check
+      // Enhanced scholarship-aware results access check synced with fees.html balance
       async function checkResultsAccess(email, studentData) {
         try {
           // Check scholarship status from fees record
@@ -3837,9 +3837,32 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
           if (feesDoc.exists()) {
             const feesData = feesDoc.data();
             const scholarshipInfo = window.studentScholarshipInfo || {};
+            const currentTerm = getCurrentTerm();
+            const currentYear = new Date().getFullYear();
+
+            // Calculate actual balance using the same logic as fees.html
+            let totalBalance = 0;
+            let totalPaid = 0;
+            let totalFees = 0;
+
+            if (feesData.academicYears && feesData.academicYears[currentYear]) {
+              const yearData = feesData.academicYears[currentYear];
+
+              // Calculate total fees and paid amounts
+              Object.entries(yearData.terms).forEach(([termNum, termData]) => {
+                totalFees += termData.balance || 0;
+                totalPaid += termData.paid || 0;
+              });
+
+              totalBalance = totalFees - totalPaid;
+            }
+
+            // Apply scholarship amount to balance
+            const scholarshipAmount = scholarshipInfo.scholarshipAmount || 0;
+            const effectiveBalance = Math.max(0, totalBalance - scholarshipAmount);
 
             // Full scholarship students can always access results
-            if (scholarshipInfo.hasScholarship && scholarshipInfo.canAccessResultsWithoutPayment) {
+            if (scholarshipInfo.hasScholarship && scholarshipAmount >= totalFees) {
               return {
                 allowed: true,
                 reason: 'Access granted - Full scholarship student',
@@ -3847,32 +3870,28 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
               };
             }
 
-            // Check if scholarship covers the current term fees
-            const currentTerm = getCurrentTerm();
-            const currentYear = new Date().getFullYear();
-            const scholarshipAmount = scholarshipInfo.scholarshipAmount || 0;
+            // If effective balance is zero or negative (fully paid)
+            if (effectiveBalance <= 0) {
+              return {
+                allowed: true,
+                reason: 'Access granted - Fees paid in full',
+                isScholarship: scholarshipAmount > 0
+              };
+            }
 
-            if (feesData.academicYears && feesData.academicYears[currentYear]) {
-              const yearData = feesData.academicYears[currentYear];
-              const termData = yearData.terms[currentTerm.number];
-
-              if (termData) {
-                const termBalance = termData.balance - termData.paid;
-
-                // If scholarship covers this term's fees
-                if (scholarshipAmount >= termBalance) {
-                  return {
-                    allowed: true,
-                    reason: 'Access granted - Scholarship covers current term fees',
-                    isScholarship: true
-                  };
-                }
-              }
+            // If there's a remaining balance
+            if (effectiveBalance > 0) {
+              const termInfo = currentTerm ? `${currentYear} ${currentTerm.name}` : 'current term';
+              return {
+                allowed: false,
+                reason: `You cannot view your results as you have a pending fees balance of $${effectiveBalance.toFixed(2)} for ${termInfo}. Please settle the outstanding amount to access your results.`,
+                isScholarship: false
+              };
             }
           }
 
-          // Check traditional fee payment status
-          if (studentData.feesPaid === true || (studentData.feesBalance && studentData.feesBalance <= 0)) {
+          // Fallback: Check traditional fee payment status from student data
+          if (studentData.feesPaid === true) {
             return {
               allowed: true,
               reason: 'Access granted - Fees paid in full',
@@ -3880,10 +3899,10 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
             };
           }
 
-          // Access denied - outstanding balance
+          // Access denied - no fees record found or balance exists
           return {
             allowed: false,
-            reason: `You cannot view your results as you have a pending fees balance of $${studentData.feesBalance || 0} for ${studentData.year || 'N/A'} ${studentData.term || 'N/A'}. Please settle the outstanding amount to access your results.`,
+            reason: 'Unable to verify payment status. Please contact administration to check your fees balance.',
             isScholarship: false
           };
 
@@ -3919,40 +3938,35 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         const user = auth.currentUser;
         if (!user) return;
 
-        try {
-          // Track account activity
-          await trackAccountActivity('fees_section_viewed', { studentEmail: user.email });
+        // Track account activity
+        await trackAccountActivity('fees_section_viewed', { studentEmail: user.email });
 
-          // Load student data to get current form
-          const studentDoc = await getDoc(doc(db, 'students', user.email));
-          let userData = {};
+        // Load student data to get current form
+        const studentDoc = await getDoc(doc(db, 'students', user.email));
+        let userData = {};
 
-          if (studentDoc.exists()) {
-            userData = studentDoc.data();
-          }
-
-          // Initialize fees data if it doesn't exist
-          await initializeFeesData(user.email, userData.form);
-
-          // Load financial status with admin sync
-          await loadFinancialStatusWithAdminSync(user.email, userData);
-
-          // Load current balance and academic progress with term awareness
-          await loadBalanceAndProgressWithTerms(user.email, userData.form);
-
-          // Setup enhanced term navigation
-          setupEnhancedTermNavigation(userData.form);
-
-          // Load payment history for current term
-          await loadPaymentHistoryWithTermFilter(user.email);
-
-          // Load account activity
-          await loadAccountActivity(user.email);
-
-        } catch (error) {
-          console.error('Error loading fees:', error);
-          showMessage('Error loading fees data', 'error');
+        if (studentDoc.exists()) {
+          userData = studentDoc.data();
         }
+
+        // Initialize fees data if it doesn't exist
+        await initializeFeesData(user.email, userData.form);
+
+        // Load financial status with admin sync
+        await loadFinancialStatusWithAdminSync(user.email, userData);
+
+        // Load current balance and academic progress with term awareness
+        await loadBalanceAndProgressWithTerms(user.email, userData.form);
+
+        // Setup enhanced term navigation
+        setupEnhancedTermNavigation(userData.form);
+
+        // Load payment history for current term
+        await loadPaymentHistoryWithTermFilter(user.email);
+
+        // Load account activity
+        await loadAccountActivity(user.email);
+
       };
 
       // Initialize fees data structure - Enhanced
