@@ -2623,14 +2623,53 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
       }
 
       const notice = querySnapshot.docs[0].data();
-      let dateStr = 'unknown date';
+      let dateStr = 'No date available';
+      
       if (notice.timestamp) {
-        if (typeof notice.timestamp.toDate === 'function') {
-          dateStr = notice.timestamp.toDate().toLocaleDateString();
-        } else if (notice.timestamp instanceof Date) {
-          dateStr = notice.timestamp.toLocaleDateString();
-        } else if (typeof notice.timestamp === 'number') {
-          dateStr = new Date(notice.timestamp).toLocaleDateString();
+        try {
+          // Handle Firestore Timestamp object
+          if (typeof notice.timestamp.toDate === 'function') {
+            dateStr = notice.timestamp.toDate().toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          } 
+          // Handle Date object
+          else if (notice.timestamp instanceof Date) {
+            dateStr = notice.timestamp.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          }
+          // Handle timestamp string
+          else if (typeof notice.timestamp === 'string') {
+            dateStr = new Date(notice.timestamp).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          }
+          // Handle Unix timestamp (seconds)
+          else if (typeof notice.timestamp === 'number') {
+            dateStr = new Date(notice.timestamp * 1000).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          }
+        } catch (error) {
+          console.error('Error formatting date:', error);
+          dateStr = "Invalid date";
         }
       }
 
@@ -2639,7 +2678,7 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
           <h4 class="notice-title">${notice.updateTitle || 'School Notice'}</h4>
           <p>${notice.updateContent || 'No content available'}</p>
           <div class="notice-meta">
-            Posted on ${dateStr}
+            Posted by ${notice.teacherName || 'Staff'} on ${dateStr}
           </div>
         </div>
       `;
