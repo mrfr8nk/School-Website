@@ -2570,12 +2570,23 @@ document.getElementById('reportForm').addEventListener('submit', async (e) => {
       }
       
       const notice = querySnapshot.docs[0].data();
+      let dateStr = 'unknown date';
+      if (notice.timestamp) {
+        if (typeof notice.timestamp.toDate === 'function') {
+          dateStr = notice.timestamp.toDate().toLocaleDateString();
+        } else if (notice.timestamp instanceof Date) {
+          dateStr = notice.timestamp.toLocaleDateString();
+        } else if (typeof notice.timestamp === 'number') {
+          dateStr = new Date(notice.timestamp).toLocaleDateString();
+        }
+      }
+      
       noticesContainer.innerHTML = `
         <div class="notice-card">
           <h4 class="notice-title">${notice.updateTitle || 'School Notice'}</h4>
           <p>${notice.updateContent || 'No content available'}</p>
           <div class="notice-meta">
-            Posted on ${notice.timestamp?.toDate().toLocaleDateString() || 'unknown date'}
+            Posted on ${dateStr}
           </div>
         </div>
       `;
